@@ -187,6 +187,11 @@ public class category extends javax.swing.JFrame {
         jButton3.setBackground(new java.awt.Color(255, 255, 255));
         jButton3.setForeground(new java.awt.Color(204, 0, 51));
         jButton3.setText("Delete");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -360,6 +365,7 @@ public class category extends javax.swing.JFrame {
         }
     }
 }
+// Add Button
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
     // Add Category button logic
     String category = txtcat.getText();
@@ -408,7 +414,7 @@ public class category extends javax.swing.JFrame {
         txtcat.setText(dl.getValueAt(selectIndex, 1).toString());
         txtstatus.setSelectedItem(dl.getValueAt(selectIndex, 2).toString());
     }//GEN-LAST:event_jTable1MouseClicked
-
+// Edit Button
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
        try {
@@ -446,6 +452,49 @@ public class category extends javax.swing.JFrame {
         e.printStackTrace();
     }
     }//GEN-LAST:event_jButton2ActionPerformed
+// Delete Button
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+         try {
+        // Get the model from the table
+        DefaultTableModel dl = (DefaultTableModel) jTable1.getModel();
+        int selectIndex = jTable1.getSelectedRow(); // Get the selected row index
+
+        // Check if a row is selected
+        if (selectIndex == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a row to delete.");
+            return;
+        }
+
+        // Confirm deletion
+        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this record?", "Delete", JOptionPane.YES_NO_OPTION);
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        // Retrieve ID from the selected row
+        int id = Integer.parseInt(dl.getValueAt(selectIndex, 0).toString());
+
+        // Delete the record from the database
+        Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3307/supermarketdb", "root", "78563");
+        PreparedStatement pst = con.prepareStatement("DELETE FROM category WHERE id = ?");
+        pst.setInt(1, id);
+        pst.executeUpdate();
+
+        // Remove the row from the JTable
+        dl.removeRow(selectIndex);
+
+        // Show success message
+        JOptionPane.showMessageDialog(this, "Record Deleted Successfully");
+
+        // Optionally, clear input fields
+        txtcat.setText("");
+        txtstatus.setSelectedIndex(-1); // Reset the combo box
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+        e.printStackTrace();
+    }
+    }//GEN-LAST:event_jButton3ActionPerformed
 
     /**
      * @param args the command line arguments
