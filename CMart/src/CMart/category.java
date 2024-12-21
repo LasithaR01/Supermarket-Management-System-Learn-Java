@@ -178,6 +178,11 @@ public class category extends javax.swing.JFrame {
         jButton2.setBackground(new java.awt.Color(255, 255, 255));
         jButton2.setForeground(new java.awt.Color(0, 0, 0));
         jButton2.setText("Edit");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jButton3.setBackground(new java.awt.Color(255, 255, 255));
         jButton3.setForeground(new java.awt.Color(204, 0, 51));
@@ -243,6 +248,11 @@ public class category extends javax.swing.JFrame {
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
+            }
+        });
+        jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTable1MouseClicked(evt);
             }
         });
         jScrollPane1.setViewportView(jTable1);
@@ -389,6 +399,53 @@ public class category extends javax.swing.JFrame {
         }
     }
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
+        // TODO add your handling code here:
+        DefaultTableModel dl = (DefaultTableModel) jTable1.getModel();
+        int selectIndex = jTable1.getSelectedRow();
+        
+        txtcat.setText(dl.getValueAt(selectIndex, 1).toString());
+        txtstatus.setSelectedItem(dl.getValueAt(selectIndex, 2).toString());
+    }//GEN-LAST:event_jTable1MouseClicked
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+       try {
+        // Get the model from the table
+        DefaultTableModel dl = (DefaultTableModel) jTable1.getModel();
+        int selectIndex = jTable1.getSelectedRow(); // Get the selected row index
+        
+        // Retrieve ID from the table
+        int id = Integer.parseInt(dl.getValueAt(selectIndex, 0).toString());
+        
+        // Retrieve values from the text fields and combo box
+        String category = txtcat.getText();
+        String status = txtstatus.getSelectedItem().toString();
+        
+        // Update the record in the database
+        Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3307/supermarketdb", "root", "78563");
+        PreparedStatement pst = con.prepareStatement("UPDATE category SET category = ?, status = ? WHERE id = ?");
+        pst.setString(1, category);
+        pst.setString(2, status);
+        pst.setInt(3, id);
+        pst.executeUpdate();
+        
+        // Update the table model
+        dl.setValueAt(category, selectIndex, 1);
+        dl.setValueAt(status, selectIndex, 2);
+        
+        // Show success message
+        JOptionPane.showMessageDialog(this, "Record Updated Successfully");
+        
+        // Optionally, clear input fields
+        txtcat.setText("");
+        txtstatus.setSelectedIndex(-1); // Reset the combo box
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+        e.printStackTrace();
+    }
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
