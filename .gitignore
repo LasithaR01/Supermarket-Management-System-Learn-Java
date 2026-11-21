@@ -10,6 +10,7 @@
 /nbproject/private/
 # NetBeans build-generated files
 /nbproject/build-impl.xml
+/nbproject/genfiles.properties
 
 # --- Log files ---
 *.log
