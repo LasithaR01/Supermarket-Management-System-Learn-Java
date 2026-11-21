@@ -29,9 +29,12 @@ Full guide: [COMMIT_GUIDE.md](COMMIT_GUIDE.md)
 
 | When | Who | Type | Module | Note | Source |
 |------|-----|------|--------|------|--------|
+| 2026-11-22 02:12 | Lasitha Ransara | `chore` | `repo` | Merge pull request #15 from LasithaR01/feature | git `667591b` |
+| 2026-11-22 02:12 | Lasitha Ransara | `chore` | `general` | merge: resolve ACTIVITY.md conflict with regenerated timeline | git `3bfc7a9` |
 | 2026-11-22 02:09 | Lasitha Ransara | `docs` | `general` | Update activity log and commit guide with JSON format for entries | git `4d319f7` |
 | 2026-11-22 02:05 | Lasitha Ransara | `docs` | `general` | Update activity log and commit guide with GitHub Actions cleanup feature | git `d26f1bb` |
 | 2026-11-22 02:03 | Lasitha Ransara | `ci` | `ci` | Auto-delete GitHub Actions runs older than 2 days (keep Actions tab clean) | seed |
+| 2026-11-22 02:01 | Lasitha Ransara | `chore` | `repo` | Merge pull request #14 from LasithaR01/feature | git `5b64523` |
 | 2026-11-22 02:00 | Lasitha Ransara | `docs` | `general` | Add team activity log and commit guide to improve project documentation | git `cde9f84` |
 | 2026-11-22 01:54 | Lasitha Ransara | `docs` | `docs` | Add team ACTIVITY log + GitHub Action auto-update on push (dev/QA timeline) | seed |
 | 2026-11-22 01:12 | Lasitha Ransara | `refactor` | `ui` | Unify UI layout and enhance styling across customer, employee, and invoice panels | seed |
