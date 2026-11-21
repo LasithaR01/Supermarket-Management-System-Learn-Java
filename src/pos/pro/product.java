@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Vector;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -25,9 +26,37 @@ public class product extends javax.swing.JPanel {
     public product() {
         initComponents();
         tb_load();
-        UiTheme.apply(this);
-        
-        
+        showRunView();
+    }
+
+    private void showRunView() {
+        RunView.prepareTable(jScrollPane1, true);
+        JPanel form = RunView.grid();
+        RunView.place(form, RunView.stack(jLabel1, p_name), 0, 0, 1, 1);
+        RunView.place(form, RunView.stack(jLabel2, p_bcode), 1, 0, 1, 1);
+        RunView.place(form, RunView.stack(jLabel5, p_price), 0, 1, 1, 1);
+        RunView.place(form, RunView.stack(jLabel7, p_qty), 1, 1, 1, 1);
+        RunView.place(form, RunView.stack(jLabel6, p_sid), 0, 2, 1, 1);
+        RunView.place(form, RunView.stack(jLabel3, p_src), 1, 2, 1, 1);
+        jButton3.setPreferredSize(new java.awt.Dimension(120, 36));
+        RunView.place(form, jButton3, 1, 3, 1, 0);
+
+        JPanel find = RunView.grid();
+        RunView.place(find, RunView.stack(jLabel8, c_search_tbl), 0, 0, 1, 0.5);
+
+        JPanel top = new javax.swing.JPanel(new java.awt.BorderLayout(0, 10));
+        top.setOpaque(false);
+        top.putClientProperty(UiTheme.KEEP, Boolean.TRUE);
+        top.add(RunView.card(form), java.awt.BorderLayout.NORTH);
+        top.add(RunView.actions(jButton4, jButton2, jButton1), java.awt.BorderLayout.SOUTH);
+
+        JPanel list = new javax.swing.JPanel(new java.awt.BorderLayout(0, 8));
+        list.setOpaque(false);
+        list.putClientProperty(UiTheme.KEEP, Boolean.TRUE);
+        list.add(find, java.awt.BorderLayout.NORTH);
+        list.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+
+        RunView.install(this, RunView.page(top, list, null));
     }
 
   public void tb_load(){

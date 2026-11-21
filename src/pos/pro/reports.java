@@ -6,6 +6,8 @@
 package pos.pro;
 
 import java.util.HashMap;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 
 
@@ -24,7 +26,21 @@ public class reports extends javax.swing.JPanel {
      */
     public reports() {
         initComponents();
-        UiTheme.apply(this);
+        showRunView();
+    }
+
+    private void showRunView() {
+        JLabel hint = new JLabel("Open every sale, or type one invoice number and view that bill.");
+        hint.setFont(UiTheme.FONT);
+        hint.setForeground(UiTheme.MUTED);
+        JPanel form = RunView.grid();
+        RunView.place(form, hint, 0, 0, 2, 1);
+        RunView.place(form, jButton1, 0, 1, 1, 0);
+        RunView.place(form, RunView.stack(jLabel5, para_inid), 0, 2, 1, 0.4);
+        RunView.place(form, jButton2, 1, 2, 1, 0);
+        jButton1.setPreferredSize(new java.awt.Dimension(180, 40));
+        jButton2.setPreferredSize(new java.awt.Dimension(120, 38));
+        RunView.install(this, RunView.page(RunView.card(form), null, null));
     }
 
     /**

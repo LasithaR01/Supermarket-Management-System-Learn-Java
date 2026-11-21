@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Vector;
+import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -19,8 +20,18 @@ public class Invoice extends javax.swing.JPanel {
     public Invoice() {
         initComponents();
         datalad();
-        UiTheme.apply(this);
-        
+        showRunView();
+    }
+
+    private void showRunView() {
+        RunView.prepareTable(jScrollPane1, true);
+        JPanel filters = RunView.grid();
+        RunView.place(filters, RunView.stack(jLabel5, inid), 0, 0, 1, 1);
+        RunView.place(filters, RunView.stack(jLabel6, cus_name), 1, 0, 1, 1);
+        RunView.place(filters, RunView.stack(jLabel7, com_status), 2, 0, 1, 0.7);
+        jButton1.setPreferredSize(new java.awt.Dimension(120, 36));
+        RunView.place(filters, jButton1, 3, 0, 1, 0);
+        RunView.install(this, RunView.page(RunView.card(filters), jScrollPane1, null));
     }
 
     
