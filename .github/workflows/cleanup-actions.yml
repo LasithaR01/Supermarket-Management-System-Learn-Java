@@ -1,0 +1,33 @@
+name: Cleanup old Actions runs
+
+# Keeps the Actions tab clean: every 2 days, delete runs older than 2 days.
+on:
+  schedule:
+    # 03:00 UTC every 2 days (1st, 3rd, 5th, … of month)
+    - cron: "0 3 1-31/2 * *"
+  workflow_dispatch:
+    inputs:
+      retain_days:
+        description: "Delete runs older than this many days"
+        required: false
+        default: "2"
+      keep_minimum:
+        description: "Always keep at least this many newest runs (per workflow)"
+        required: false
+        default: "3"
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete old workflow runs
+        uses: Mattraks/delete-workflow-runs@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          retain_days: ${{ github.event.inputs.retain_days || 2 }}
+          keep_minimum_runs: ${{ github.event.inputs.keep_minimum || 3 }}
