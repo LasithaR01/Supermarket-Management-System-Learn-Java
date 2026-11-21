@@ -13,17 +13,23 @@ import cmart.ui.theme.UiTheme;
 import cmart.util.ReportPaths;
 
 import cmart.db.ConnectionFactory;
+import cmart.model.Product;
+import cmart.service.ProductService;
+import cmart.service.SaleService;
 
 import java.awt.HeadlessException;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Vector;
+import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JLabel;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -34,11 +40,15 @@ public class SalePanel extends javax.swing.JPanel {
 
     public static String barcode_c = "0" ;
     public static String cus_id = "0";
+
+    private final SaleService saleService = new SaleService();
+    private final ProductService productService = new ProductService();
     
     public SalePanel() {
         initComponents();
        data_load();
        stylePanel();
+       bindShortcuts();
     }
 
   public void data_load(){
@@ -85,44 +95,25 @@ public class SalePanel extends javax.swing.JPanel {
             System.out.println(e);
       }  
       
-      // load last invoice number
-      
+      // next invoice preview (reserved only on successful Pay)
       try {
-          
-        Statement s = ConnectionFactory.getConnection().createStatement();
-          ResultSet rs = s.executeQuery("SELECT * FROM extra WHERE exid =1");
-          
-          if (rs.next()) {
-              
-              inid.setText(rs.getString("val"));
-              
-          }
-          
+          inid.setText(saleService.peekNextInvoiceNumber());
       } catch (Exception e) {
+          inid.setText("1");
+          System.out.println(e);
       }
-     
-      // pluss new invoice
-      int i = Integer.valueOf(inid.getText());
-      i++;
-      inid.setText(String.valueOf(i));
-      
-      
-      
-      
   }
     
  public void pro_tot_cal(){
  
   // product calculation
-         
-        Double qt = Double.valueOf(p_qty.getText());
-        Double price = Double.valueOf(u_price.getText());
-        Double tot ;
-        
-        tot = qt * price;
-        
-        tot_price.setText(String.valueOf(tot));
- 
+        try {
+            Double qt = Double.valueOf(p_qty.getText().trim());
+            Double price = Double.valueOf(u_price.getText().trim());
+            tot_price.setText(String.valueOf(qt * price));
+        } catch (NumberFormatException e) {
+            tot_price.setText("0.00");
+        }
  }   
  
  public void cart_total(){
@@ -157,16 +148,74 @@ public class SalePanel extends javax.swing.JPanel {
  }
  
  public void tot(){
-     
- Double paid = Double.valueOf(paid_amt.getText());
-       Double tot = Double.valueOf(bill_tot.getText());
-       Double due ;
-       
-       due =  paid -tot ;
-       
-       balance.setText(String.valueOf(due));
- 
+     try {
+         String paidText = paid_amt.getText() == null ? "" : paid_amt.getText().trim();
+         if (paidText.isEmpty()) {
+             balance.setText("0.00");
+             return;
+         }
+         Double paid = Double.valueOf(paidText);
+         Double tot = Double.valueOf(bill_tot.getText());
+         balance.setText(String.valueOf(paid - tot));
+     } catch (NumberFormatException e) {
+         balance.setText("0.00");
+     }
  }
+
+    private double qtyAlreadyInCart(String barcode) {
+        double sum = 0;
+        DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
+        for (int i = 0; i < dt.getRowCount(); i++) {
+            if (barcode.equals(String.valueOf(dt.getValueAt(i, 2)))) {
+                sum += Double.parseDouble(String.valueOf(dt.getValueAt(i, 3)));
+            }
+        }
+        return sum;
+    }
+
+    private void refreshInvoicePreview() {
+        try {
+            inid.setText(saleService.peekNextInvoiceNumber());
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+    }
+
+    private void clearCartAfterPay() {
+        DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
+        dt.setRowCount(0);
+        paid_amt.setText("");
+        bill_tot.setText("0.00");
+        tot_qty.setText("0");
+        balance.setText("0.00");
+        p_qty.setText("1");
+        tot_price.setText("0.00");
+        refreshInvoicePreview();
+    }
+
+    private void bindShortcuts() {
+        jButton1.setText("Add to Cart (Enter)");
+        jButton4.setText("Pay & Print (F2)");
+
+        p_qty.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent evt) {
+                if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+                    jButton1.doClick();
+                    evt.consume();
+                }
+            }
+        });
+
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0), "salePay");
+        getActionMap().put("salePay", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                jButton4.doClick();
+            }
+        });
+    }
  
  
  
@@ -372,33 +421,24 @@ public class SalePanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void com_proActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_com_proActionPerformed
-        // load unit price
-       
-        String  name =com_pro.getSelectedItem().toString();
+        if (com_pro.getSelectedItem() == null) {
+            return;
+        }
+        String name = com_pro.getSelectedItem().toString();
         try {
-            
-            Statement s = ConnectionFactory.getConnection().createStatement();
-            ResultSet rs = s.executeQuery("SELECT Bar_code,Price FROM product  WHERE Product_Name ='"+name+"'  ");
-            if (rs.next()) {
-                 
-               
-                u_price.setText(rs.getString("Price"));
-                br_code.setText(rs.getString("Bar_code"));
-             
-                
-                
+            Product product = productService.getByName(name);
+            if (product != null) {
+                u_price.setText(product.getPrice());
+                br_code.setText(product.getBarcode());
+                if (p_qty.getText() == null || p_qty.getText().trim().isEmpty()) {
+                    p_qty.setText("1");
+                }
+                p_qty.setToolTipText("In stock: " + product.getQty());
             }
-          
-        
-        
-             pro_tot_cal();
-            
-            
+            pro_tot_cal();
         } catch (SQLException e) {
             System.out.println(e);
         }
-        
-        
     }//GEN-LAST:event_com_proActionPerformed
 
     private void p_qtyKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_p_qtyKeyReleased
@@ -408,53 +448,90 @@ public class SalePanel extends javax.swing.JPanel {
     }//GEN-LAST:event_p_qtyKeyReleased
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        //add  cart to product details 
-        
-       
-       DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
-        
+        if (com_pro.getSelectedItem() == null) {
+            JOptionPane.showMessageDialog(this, "Select a product first.");
+            return;
+        }
+
+        String barcode = br_code.getText();
+        String qtyText = p_qty.getText() == null ? "" : p_qty.getText().trim();
+        double qty;
+        try {
+            qty = Double.parseDouble(qtyText);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Enter a valid quantity.");
+            p_qty.requestFocus();
+            return;
+        }
+
+        try {
+            String error = saleService.validateSaleQty(barcode, qty, qtyAlreadyInCart(barcode));
+            if (error != null) {
+                JOptionPane.showMessageDialog(this, error);
+                p_qty.requestFocus();
+                return;
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Could not check stock: " + e.getMessage());
+            return;
+        }
+
+        pro_tot_cal();
+
+        DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
         Vector v = new Vector();
-        
-        v.add(inid.getText()); // invoice id
-        v.add(com_pro.getSelectedItem().toString()); // product name
-        v.add(br_code.getText()); // barcode
-        v.add(p_qty.getText()); // p qyt
-        v.add(u_price.getText()); // unit price
-        v.add(tot_price.getText()); // get totle price
-        
+        v.add(inid.getText());
+        v.add(com_pro.getSelectedItem().toString());
+        v.add(barcode);
+        v.add(qtyText);
+        v.add(u_price.getText());
+        v.add(tot_price.getText());
         dt.addRow(v);
-        
+
         cart_total();
-         tot(); 
-        
+        tot();
+        p_qty.setText("1");
+        pro_tot_cal();
+        p_qty.requestFocus();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // selected remove
-        try {
-            
-            DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
-            int rw = jTable1.getSelectedRow();
-           
-            dt.removeRow(rw);
-            
-            
-        } catch (Exception e) {
+        int rw = jTable1.getSelectedRow();
+        if (rw < 0) {
+            JOptionPane.showMessageDialog(this, "Select a cart line to remove.");
+            return;
         }
-        
-        cart_total(); 
-         tot(); 
-        
-        
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Remove the selected line from the cart?",
+                "Confirm remove",
+                JOptionPane.YES_NO_OPTION);
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
+        dt.removeRow(rw);
+        cart_total();
+        tot();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // remove all
         DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
+        if (dt.getRowCount() == 0) {
+            return;
+        }
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Remove all items from the cart?",
+                "Confirm remove all",
+                JOptionPane.YES_NO_OPTION);
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
         dt.setRowCount(0);
-        
-         cart_total();
-         tot(); 
+        cart_total();
+        tot();
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void paid_amtKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_paid_amtKeyReleased
@@ -465,111 +542,135 @@ public class SalePanel extends javax.swing.JPanel {
     }//GEN-LAST:event_paid_amtKeyReleased
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // data send to databace
-        
+        DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
+        int rc = dt.getRowCount();
+        if (rc == 0) {
+            JOptionPane.showMessageDialog(this, "Cart is empty.");
+            return;
+        }
+        if (com_cus.getSelectedItem() == null) {
+            JOptionPane.showMessageDialog(this, "Select a customer.");
+            return;
+        }
+
+        String paidText = paid_amt.getText() == null ? "" : paid_amt.getText().trim();
+        if (paidText.isEmpty()) {
+            paidText = "0";
+            paid_amt.setText("0");
+        }
+        double paidAmt;
+        double billTotal;
         try {
-            
-            // `cartid`, `INID`, `Product_Name`, `Bar_code`, `qty`, `Unit_Price`, `Total_Price`
-            
-          DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
-          int rc = dt.getRowCount();
-          
+            paidAmt = Double.parseDouble(paidText);
+            billTotal = Double.parseDouble(bill_tot.getText());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Paid amount is invalid.");
+            paid_amt.requestFocus();
+            return;
+        }
+
+        // Block pay if any line exceeds live stock
+        try {
             for (int i = 0; i < rc; i++) {
-                
-                String inid = dt.getValueAt(i, 0).toString(); // get inid
-                String P_name = dt.getValueAt(i, 1).toString(); // get product name
-                String bar_code = dt.getValueAt(i, 2).toString(); // get barcode
-                String qty = dt.getValueAt(i, 3).toString(); // get product qty
-                String un_price = dt.getValueAt(i, 4).toString(); // get product unit price
-                String tot_price = dt.getValueAt(i, 5).toString(); // get product total Price
-            
-                // cart DB
-             Statement s = ConnectionFactory.getConnection().createStatement();
-             s.executeUpdate(" INSERT INTO cart (INID, Product_Name, Bar_code, qty, Unit_Price, Total_Price) VALUES ('"+inid+"','"+P_name+"','"+bar_code+"','"+qty+"','"+un_price+"','"+tot_price+"') ");
-           
+                String bar_code = dt.getValueAt(i, 2).toString();
+                double qty = Double.parseDouble(dt.getValueAt(i, 3).toString());
+                // alreadyInCart=0: each line checked alone; sum same barcode lines first
+                double priorSameBarcode = 0;
+                for (int j = 0; j < i; j++) {
+                    if (bar_code.equals(dt.getValueAt(j, 2).toString())) {
+                        priorSameBarcode += Double.parseDouble(dt.getValueAt(j, 3).toString());
+                    }
+                }
+                String error = saleService.validateSaleQty(bar_code, qty, priorSameBarcode);
+                if (error != null) {
+                    JOptionPane.showMessageDialog(this, "Cannot pay:\n" + error);
+                    return;
+                }
             }
-            
-                JOptionPane.showMessageDialog(null, "Saved");
-            
-        } catch (HeadlessException | SQLException e) {
-            System.out.println(e);
+        } catch (SQLException | NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Stock check failed: " + e.getMessage());
+            return;
         }
-  
+
+        String inv_id;
         try {
-            
-            
-            // sales DB
-             
-             //`saleid`, `INID`, `Cid`, `Customer_Name`, `Total_Qty`, `Total_Bill`, `Status`, `Balance`
-            String inv_id = inid.getText();
-            String cname  = com_cus.getSelectedItem().toString();
-            String totqty = tot_qty.getText();
-            String tot_bil = bill_tot.getText();           
-            String blnc = balance.getText();
-            
-             // paid check
-             
-             Double tot = Double.valueOf(bill_tot.getText());
-             Double pid = Double.valueOf(paid_amt.getText());
-             String Status = null;
-             if (pid.equals(0.0)) {
-                 
-                Status = "UnPaid";
-                
-            }else if (tot>pid) {
-                 Status = "Partial";
-                 
-            }else if (tot<=pid) {
-                Status = "Paid";
+            inv_id = saleService.allocateInvoiceNumber();
+            inid.setText(inv_id);
+            for (int i = 0; i < rc; i++) {
+                dt.setValueAt(inv_id, i, 0);
             }
-             
-            
-            
-             
-             Statement ss = ConnectionFactory.getConnection().createStatement();
-             ss.executeUpdate("INSERT INTO sales(INID, Cid, Customer_Name, Total_Qty, Total_Bill, Status, Balance) VALUES('"+inv_id+"','"+cus_id+"','"+cname+"','"+totqty+"','"+tot_bil+"','"+Status+"','"+blnc+"')");
-             
-            
-            
-        } catch (NumberFormatException | SQLException e) {
-            System.out.println(e);
-        }
-  
-        // save las inid number
-        try {
-            
-           String id = inid.getText(); 
-            Statement s = ConnectionFactory.getConnection().createStatement();
-            s.executeUpdate("UPDATE  extra SET val='"+id+"' WHERE exid = 1");
-            
-            
         } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Could not allocate invoice number: " + e.getMessage());
+            return;
+        }
+
+        // Deduct stock first so we never save a bill without stock movement
+        try {
+            for (int i = 0; i < rc; i++) {
+                String bar_code = dt.getValueAt(i, 2).toString();
+                double qty = Double.parseDouble(dt.getValueAt(i, 3).toString());
+                String stockError = saleService.deductStock(bar_code, qty);
+                if (stockError != null) {
+                    JOptionPane.showMessageDialog(this, stockError + "\nSale was not saved.");
+                    refreshInvoicePreview();
+                    return;
+                }
+            }
+        } catch (SQLException | NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Stock deduct failed: " + e.getMessage());
+            refreshInvoicePreview();
+            return;
+        }
+
+        try {
+            for (int i = 0; i < rc; i++) {
+                String P_name = dt.getValueAt(i, 1).toString();
+                String bar_code = dt.getValueAt(i, 2).toString();
+                String qty = dt.getValueAt(i, 3).toString();
+                String un_price = dt.getValueAt(i, 4).toString();
+                String line_tot = dt.getValueAt(i, 5).toString();
+
+                Statement s = ConnectionFactory.getConnection().createStatement();
+                s.executeUpdate(" INSERT INTO cart (INID, Product_Name, Bar_code, qty, Unit_Price, Total_Price) VALUES ('"
+                        + inv_id + "','" + P_name + "','" + bar_code + "','" + qty + "','" + un_price + "','" + line_tot + "') ");
+            }
+        } catch (HeadlessException | SQLException e) {
+            JOptionPane.showMessageDialog(this, "Could not save cart lines: " + e.getMessage());
+            System.out.println(e);
+            refreshInvoicePreview();
+            return;
+        }
+
+        try {
+            String cname = com_cus.getSelectedItem().toString();
+            String totqty = tot_qty.getText();
+            String tot_bil = bill_tot.getText();
+            tot();
+            String blnc = balance.getText();
+            String Status = SaleService.paymentStatus(billTotal, paidAmt);
+
+            Statement ss = ConnectionFactory.getConnection().createStatement();
+            ss.executeUpdate("INSERT INTO sales(INID, Cid, Customer_Name, Total_Qty, Total_Bill, Status, Balance) VALUES('"
+                    + inv_id + "','" + cus_id + "','" + cname + "','" + totqty + "','" + tot_bil + "','" + Status + "','" + blnc + "')");
+        } catch (NumberFormatException | SQLException e) {
+            JOptionPane.showMessageDialog(this, "Could not save sale: " + e.getMessage());
+            System.out.println(e);
+            refreshInvoicePreview();
+            return;
+        }
+
+        JOptionPane.showMessageDialog(this, "Sale saved. Invoice " + inv_id);
+
+        try {
+            HashMap para = new HashMap();
+            para.put("inv_id", inv_id);
+            ReportView r = new ReportView(ReportPaths.jasper("print.jasper"), para);
+            r.setVisible(true);
+        } catch (Exception e) {
             System.out.println(e);
         }
-        
-       
-        // Print or view ireport bill
-        
-        
-        try {
-            
-           
-        HashMap para = new HashMap();
-        
-        para.put("inv_id", inid.getText());  // inv_id  is ireport parameter name
-        
-        ReportView r =new ReportView(ReportPaths.jasper("print.jasper"), para);
-        r.setVisible(true);  
-            
-            
-            
-        } catch (Exception e) {
-        }
-        
-        
-        
-        
-        
+
+        clearCartAfterPay();
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void com_cusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_com_cusActionPerformed
