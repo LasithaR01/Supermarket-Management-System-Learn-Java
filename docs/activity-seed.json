@@ -1,0 +1,268 @@
+[
+  {
+    "when": "2024-12-12 19:38",
+    "who": "Lasitha Ransara",
+    "type": "chore",
+    "module": "repo",
+    "note": "Initial commit — repository created"
+  },
+  {
+    "when": "2024-12-13 09:58",
+    "who": "Lasitha Ransara",
+    "type": "chore",
+    "module": "repo",
+    "note": "Project setup for supermarket management learning project"
+  },
+  {
+    "when": "2024-12-15 11:55",
+    "who": "Lasitha Ransara",
+    "type": "docs",
+    "module": "docs",
+    "note": "Added ER diagram (ER-Supermarket.png)"
+  },
+  {
+    "when": "2024-12-15 13:28",
+    "who": "Lasitha Ransara",
+    "type": "feat",
+    "module": "product",
+    "note": "Create Product model"
+  },
+  {
+    "when": "2024-12-15 13:39",
+    "who": "Lasitha Ransara",
+    "type": "feat",
+    "module": "employee",
+    "note": "Create Department model"
+  },
+  {
+    "when": "2024-12-15 13:54",
+    "who": "Lasitha Ransara",
+    "type": "feat",
+    "module": "employee",
+    "note": "Create Employee model"
+  },
+  {
+    "when": "2024-12-15 13:59",
+    "who": "Lasitha Ransara",
+    "type": "feat",
+    "module": "customer",
+    "note": "Create Customer model"
+  },
+  {
+    "when": "2024-12-15 14:02",
+    "who": "Lasitha Ransara",
+    "type": "feat",
+    "module": "sales",
+    "note": "Create Promotion model"
+  },
+  {
+    "when": "2024-12-15 14:05",
+    "who": "Lasitha Ransara",
+    "type": "feat",
+    "module": "sales",
+    "note": "Create SalesFacts model"
+  },
+  {
+    "when": "2024-12-15 16:17",
+    "who": "Lasitha Ransara",
+    "type": "feat",
+    "module": "db",
+    "note": "Connect MySQL database"
+  },
+  {
+    "when": "2024-12-16 19:08",
+    "who": "Lasitha Ransara",
+    "type": "chore",
+    "module": "repo",
+    "note": "Delete / rebuild project structure"
+  },
+  {
+    "when": "2024-12-16 20:21",
+    "who": "Lasitha Ransara",
+    "type": "chore",
+    "module": "repo",
+    "note": "Project build again"
+  },
+  {
+    "when": "2024-12-20 17:03",
+    "who": "Lasitha Ransara",
+    "type": "feat",
+    "module": "product",
+    "note": "Create Category interface (JFrame)"
+  },
+  {
+    "when": "2024-12-20 19:26",
+    "who": "Lasitha Ransara",
+    "type": "feat",
+    "module": "product",
+    "note": "Add Category table UI"
+  },
+  {
+    "when": "2024-12-21 01:24",
+    "who": "Lasitha Ransara",
+    "type": "feat",
+    "module": "product",
+    "note": "Category table coding"
+  },
+  {
+    "when": "2024-12-21 12:47",
+    "who": "Lasitha Ransara",
+    "type": "feat",
+    "module": "product",
+    "note": "Category Edit button"
+  },
+  {
+    "when": "2024-12-21 13:06",
+    "who": "Lasitha Ransara",
+    "type": "feat",
+    "module": "product",
+    "note": "Category Delete button"
+  },
+  {
+    "when": "2024-12-23 23:59",
+    "who": "Lasitha Ransara",
+    "type": "feat",
+    "module": "product",
+    "note": "Brand model coding"
+  },
+  {
+    "when": "2026-11-21 22:51",
+    "who": "Lasitha Ransara",
+    "type": "chore",
+    "module": "repo",
+    "note": "NetBeans / CMart POS project setup on current tree"
+  },
+  {
+    "when": "2026-11-21 22:55",
+    "who": "Lasitha Ransara",
+    "type": "chore",
+    "module": "repo",
+    "note": "Update .gitignore"
+  },
+  {
+    "when": "2026-11-21 23:20",
+    "who": "Lasitha Ransara",
+    "type": "feat",
+    "module": "ui",
+    "note": "Shared UiTheme + Home shell with welcome cards; clearer labels and button colors"
+  },
+  {
+    "when": "2026-11-21 23:27",
+    "who": "Lasitha Ransara",
+    "type": "feat",
+    "module": "ui",
+    "note": "Refactor UI components and improve UX (feature branch)"
+  },
+  {
+    "when": "2026-11-21 23:34",
+    "who": "Lasitha Ransara",
+    "type": "docs",
+    "module": "docs",
+    "note": "Create / update README with CMart setup instructions"
+  },
+  {
+    "when": "2026-11-21 23:39",
+    "who": "Lasitha Ransara",
+    "type": "fix",
+    "module": "ui",
+    "note": "Align Home Design path toward NetBeans Design view (run vs designer mismatch)"
+  },
+  {
+    "when": "2026-11-21 23:42",
+    "who": "Lasitha Ransara",
+    "type": "feat",
+    "module": "ui",
+    "note": "RunView layouts applied so Run screens use friendly layout before Design forms"
+  },
+  {
+    "when": "2026-11-21 23:52",
+    "who": "Lasitha Ransara",
+    "type": "feat",
+    "module": "ui",
+    "note": "Enhance UI functionality and layout across multiple components"
+  },
+  {
+    "when": "2026-11-21 23:55",
+    "who": "Lasitha Ransara",
+    "type": "chore",
+    "module": "repo",
+    "note": "Stop tracking generated NetBeans build/dist/private files; tighten .gitignore"
+  },
+  {
+    "when": "2026-11-22 00:08",
+    "who": "Lasitha Ransara",
+    "type": "docs",
+    "module": "docs",
+    "note": "Smart POS vision: grow app into fast real-world POS; list modules to update step by step"
+  },
+  {
+    "when": "2026-11-22 00:10",
+    "who": "Lasitha Ransara",
+    "type": "docs",
+    "module": "docs",
+    "note": "Create docs/SMART_POS_ROADMAP.md, MODULES.md, CHANGELOG.md"
+  },
+  {
+    "when": "2026-11-22 00:16",
+    "who": "Lasitha Ransara",
+    "type": "refactor",
+    "module": "repo",
+    "note": "World-class layered package structure (config/db/model/dao/service/ui)"
+  },
+  {
+    "when": "2026-11-22 00:24",
+    "who": "Lasitha Ransara",
+    "type": "refactor",
+    "module": "repo",
+    "note": "Flatten package to src/cmart/ (remove deep com/cmart/pos folders)"
+  },
+  {
+    "when": "2026-11-22 00:26",
+    "who": "Lasitha Ransara",
+    "type": "docs",
+    "module": "docs",
+    "note": "Discuss public repo copyright / All Rights Reserved vs private repo"
+  },
+  {
+    "when": "2026-11-22 00:34",
+    "who": "Lasitha Ransara",
+    "type": "docs",
+    "module": "docs",
+    "note": "Recreate docs + layered cmart restructure after chat reset"
+  },
+  {
+    "when": "2026-11-22 00:39",
+    "who": "Lasitha Ransara",
+    "type": "refactor",
+    "module": "repo",
+    "note": "Clean up project structure and remove unused legacy files"
+  },
+  {
+    "when": "2026-11-22 00:56",
+    "who": "Lasitha Ransara",
+    "type": "fix",
+    "module": "ui",
+    "note": "Sync HomeFrame Design = Run (green shell + welcome cards in .form)"
+  },
+  {
+    "when": "2026-11-22 01:00",
+    "who": "Lasitha Ransara",
+    "type": "fix",
+    "module": "ui",
+    "note": "Sync Design = Run for all screens (Products, Sales, Invoices, Reports, Customers, Suppliers, Employees)"
+  },
+  {
+    "when": "2026-11-22 01:12",
+    "who": "Lasitha Ransara",
+    "type": "refactor",
+    "module": "ui",
+    "note": "Unify UI layout and enhance styling across customer, employee, and invoice panels"
+  },
+  {
+    "when": "2026-11-22 01:54",
+    "who": "Lasitha Ransara",
+    "type": "docs",
+    "module": "docs",
+    "note": "Add team ACTIVITY log + GitHub Action auto-update on push (dev/QA timeline)"
+  }
+]

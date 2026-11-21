@@ -6,10 +6,12 @@ A Java Swing-based Point of Sale (POS) and Inventory Management System. This pro
 
 | File | What it covers |
 |------|----------------|
+| [docs/ACTIVITY.md](docs/ACTIVITY.md) | Team timeline — who / when / module / feat·fix·docs (auto on push) |
+| [docs/COMMIT_GUIDE.md](docs/COMMIT_GUIDE.md) | How to write commits so ACTIVITY stays clean |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Package layout (`cmart`) and layers |
 | [docs/SMART_POS_ROADMAP.md](docs/SMART_POS_ROADMAP.md) | Step-by-step plan to grow into a real-world smart POS |
 | [docs/MODULES.md](docs/MODULES.md) | Current modules + status (Done / Needs update / Planned) |
-| [docs/CHANGELOG.md](docs/CHANGELOG.md) | What changed over time |
+| [docs/CHANGELOG.md](docs/CHANGELOG.md) | Milestone changelog |
 
 ## Prerequisites
 

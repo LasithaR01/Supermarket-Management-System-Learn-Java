@@ -1,0 +1,48 @@
+name: Update activity log
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: activity-log-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  activity:
+    runs-on: ubuntu-latest
+    # Avoid infinite loop when the bot commits ACTIVITY.md
+    if: github.actor != 'github-actions[bot]' && !contains(github.event.head_commit.message, 'docs(activity):')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Generate ACTIVITY.md
+        run: python scripts/generate_activity.py
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/ACTIVITY.md
+          if git diff --staged --quiet; then
+            echo "ACTIVITY.md unchanged"
+            exit 0
+          fi
+          git commit -m "docs(activity): auto-update team activity log"
+          git push
