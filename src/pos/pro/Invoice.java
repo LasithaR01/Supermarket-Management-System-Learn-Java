@@ -19,6 +19,7 @@ public class Invoice extends javax.swing.JPanel {
     public Invoice() {
         initComponents();
         datalad();
+        UiTheme.apply(this);
         
     }
 
@@ -126,7 +127,7 @@ public class Invoice extends javax.swing.JPanel {
 
             },
             new String [] {
-                "SaleID", "INID", "CID", "Customer_Name", "Total Qty", "Total Bill", "Status", "Balance"
+                "Sale ID", "Invoice No", "Customer ID", "Customer", "Total Qty", "Total Bill", "Status", "Balance"
             }
         ));
         jScrollPane1.setViewportView(jTable1);
@@ -145,10 +146,10 @@ public class Invoice extends javax.swing.JPanel {
         jPanel3.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel5.setText("INID :");
+        jLabel5.setText("Invoice No :");
 
         inid.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        inid.setText("0");
+        inid.setText("");
         inid.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 inidKeyReleased(evt);
@@ -159,7 +160,7 @@ public class Invoice extends javax.swing.JPanel {
         jLabel6.setText("Customer Name :");
 
         cus_name.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        cus_name.setText("0");
+        cus_name.setText("");
         cus_name.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 cus_nameKeyReleased(evt);

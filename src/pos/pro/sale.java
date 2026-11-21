@@ -27,6 +27,7 @@ public class sale extends javax.swing.JPanel {
     public sale() {
         initComponents();
        data_load();
+       UiTheme.apply(this);
         
     }
 
@@ -335,7 +336,7 @@ public class sale extends javax.swing.JPanel {
 
             },
             new String [] {
-                "INID", "Name", "Bar code", "Qty", "Unit Price", "Total Price"
+                "Invoice No", "Product", "Barcode", "Qty", "Unit Price", "Total"
             }
         ));
         jScrollPane1.setViewportView(jTable1);
@@ -672,7 +673,7 @@ public class sale extends javax.swing.JPanel {
            
             }
             
-                JOptionPane.showMessageDialog(null, "Data Seved");
+                JOptionPane.showMessageDialog(null, "Saved");
             
         } catch (HeadlessException | SQLException e) {
             System.out.println(e);
