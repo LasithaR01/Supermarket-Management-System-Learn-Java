@@ -27,10 +27,22 @@ public class supplier extends javax.swing.JPanel {
         
         initComponents();
         tb_load();
-        UiTheme.apply(this);
-        
-        
-        
+        showRunView();
+    }
+
+    private void showRunView() {
+        RunView.showPeople(this, "Supplier", jTabbedPane1,
+                jLabel3, c_search, jButton3,
+                jLabel1, c_name, jLabel2, c_tp,
+                jLabel6, jScrollPane2, jLabel7, jScrollPane4, same,
+                jLabel10, c_bank, jLabel11, c_city,
+                jLabel9, c_person, jLabel8, cp_name, jLabel12, cp_tp,
+                jLabel13, cp_email, jLabel14, cp_online,
+                jButton4, jButton2, jButton1,
+                jLabel5, c_search_tbl, jLabel16, sh_city, jLabel19, sh_tp,
+                jLabel18, sh_cp, jLabel17, sh_pn,
+                jScrollPane1, null,
+                jButton5, jLabel4, cid, jButton6);
     }
 
   public void tb_load(){

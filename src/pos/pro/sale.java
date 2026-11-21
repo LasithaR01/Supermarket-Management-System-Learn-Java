@@ -12,7 +12,9 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Vector;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -27,8 +29,55 @@ public class sale extends javax.swing.JPanel {
     public sale() {
         initComponents();
        data_load();
-       UiTheme.apply(this);
-        
+       showRunView();
+    }
+
+    private void showRunView() {
+        RunView.prepareTable(jScrollPane1, true);
+        bill_tot.setBorder(null);
+        balance.setBorder(null);
+        jLabel2.setText("Invoice No");
+        JLabel barcodeCaption = new JLabel("Barcode");
+
+        JPanel entry = RunView.grid();
+        RunView.place(entry, RunView.stack(jLabel2, inid), 0, 0, 1, 0.4);
+        RunView.place(entry, RunView.stack(jLabel3, com_cus), 0, 1, 1, 1);
+        RunView.place(entry, RunView.stack(jLabel4, com_pro), 1, 1, 1, 1);
+        RunView.place(entry, RunView.stack(jLabel5, p_qty), 2, 1, 1, 0.5);
+        RunView.place(entry, RunView.stack(barcodeCaption, br_code), 0, 2, 1, 0.5);
+        RunView.place(entry, RunView.stack(jLabel6, u_price), 1, 2, 1, 0.5);
+        RunView.place(entry, RunView.stack(jLabel7, tot_price), 2, 2, 1, 0.5);
+
+        jButton1.setPreferredSize(new java.awt.Dimension(148, 38));
+        jButton2.setPreferredSize(new java.awt.Dimension(148, 38));
+        jButton3.setPreferredSize(new java.awt.Dimension(148, 38));
+
+        javax.swing.JPanel cartButtons = new javax.swing.JPanel();
+        cartButtons.setOpaque(false);
+        cartButtons.putClientProperty(UiTheme.KEEP, Boolean.TRUE);
+        cartButtons.setLayout(new javax.swing.BoxLayout(cartButtons, javax.swing.BoxLayout.Y_AXIS));
+        cartButtons.setBorder(new javax.swing.border.EmptyBorder(0, 8, 0, 0));
+        cartButtons.add(jButton1);
+        cartButtons.add(javax.swing.Box.createVerticalStrut(8));
+        cartButtons.add(jButton2);
+        cartButtons.add(javax.swing.Box.createVerticalStrut(8));
+        cartButtons.add(jButton3);
+
+        javax.swing.JPanel cart = new javax.swing.JPanel(new java.awt.BorderLayout(8, 0));
+        cart.setOpaque(false);
+        cart.putClientProperty(UiTheme.KEEP, Boolean.TRUE);
+        cart.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+        cart.add(cartButtons, java.awt.BorderLayout.EAST);
+
+        JPanel pay = RunView.grid();
+        RunView.place(pay, RunView.stack(jLabel8, paid_amt), 0, 0, 1, 1);
+        RunView.place(pay, RunView.stack(jLabel1, tot_qty), 1, 0, 1, 0.6);
+        RunView.place(pay, RunView.stack(jLabel10, bill_tot), 0, 1, 1, 1);
+        RunView.place(pay, RunView.stack(jLabel11, balance), 1, 1, 1, 1);
+        jButton4.setPreferredSize(new java.awt.Dimension(160, 42));
+        RunView.place(pay, jButton4, 2, 1, 1, 0);
+
+        RunView.install(this, RunView.page(RunView.card(entry), cart, RunView.card(pay)));
     }
 
   public void data_load(){

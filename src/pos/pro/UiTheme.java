@@ -11,11 +11,14 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
@@ -46,6 +49,8 @@ public final class UiTheme {
 
     public static final Font FONT = new Font("Segoe UI", Font.PLAIN, 14);
     public static final Font FONT_BOLD = new Font("Segoe UI", Font.BOLD, 14);
+    /** Panels marked with this keep the layout and colors set for the running app. */
+    public static final String KEEP = "run.keep";
 
     private UiTheme() {
     }
@@ -75,10 +80,17 @@ public final class UiTheme {
             styleField((JTextField) component);
         } else if (component instanceof JComboBox) {
             styleCombo((JComboBox) component);
+            return;
         } else if (component instanceof JTable) {
             styleTable((JTable) component);
         } else if (component instanceof JLabel) {
             styleLabel((JLabel) component);
+        } else if (component instanceof JTextArea) {
+            JTextArea area = (JTextArea) component;
+            area.setFont(FONT);
+            area.setForeground(TEXT);
+            area.setLineWrap(true);
+            area.setWrapStyleWord(true);
         } else if (component instanceof JCheckBox) {
             JCheckBox box = (JCheckBox) component;
             box.setFont(FONT);
@@ -93,6 +105,10 @@ public final class UiTheme {
             JScrollPane scroll = (JScrollPane) component;
             scroll.setBorder(new LineBorder(LINE, 1, true));
             scroll.getViewport().setBackground(CARD);
+            if (scroll.getViewport().getView() != null) {
+                style(scroll.getViewport().getView());
+            }
+            return;
         }
 
         if (component instanceof Container) {
@@ -104,6 +120,9 @@ public final class UiTheme {
     }
 
     private static void stylePanel(JPanel panel) {
+        if (Boolean.TRUE.equals(panel.getClientProperty(KEEP))) {
+            return;
+        }
         boolean card = panel.getBorder() != null;
         panel.setOpaque(true);
         panel.setBackground(card ? CARD : PAGE);
@@ -160,6 +179,24 @@ public final class UiTheme {
         combo.setFont(FONT);
         combo.setBackground(Color.WHITE);
         combo.setForeground(TEXT);
+        combo.setOpaque(true);
+        combo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                label.setFont(FONT);
+                label.setBorder(new EmptyBorder(4, 8, 4, 8));
+                label.setOpaque(true);
+                if (isSelected) {
+                    label.setBackground(SELECT);
+                    label.setForeground(TEXT);
+                } else {
+                    label.setBackground(Color.WHITE);
+                    label.setForeground(TEXT);
+                }
+                return label;
+            }
+        });
     }
 
     private static void styleLabel(JLabel label) {
