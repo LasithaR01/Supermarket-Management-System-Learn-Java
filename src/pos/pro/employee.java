@@ -27,6 +27,7 @@ public class employee extends javax.swing.JPanel {
         
         initComponents();
         tb_load();
+        UiTheme.apply(this);
         
         
         
@@ -213,7 +214,7 @@ public class employee extends javax.swing.JPanel {
         jLabel3.setText("Search ID :");
 
         c_search.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        c_search.setText("0");
+        c_search.setText("");
         c_search.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 c_searchKeyReleased(evt);
@@ -247,7 +248,7 @@ public class employee extends javax.swing.JPanel {
         jLabel1.setText("Name :");
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel2.setText("T.P Number :");
+        jLabel2.setText("Phone :");
 
         c_name.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
 
@@ -257,7 +258,7 @@ public class employee extends javax.swing.JPanel {
         jLabel6.setText("Main Address :");
 
         jLabel7.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel7.setText("Temp Addres :");
+        jLabel7.setText("Temp Address :");
 
         jPanel8.setBorder(javax.swing.BorderFactory.createTitledBorder("Contact Person"));
 
@@ -272,7 +273,7 @@ public class employee extends javax.swing.JPanel {
         jLabel8.setText("Name :");
 
         jLabel12.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel12.setText("T.P Number :");
+        jLabel12.setText("Phone :");
 
         cp_tp.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
 
@@ -556,7 +557,7 @@ public class employee extends javax.swing.JPanel {
 
             },
             new String [] {
-                "ID", "Employee Name", "T.P Number", "Main Address", "2nd Address", "Bank", "City", "Person Name", "Contact Person", "Person TP", "Email", "Online"
+                "ID", "Employee", "Phone", "Main Address", "Temp Address", "Bank", "City", "Person", "Contact", "Contact Phone", "Email", "Online"
             }
         ));
         jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -570,7 +571,7 @@ public class employee extends javax.swing.JPanel {
         jLabel5.setText("Employee Name :");
 
         c_search_tbl.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        c_search_tbl.setText("0");
+        c_search_tbl.setText("");
         c_search_tbl.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 c_search_tblActionPerformed(evt);
@@ -593,7 +594,7 @@ public class employee extends javax.swing.JPanel {
         });
 
         jLabel17.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
-        jLabel17.setText("Preson Name :");
+        jLabel17.setText("Person Name :");
 
         sh_tp.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
         sh_tp.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -613,7 +614,7 @@ public class employee extends javax.swing.JPanel {
         });
 
         jLabel19.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
-        jLabel19.setText("TelePhone :");
+        jLabel19.setText("Telephone :");
 
         sh_pn.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
         sh_pn.addActionListener(new java.awt.event.ActionListener() {
@@ -736,7 +737,7 @@ public class employee extends javax.swing.JPanel {
                         .addGap(0, 47, Short.MAX_VALUE))))
         );
 
-        jTabbedPane1.addTab("Serch Employee", jPanel4);
+        jTabbedPane1.addTab("Search Employee", jPanel4);
 
         jButton5.setText("All Employee  Reports");
         jButton5.addActionListener(new java.awt.event.ActionListener() {
@@ -929,7 +930,7 @@ public class employee extends javax.swing.JPanel {
             s.executeUpdate(" INSERT INTO employee (employee_name,Tp_Number,main_address,temp_address,bank,city,person_name,contact_person,person_tp,email,online) "
                 + "VALUES ('"+name+"','"+tp+"','"+bill_add+"','"+shipp_add+"','"+bank+"','"+city+"','"+person_name+"','"+contact_person+"','"+person_tp+"','"+email+"','"+online+"')");
 
-            JOptionPane.showMessageDialog(null, "Dtata saved");
+            JOptionPane.showMessageDialog(null, "Saved");
 
         } catch (SQLException e) {
 
@@ -1005,7 +1006,7 @@ public class employee extends javax.swing.JPanel {
                 + ",email ='"+ email +"' "
                 + ",online ='"+ online +"' "
                 + " WHERE eid = '"+id+"' ");
-            JOptionPane.showMessageDialog(null, "Dtata Updated");
+            JOptionPane.showMessageDialog(null, "Updated");
 
         } catch (HeadlessException | SQLException e) {
             System.out.println(e);
@@ -1023,7 +1024,7 @@ public class employee extends javax.swing.JPanel {
 
             Statement s = db.mycon().createStatement();
             s.executeUpdate("DELETE FROM employee WHERE eid = '"+id+"'");
-            JOptionPane.showMessageDialog(null, "Dtata Deleted");
+            JOptionPane.showMessageDialog(null, "Deleted");
 
         } catch (SQLException e) {
             System.out.println(e);

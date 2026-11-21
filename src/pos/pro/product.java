@@ -25,6 +25,7 @@ public class product extends javax.swing.JPanel {
     public product() {
         initComponents();
         tb_load();
+        UiTheme.apply(this);
         
         
     }
@@ -105,10 +106,10 @@ public class product extends javax.swing.JPanel {
         jLabel2.setText("Bar Code :");
 
         p_name.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        p_name.setText("0");
+        p_name.setText("");
 
         p_bcode.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        p_bcode.setText("0");
+        p_bcode.setText("");
         p_bcode.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 p_bcodeActionPerformed(evt);
@@ -155,19 +156,19 @@ public class product extends javax.swing.JPanel {
         jLabel5.setText("Price :");
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel6.setText("SUpplier ID :");
+        jLabel6.setText("Supplier ID :");
 
         p_sid.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        p_sid.setText("0");
+        p_sid.setText("");
 
         p_price.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        p_price.setText("0");
+        p_price.setText("");
 
         jLabel7.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel7.setText("Qty :");
 
         p_qty.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        p_qty.setText("0");
+        p_qty.setText("");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -255,7 +256,7 @@ public class product extends javax.swing.JPanel {
                 {null, null, null, null, null, null}
             },
             new String [] {
-                "ID", "Product Name", "Bar Code", "Price", "Qty", "SID"
+                "ID", "Product", "Barcode", "Price", "Qty", "Supplier ID"
             }
         ));
         jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -276,7 +277,7 @@ public class product extends javax.swing.JPanel {
         jLabel3.setText("Search ID :");
 
         p_src.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        p_src.setText("0");
+        p_src.setText("");
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel4.setText("Product Info :");
@@ -310,7 +311,7 @@ public class product extends javax.swing.JPanel {
         jLabel8.setText("Search :");
 
         c_search_tbl.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        c_search_tbl.setText("0");
+        c_search_tbl.setText("");
         c_search_tbl.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 c_search_tblKeyReleased(evt);
@@ -382,7 +383,7 @@ public class product extends javax.swing.JPanel {
             Statement s = db.mycon().createStatement();
           // `pid`, `Product_Name`, `Bar_code`, `Price`, `Qty`, `Sid` 
             s.executeUpdate("INSERT INTO product (Product_Name,Bar_code,Price,Qty,Sid) VALUES ('"+name+"','"+bcode+"','"+price+"','"+qty+"','"+sid+"')");
-            JOptionPane.showMessageDialog(null, "Data Seved");
+            JOptionPane.showMessageDialog(null, "Saved");
             
             
         } catch (SQLException e) {

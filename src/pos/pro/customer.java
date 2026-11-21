@@ -27,6 +27,7 @@ public class customer extends javax.swing.JPanel {
         
         initComponents();
         tb_load();
+        UiTheme.apply(this);
         
         
         
@@ -212,7 +213,7 @@ public class customer extends javax.swing.JPanel {
         jLabel3.setText("Search ID :");
 
         c_search.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        c_search.setText("0");
+        c_search.setText("");
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -241,7 +242,7 @@ public class customer extends javax.swing.JPanel {
         jLabel1.setText("Name :");
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel2.setText("T.P Number :");
+        jLabel2.setText("Phone :");
 
         c_name.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
 
@@ -251,7 +252,7 @@ public class customer extends javax.swing.JPanel {
         jLabel6.setText("Billing Address :");
 
         jLabel7.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel7.setText("shiping Addres :");
+        jLabel7.setText("Shipping Address :");
 
         jPanel8.setBorder(javax.swing.BorderFactory.createTitledBorder("Contact Person"));
 
@@ -266,7 +267,7 @@ public class customer extends javax.swing.JPanel {
         jLabel8.setText("Name :");
 
         jLabel12.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel12.setText("T.P Number :");
+        jLabel12.setText("Phone :");
 
         cp_tp.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
 
@@ -550,7 +551,7 @@ public class customer extends javax.swing.JPanel {
 
             },
             new String [] {
-                "ID", "Customer Name", "T.P Number", "Billing Address", "Shipping Address", "Bank", "City", "Person Name", "Contact Person", "Person TP", "Email", "Online"
+                "ID", "Customer", "Phone", "Billing Address", "Shipping Address", "Bank", "City", "Person", "Contact", "Contact Phone", "Email", "Online"
             }
         ));
         jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -564,7 +565,7 @@ public class customer extends javax.swing.JPanel {
         jLabel5.setText("Customer Name :");
 
         c_search_tbl.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        c_search_tbl.setText("0");
+        c_search_tbl.setText("");
         c_search_tbl.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 c_search_tblActionPerformed(evt);
@@ -587,7 +588,7 @@ public class customer extends javax.swing.JPanel {
         });
 
         jLabel17.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
-        jLabel17.setText("Preson Name :");
+        jLabel17.setText("Person Name :");
 
         sh_tp.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
         sh_tp.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -607,7 +608,7 @@ public class customer extends javax.swing.JPanel {
         });
 
         jLabel19.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
-        jLabel19.setText("TelePhone :");
+        jLabel19.setText("Telephone :");
 
         sh_pn.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
         sh_pn.addActionListener(new java.awt.event.ActionListener() {
@@ -721,7 +722,7 @@ public class customer extends javax.swing.JPanel {
                         .addGap(0, 47, Short.MAX_VALUE))))
         );
 
-        jTabbedPane1.addTab("Serch Customer", jPanel4);
+        jTabbedPane1.addTab("Search Customer", jPanel4);
 
         jButton5.setText("All Customer Reports");
         jButton5.addActionListener(new java.awt.event.ActionListener() {
@@ -922,7 +923,7 @@ public class customer extends javax.swing.JPanel {
             s.executeUpdate(" INSERT INTO customer (customer_name,Tp_Number,billing_address,shipping_address,bank,city,person_name,contact_person,person_tp,email,online) "
                 + "VALUES ('"+name+"','"+tp+"','"+bill_add+"','"+shipp_add+"','"+bank+"','"+city+"','"+person_name+"','"+contact_person+"','"+person_tp+"','"+email+"','"+online+"')");
 
-            JOptionPane.showMessageDialog(null, "Dtata saved");
+            JOptionPane.showMessageDialog(null, "Saved");
 
         } catch (SQLException e) {
 
@@ -998,7 +999,7 @@ public class customer extends javax.swing.JPanel {
                 + ",email ='"+ email +"' "
                 + ",online ='"+ online +"' "
                 + " WHERE cid = '"+id+"' ");
-            JOptionPane.showMessageDialog(null, "Dtata Updated");
+            JOptionPane.showMessageDialog(null, "Updated");
 
         } catch (HeadlessException | SQLException e) {
             System.out.println(e);
@@ -1016,7 +1017,7 @@ public class customer extends javax.swing.JPanel {
 
             Statement s = db.mycon().createStatement();
             s.executeUpdate("DELETE FROM customer WHERE cid = '"+id+"'");
-            JOptionPane.showMessageDialog(null, "Dtata Deleted");
+            JOptionPane.showMessageDialog(null, "Deleted");
 
         } catch (SQLException e) {
             System.out.println(e);

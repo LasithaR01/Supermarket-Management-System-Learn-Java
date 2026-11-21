@@ -24,6 +24,7 @@ public class reports extends javax.swing.JPanel {
      */
     public reports() {
         initComponents();
+        UiTheme.apply(this);
     }
 
     /**
@@ -45,7 +46,7 @@ public class reports extends javax.swing.JPanel {
         jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel5.setText("Invoice NO :");
+        jLabel5.setText("Invoice No :");
 
         para_inid.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         para_inid.setText("0");
