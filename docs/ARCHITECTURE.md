@@ -49,6 +49,13 @@ src/cmart/
 - Main class: `cmart.App` (also set in NetBeans `project.properties`)
 - **All screens**: Design and Run use the same form layout (Home shell + Products, Sales, Invoices, Reports, Customers, Suppliers, Employees). Runtime only applies `UiTheme` styling — it no longer rebuilds the UI with `RunView.install`.
 
+## Team activity log
+
+- `docs/ACTIVITY.md` — who / when / type / module / note (dev + QA)
+- `docs/activity-seed.json` — curated history of past work
+- `scripts/generate_activity.py` — merges seed + `git log`
+- `.github/workflows/update-activity.yml` — regenerates on every push to `main`
+
 ## Migration notes
 
 - Legacy package `pos.pro` was removed.

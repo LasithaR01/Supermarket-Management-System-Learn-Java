@@ -60,6 +60,7 @@ Track progress here while you build. Full feature list lives in [SMART_POS_ROADM
 | Run layouts (`RunView`) | Done | Screens rebuilt after NetBeans `initComponents` |
 | Layered package `src/cmart/` | Done | config / db / model / dao / service / ui |
 | Config outside source for DB password | Done | `config/db.properties` (gitignored) |
+| Team activity log (auto on push) | Done | `docs/ACTIVITY.md` + GitHub Action |
 | Prepared statements | In progress | ProductDao done; other modules next |
 | Automated tests | Planned | Later |
 

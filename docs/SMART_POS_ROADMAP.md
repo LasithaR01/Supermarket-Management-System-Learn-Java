@@ -139,6 +139,8 @@ Goal: turn the current desktop POS into a **fast, easy system** a shop owner can
 
 | File | Purpose |
 |------|---------|
+| [ACTIVITY.md](ACTIVITY.md) | Who / when / module / type — auto-updated on GitHub push |
+| [COMMIT_GUIDE.md](COMMIT_GUIDE.md) | Commit message format for clean activity rows |
 | [MODULES.md](MODULES.md) | Current modules + status (Done / In progress / Planned) |
 | [CHANGELOG.md](CHANGELOG.md) | What was finished over time |
 | [../README.md](../README.md) | Setup and how to run |
