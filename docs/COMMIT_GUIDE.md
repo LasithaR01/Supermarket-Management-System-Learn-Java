@@ -67,7 +67,16 @@ You can also run **Cleanup old Actions runs** manually from the Actions tab.
 
 ## Adding older work by hand
 
-Edit `docs/activity-seed.json` (one JSON object per change), then run:
+Edit `docs/activity-seed.json` — **one change per line**:
+
+```json
+[
+  {"when": "2026-11-22 02:10", "who": "Lasitha Ransara", "type": "feat", "module": "sales", "note": "Your note here"},
+  {"when": "2026-11-22 02:15", "who": "Lasitha Ransara", "type": "fix", "module": "product", "note": "Another note"}
+]
+```
+
+Then run:
 
 ```bash
 python scripts/generate_activity.py
