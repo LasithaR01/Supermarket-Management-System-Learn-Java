@@ -10,7 +10,7 @@ Track progress here while you build. Full feature list lives in [SMART_POS_ROADM
 
 | Module | Package / files | Status | Notes |
 |--------|-----------------|--------|-------|
-| Home shell | `ui/shell/HomeFrame`, `PanelLoader`, `ui/theme/*` | Done | Run layout + green nav; Design view still shows old NetBeans forms |
+| Home shell | `ui/shell/HomeFrame`, `PanelLoader`, `ui/theme/*` | Done | Design = Run (green shell + welcome cards) |
 | Customers | `ui/customer/CustomerPanel` | Needs update | CRUD, search, Jasper reports; SQL still string-built |
 | Suppliers | `ui/supplier/SupplierPanel` | Needs update | Same pattern as customers |
 | Employees | `ui/employee/EmployeePanel` | Needs update | Same pattern; no login yet |

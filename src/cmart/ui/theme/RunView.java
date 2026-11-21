@@ -20,7 +20,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 /**
- * Builds the layout used when the app runs. NetBeans Design view keeps the old forms.
+ * Layout helpers (grid/card/page). Screens now keep Design=Run in their .form files;
+ * prefer editing the form, then style with UiTheme — do not call {@link #install} to rebuild.
  */
 public final class RunView {
 

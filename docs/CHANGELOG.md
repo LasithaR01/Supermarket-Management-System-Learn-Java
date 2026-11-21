@@ -8,11 +8,12 @@ Format: date · short summary · related docs if useful.
 
 ## 2026-11-22
 
+- Synced NetBeans Design and Run for all screens (Home + Products, Sales, Invoices, Reports, Customers, Suppliers, Employees) — forms hold the layout; runtime only applies theme.
 - Added project docs: Smart POS roadmap, module status board, architecture, and this changelog (`docs/`).
 - Restructured code into flattened layered package `src/cmart/` (config, db, model, dao, service, util, ui).
 - Moved DB password to `config/db.properties` (gitignored); main class is now `cmart.App`.
 - Stopped tracking generated NetBeans build files (`build/`, `nbproject/private`, generated Ant files); tightened `.gitignore`.
-- Run UI: shared theme, Home shell with welcome cards, and run-time layouts for Sales, Products, Customers, Suppliers, Employees, Invoices, and Reports (Design view still shows old forms).
+- Shared green theme and welcome shell for CMart.
 
 ## 2026-11-21 (approx.)
 

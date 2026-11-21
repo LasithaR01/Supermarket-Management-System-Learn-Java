@@ -47,7 +47,7 @@ src/cmart/
 ## Run
 
 - Main class: `cmart.App` (also set in NetBeans `project.properties`)
-- Design view may still show old NetBeans form layouts; **Run** uses `RunView` layouts
+- **All screens**: Design and Run use the same form layout (Home shell + Products, Sales, Invoices, Reports, Customers, Suppliers, Employees). Runtime only applies `UiTheme` styling — it no longer rebuilds the UI with `RunView.install`.
 
 ## Migration notes
 

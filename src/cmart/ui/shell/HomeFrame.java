@@ -1,144 +1,246 @@
-
 package cmart.ui.shell;
 
-import cmart.ui.report.ReportsPanel;
-
-import cmart.ui.invoice.InvoicePanel;
-
-import cmart.ui.sale.SalePanel;
-
-import cmart.ui.product.ProductPanel;
-
-import cmart.ui.employee.EmployeePanel;
-
-import cmart.ui.supplier.SupplierPanel;
-
 import cmart.ui.customer.CustomerPanel;
-
+import cmart.ui.employee.EmployeePanel;
+import cmart.ui.invoice.InvoicePanel;
+import cmart.ui.product.ProductPanel;
+import cmart.ui.report.ReportsPanel;
+import cmart.ui.sale.SalePanel;
+import cmart.ui.supplier.SupplierPanel;
 import cmart.ui.theme.UiTheme;
-
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JToggleButton;
-import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.plaf.basic.BasicButtonUI;
 
+/**
+ * Main shell. Design view and Run use the same NetBeans form layout.
+ */
 public class HomeFrame extends javax.swing.JFrame {
 
     PanelLoader jpload = new PanelLoader();
-    private JLabel screenTitle;
 
     public HomeFrame() {
         initComponents();
-        buildShell();
-        this.setExtendedState(HomeFrame.MAXIMIZED_BOTH);
+        styleShell();
+        setExtendedState(HomeFrame.MAXIMIZED_BOTH);
     }
 
-   
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
         home_bnt_grp = new javax.swing.ButtonGroup();
+        headerPanel = new javax.swing.JPanel();
+        brandPanel = new javax.swing.JPanel();
+        brandLabel = new javax.swing.JLabel();
+        tagLabel = new javax.swing.JLabel();
+        screenTitle = new javax.swing.JLabel();
+        bodyPanel = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
-        jToggleButton1 = new javax.swing.JToggleButton();
-        jToggleButton2 = new javax.swing.JToggleButton();
-        jToggleButton3 = new javax.swing.JToggleButton();
-        jToggleButton4 = new javax.swing.JToggleButton();
+        btnHome = new javax.swing.JButton();
+        lblShop = new javax.swing.JLabel();
         jToggleButton5 = new javax.swing.JToggleButton();
         jToggleButton6 = new javax.swing.JToggleButton();
+        jToggleButton3 = new javax.swing.JToggleButton();
+        lblPeople = new javax.swing.JLabel();
+        jToggleButton1 = new javax.swing.JToggleButton();
+        jToggleButton2 = new javax.swing.JToggleButton();
+        jToggleButton4 = new javax.swing.JToggleButton();
+        lblOther = new javax.swing.JLabel();
         jToggleButton7 = new javax.swing.JToggleButton();
         panel_load = new javax.swing.JPanel();
-        jPanel3 = new javax.swing.JPanel();
-        textField1 = new java.awt.TextField();
+        welcomePanel = new javax.swing.JPanel();
+        lblHello = new javax.swing.JLabel();
+        lblHint = new javax.swing.JLabel();
+        cardSale = new javax.swing.JButton();
+        cardInvoice = new javax.swing.JButton();
+        cardProduct = new javax.swing.JButton();
+        cardCustomer = new javax.swing.JButton();
+        cardSupplier = new javax.swing.JButton();
+        cardEmployee = new javax.swing.JButton();
+        cardReports = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("CMart — Supermarket");
+        setMinimumSize(new java.awt.Dimension(1100, 700));
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        headerPanel.setBackground(new java.awt.Color(20, 61, 44));
+        headerPanel.setPreferredSize(new java.awt.Dimension(0, 70));
+        headerPanel.setLayout(new java.awt.BorderLayout());
 
-        home_bnt_grp.add(jToggleButton1);
-        jToggleButton1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jToggleButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cmart/resources/img/customer.png"))); // NOI18N
-        jToggleButton1.setText("Customers");
-        jToggleButton1.addActionListener(new java.awt.event.ActionListener() {
+        brandPanel.setOpaque(false);
+        brandPanel.setLayout(new javax.swing.BoxLayout(brandPanel, javax.swing.BoxLayout.PAGE_AXIS));
+
+        brandLabel.setFont(new java.awt.Font("Segoe UI", 1, 26)); // NOI18N
+        brandLabel.setForeground(new java.awt.Color(255, 255, 255));
+        brandLabel.setText("CMart");
+        brandLabel.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 22, 0, 8));
+        brandPanel.add(brandLabel);
+
+        tagLabel.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        tagLabel.setForeground(new java.awt.Color(183, 228, 199));
+        tagLabel.setText("Supermarket desk");
+        tagLabel.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 22, 10, 8));
+        brandPanel.add(tagLabel);
+
+        headerPanel.add(brandPanel, java.awt.BorderLayout.LINE_START);
+
+        screenTitle.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        screenTitle.setForeground(new java.awt.Color(255, 255, 255));
+        screenTitle.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        screenTitle.setText("Home");
+        screenTitle.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 22));
+        headerPanel.add(screenTitle, java.awt.BorderLayout.LINE_END);
+
+        getContentPane().add(headerPanel, java.awt.BorderLayout.PAGE_START);
+
+        bodyPanel.setBackground(new java.awt.Color(243, 247, 244));
+        bodyPanel.setLayout(new java.awt.BorderLayout());
+
+        jPanel1.setBackground(new java.awt.Color(20, 61, 44));
+        jPanel1.setPreferredSize(new java.awt.Dimension(230, 0));
+
+        btnHome.setBackground(new java.awt.Color(216, 243, 220));
+        btnHome.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnHome.setForeground(new java.awt.Color(20, 61, 44));
+        btnHome.setText("Home");
+        btnHome.setBorderPainted(false);
+        btnHome.setFocusPainted(false);
+        btnHome.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btnHome.setOpaque(true);
+        btnHome.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jToggleButton1ActionPerformed(evt);
+                btnHomeActionPerformed(evt);
             }
         });
 
-        home_bnt_grp.add(jToggleButton2);
-        jToggleButton2.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jToggleButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cmart/resources/img/supplier.png"))); // NOI18N
-        jToggleButton2.setText("supplier");
-        jToggleButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jToggleButton2ActionPerformed(evt);
-            }
-        });
+        lblShop.setFont(new java.awt.Font("Segoe UI", 1, 11)); // NOI18N
+        lblShop.setForeground(new java.awt.Color(149, 213, 178));
+        lblShop.setText("SHOP");
 
-        home_bnt_grp.add(jToggleButton3);
-        jToggleButton3.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jToggleButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cmart/resources/img/product.png"))); // NOI18N
-        jToggleButton3.setText("Product");
-        jToggleButton3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jToggleButton3ActionPerformed(evt);
-            }
-        });
-
-        home_bnt_grp.add(jToggleButton4);
-        jToggleButton4.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jToggleButton4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cmart/resources/img/emp.png"))); // NOI18N
-        jToggleButton4.setText("employee");
-        jToggleButton4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jToggleButton4ActionPerformed(evt);
-            }
-        });
-
+        jToggleButton5.setBackground(new java.awt.Color(20, 61, 44));
         home_bnt_grp.add(jToggleButton5);
-        jToggleButton5.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jToggleButton5.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jToggleButton5.setForeground(new java.awt.Color(232, 245, 233));
         jToggleButton5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cmart/resources/img/sales_menu.png"))); // NOI18N
         jToggleButton5.setText("Sales");
+        jToggleButton5.setBorderPainted(false);
+        jToggleButton5.setFocusPainted(false);
+        jToggleButton5.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jToggleButton5.setOpaque(true);
         jToggleButton5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jToggleButton5ActionPerformed(evt);
             }
         });
 
+        jToggleButton6.setBackground(new java.awt.Color(20, 61, 44));
         home_bnt_grp.add(jToggleButton6);
-        jToggleButton6.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jToggleButton6.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jToggleButton6.setForeground(new java.awt.Color(232, 245, 233));
         jToggleButton6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cmart/resources/img/invo.png"))); // NOI18N
-        jToggleButton6.setText("Invoice");
+        jToggleButton6.setText("Invoices");
+        jToggleButton6.setBorderPainted(false);
+        jToggleButton6.setFocusPainted(false);
+        jToggleButton6.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jToggleButton6.setOpaque(true);
         jToggleButton6.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jToggleButton6ActionPerformed(evt);
             }
         });
 
+        jToggleButton3.setBackground(new java.awt.Color(20, 61, 44));
+        home_bnt_grp.add(jToggleButton3);
+        jToggleButton3.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jToggleButton3.setForeground(new java.awt.Color(232, 245, 233));
+        jToggleButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cmart/resources/img/product.png"))); // NOI18N
+        jToggleButton3.setText("Products");
+        jToggleButton3.setBorderPainted(false);
+        jToggleButton3.setFocusPainted(false);
+        jToggleButton3.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jToggleButton3.setOpaque(true);
+        jToggleButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleButton3ActionPerformed(evt);
+            }
+        });
+
+        lblPeople.setFont(new java.awt.Font("Segoe UI", 1, 11)); // NOI18N
+        lblPeople.setForeground(new java.awt.Color(149, 213, 178));
+        lblPeople.setText("PEOPLE");
+
+        jToggleButton1.setBackground(new java.awt.Color(20, 61, 44));
+        home_bnt_grp.add(jToggleButton1);
+        jToggleButton1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jToggleButton1.setForeground(new java.awt.Color(232, 245, 233));
+        jToggleButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cmart/resources/img/customer.png"))); // NOI18N
+        jToggleButton1.setText("Customers");
+        jToggleButton1.setBorderPainted(false);
+        jToggleButton1.setFocusPainted(false);
+        jToggleButton1.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jToggleButton1.setOpaque(true);
+        jToggleButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleButton1ActionPerformed(evt);
+            }
+        });
+
+        jToggleButton2.setBackground(new java.awt.Color(20, 61, 44));
+        home_bnt_grp.add(jToggleButton2);
+        jToggleButton2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jToggleButton2.setForeground(new java.awt.Color(232, 245, 233));
+        jToggleButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cmart/resources/img/supplier.png"))); // NOI18N
+        jToggleButton2.setText("Suppliers");
+        jToggleButton2.setBorderPainted(false);
+        jToggleButton2.setFocusPainted(false);
+        jToggleButton2.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jToggleButton2.setOpaque(true);
+        jToggleButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleButton2ActionPerformed(evt);
+            }
+        });
+
+        jToggleButton4.setBackground(new java.awt.Color(20, 61, 44));
+        home_bnt_grp.add(jToggleButton4);
+        jToggleButton4.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jToggleButton4.setForeground(new java.awt.Color(232, 245, 233));
+        jToggleButton4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cmart/resources/img/emp.png"))); // NOI18N
+        jToggleButton4.setText("Employees");
+        jToggleButton4.setBorderPainted(false);
+        jToggleButton4.setFocusPainted(false);
+        jToggleButton4.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jToggleButton4.setOpaque(true);
+        jToggleButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleButton4ActionPerformed(evt);
+            }
+        });
+
+        lblOther.setFont(new java.awt.Font("Segoe UI", 1, 11)); // NOI18N
+        lblOther.setForeground(new java.awt.Color(149, 213, 178));
+        lblOther.setText("OTHER");
+
+        jToggleButton7.setBackground(new java.awt.Color(20, 61, 44));
         home_bnt_grp.add(jToggleButton7);
-        jToggleButton7.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jToggleButton7.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jToggleButton7.setForeground(new java.awt.Color(232, 245, 233));
         jToggleButton7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/cmart/resources/img/reports.png"))); // NOI18N
         jToggleButton7.setText("Reports");
+        jToggleButton7.setBorderPainted(false);
+        jToggleButton7.setFocusPainted(false);
+        jToggleButton7.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jToggleButton7.setOpaque(true);
         jToggleButton7.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jToggleButton7ActionPerformed(evt);
@@ -150,165 +252,270 @@ public class HomeFrame extends javax.swing.JFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(12, 12, 12)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jToggleButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jToggleButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jToggleButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jToggleButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jToggleButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jToggleButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jToggleButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(20, Short.MAX_VALUE))
+                    .addComponent(btnHome, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lblShop, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jToggleButton5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jToggleButton6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jToggleButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lblPeople, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jToggleButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
+                    .addComponent(jToggleButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jToggleButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lblOther, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jToggleButton7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(12, 12, 12))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(46, 46, 46)
-                .addComponent(jToggleButton1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jToggleButton2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jToggleButton4)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jToggleButton3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jToggleButton5)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jToggleButton6)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jToggleButton7)
-                .addContainerGap(206, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(btnHome, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(16, 16, 16)
+                .addComponent(lblShop)
+                .addGap(6, 6, 6)
+                .addComponent(jToggleButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(6, 6, 6)
+                .addComponent(jToggleButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(6, 6, 6)
+                .addComponent(jToggleButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(lblPeople)
+                .addGap(6, 6, 6)
+                .addComponent(jToggleButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(6, 6, 6)
+                .addComponent(jToggleButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(6, 6, 6)
+                .addComponent(jToggleButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(lblOther)
+                .addGap(6, 6, 6)
+                .addComponent(jToggleButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(71, Short.MAX_VALUE))
         );
 
-        panel_load.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        bodyPanel.add(jPanel1, java.awt.BorderLayout.LINE_START);
 
-        javax.swing.GroupLayout panel_loadLayout = new javax.swing.GroupLayout(panel_load);
-        panel_load.setLayout(panel_loadLayout);
-        panel_loadLayout.setHorizontalGroup(
-            panel_loadLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1056, Short.MAX_VALUE)
-        );
-        panel_loadLayout.setVerticalGroup(
-            panel_loadLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
+        panel_load.setBackground(new java.awt.Color(243, 247, 244));
+        panel_load.setLayout(new java.awt.BorderLayout());
 
-        jPanel3.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        welcomePanel.setOpaque(false);
 
-        textField1.setFont(new java.awt.Font("Gadugi", 1, 24)); // NOI18N
-        textField1.setForeground(new java.awt.Color(0, 102, 51));
-        textField1.setText("CMart");
+        lblHello.setFont(new java.awt.Font("Segoe UI", 1, 28)); // NOI18N
+        lblHello.setForeground(new java.awt.Color(31, 41, 51));
+        lblHello.setText("What do you want to do?");
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(563, 563, 563)
-                .addComponent(textField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(textField1, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(22, Short.MAX_VALUE))
-        );
+        lblHint.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        lblHint.setForeground(new java.awt.Color(92, 107, 115));
+        lblHint.setText("Pick a task, or use the menu on the left.");
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(panel_load, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap())
+        cardSale.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        cardSale.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        cardSale.setText("<html><b>New sale</b><br>Add items and take payment</html>");
+        cardSale.setBorderPainted(false);
+        cardSale.setFocusPainted(false);
+        cardSale.setOpaque(true);
+        cardSale.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cardSaleActionPerformed(evt);
+            }
+        });
+
+        cardInvoice.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        cardInvoice.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        cardInvoice.setText("<html><b>Invoices</b><br>Look up a past sale</html>");
+        cardInvoice.setBorderPainted(false);
+        cardInvoice.setFocusPainted(false);
+        cardInvoice.setOpaque(true);
+        cardInvoice.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cardInvoiceActionPerformed(evt);
+            }
+        });
+
+        cardProduct.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        cardProduct.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        cardProduct.setText("<html><b>Products</b><br>Prices, barcodes, and stock</html>");
+        cardProduct.setBorderPainted(false);
+        cardProduct.setFocusPainted(false);
+        cardProduct.setOpaque(true);
+        cardProduct.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cardProductActionPerformed(evt);
+            }
+        });
+
+        cardCustomer.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        cardCustomer.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        cardCustomer.setText("<html><b>Customers</b><br>Names and contact details</html>");
+        cardCustomer.setBorderPainted(false);
+        cardCustomer.setFocusPainted(false);
+        cardCustomer.setOpaque(true);
+        cardCustomer.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cardCustomerActionPerformed(evt);
+            }
+        });
+
+        cardSupplier.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        cardSupplier.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        cardSupplier.setText("<html><b>Suppliers</b><br>People you buy stock from</html>");
+        cardSupplier.setBorderPainted(false);
+        cardSupplier.setFocusPainted(false);
+        cardSupplier.setOpaque(true);
+        cardSupplier.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cardSupplierActionPerformed(evt);
+            }
+        });
+
+        cardEmployee.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        cardEmployee.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        cardEmployee.setText("<html><b>Employees</b><br>Staff records</html>");
+        cardEmployee.setBorderPainted(false);
+        cardEmployee.setFocusPainted(false);
+        cardEmployee.setOpaque(true);
+        cardEmployee.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cardEmployeeActionPerformed(evt);
+            }
+        });
+
+        cardReports.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        cardReports.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        cardReports.setText("<html><b>Reports</b><br>Print sales and lists</html>");
+        cardReports.setBorderPainted(false);
+        cardReports.setFocusPainted(false);
+        cardReports.setOpaque(true);
+        cardReports.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cardReportsActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout welcomePanelLayout = new javax.swing.GroupLayout(welcomePanel);
+        welcomePanel.setLayout(welcomePanelLayout);
+        welcomePanelLayout.setHorizontalGroup(
+            welcomePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(welcomePanelLayout.createSequentialGroup()
+                .addGap(24, 24, 24)
+                .addGroup(welcomePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblHello)
+                    .addComponent(lblHint)
+                    .addGroup(welcomePanelLayout.createSequentialGroup()
+                        .addComponent(cardSale, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(cardInvoice, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(cardProduct, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(welcomePanelLayout.createSequentialGroup()
+                        .addComponent(cardCustomer, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(cardSupplier, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(cardEmployee, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(cardReports, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(87, Short.MAX_VALUE))
         );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        welcomePanelLayout.setVerticalGroup(
+            welcomePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(welcomePanelLayout.createSequentialGroup()
+                .addGap(24, 24, 24)
+                .addComponent(lblHello)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(panel_load, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(lblHint)
+                .addGap(18, 18, 18)
+                .addGroup(welcomePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(cardSale, javax.swing.GroupLayout.DEFAULT_SIZE, 80, Short.MAX_VALUE)
+                    .addComponent(cardInvoice)
+                    .addComponent(cardProduct))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(welcomePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(cardCustomer, javax.swing.GroupLayout.DEFAULT_SIZE, 80, Short.MAX_VALUE)
+                    .addComponent(cardSupplier)
+                    .addComponent(cardEmployee))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(cardReports, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(194, Short.MAX_VALUE))
         );
+
+        panel_load.add(welcomePanel, java.awt.BorderLayout.CENTER);
+
+        bodyPanel.add(panel_load, java.awt.BorderLayout.CENTER);
+
+        getContentPane().add(bodyPanel, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnHomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHomeActionPerformed
+        showWelcome();
+    }//GEN-LAST:event_btnHomeActionPerformed
+
     private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
-        // customer load
-        
-        CustomerPanel cus = new CustomerPanel();
-        jpload.jPanelLoader(panel_load, cus);
-       
-        
+        setScreenTitle("Customers");
+        jpload.jPanelLoader(panel_load, new CustomerPanel());
     }//GEN-LAST:event_jToggleButton1ActionPerformed
 
     private void jToggleButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton2ActionPerformed
-       
-      SupplierPanel sp = new SupplierPanel();
-      jpload.jPanelLoader(panel_load, sp);
-      
-        
-        
+        setScreenTitle("Suppliers");
+        jpload.jPanelLoader(panel_load, new SupplierPanel());
     }//GEN-LAST:event_jToggleButton2ActionPerformed
 
-    private void jToggleButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton4ActionPerformed
-        // emp load
-        
-        EmployeePanel emp = new EmployeePanel();
-        jpload.jPanelLoader(panel_load, emp);
-        
-        
-    }//GEN-LAST:event_jToggleButton4ActionPerformed
-
     private void jToggleButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton3ActionPerformed
-        // pro load
-        ProductPanel pro = new ProductPanel();
-        jpload.jPanelLoader(panel_load, pro);
-        
-        
-        
+        setScreenTitle("Products");
+        jpload.jPanelLoader(panel_load, new ProductPanel());
     }//GEN-LAST:event_jToggleButton3ActionPerformed
 
+    private void jToggleButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton4ActionPerformed
+        setScreenTitle("Employees");
+        jpload.jPanelLoader(panel_load, new EmployeePanel());
+    }//GEN-LAST:event_jToggleButton4ActionPerformed
+
     private void jToggleButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton5ActionPerformed
-        
-       SalePanel sl = new SalePanel();
-       jpload.jPanelLoader(panel_load, sl);
-       
-        
-        
+        setScreenTitle("Sales");
+        jpload.jPanelLoader(panel_load, new SalePanel());
     }//GEN-LAST:event_jToggleButton5ActionPerformed
 
     private void jToggleButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton6ActionPerformed
-       
-        InvoicePanel inv = new InvoicePanel();
-        jpload.jPanelLoader(panel_load, inv);
-        
-        
-        
+        setScreenTitle("Invoices");
+        jpload.jPanelLoader(panel_load, new InvoicePanel());
     }//GEN-LAST:event_jToggleButton6ActionPerformed
 
     private void jToggleButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton7ActionPerformed
-       
-        ReportsPanel rp = new ReportsPanel();
-        jpload.jPanelLoader(panel_load, rp);
-        
+        setScreenTitle("Reports");
+        jpload.jPanelLoader(panel_load, new ReportsPanel());
     }//GEN-LAST:event_jToggleButton7ActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
+    private void cardSaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cardSaleActionPerformed
+        jToggleButton5.doClick();
+    }//GEN-LAST:event_cardSaleActionPerformed
+
+    private void cardInvoiceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cardInvoiceActionPerformed
+        jToggleButton6.doClick();
+    }//GEN-LAST:event_cardInvoiceActionPerformed
+
+    private void cardProductActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cardProductActionPerformed
+        jToggleButton3.doClick();
+    }//GEN-LAST:event_cardProductActionPerformed
+
+    private void cardCustomerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cardCustomerActionPerformed
+        jToggleButton1.doClick();
+    }//GEN-LAST:event_cardCustomerActionPerformed
+
+    private void cardSupplierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cardSupplierActionPerformed
+        jToggleButton2.doClick();
+    }//GEN-LAST:event_cardSupplierActionPerformed
+
+    private void cardEmployeeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cardEmployeeActionPerformed
+        jToggleButton4.doClick();
+    }//GEN-LAST:event_cardEmployeeActionPerformed
+
+    private void cardReportsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cardReportsActionPerformed
+        jToggleButton7.doClick();
+    }//GEN-LAST:event_cardReportsActionPerformed
+
     public static void main(String args[]) {
         UiTheme.install();
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -318,140 +525,74 @@ public class HomeFrame extends javax.swing.JFrame {
         });
     }
 
-    private void buildShell() {
-        setTitle("CMart — Supermarket");
-        setMinimumSize(new Dimension(1100, 700));
-        getContentPane().removeAll();
+    /**
+     * Light polish only — does NOT rebuild the form, so Design and Run stay the same.
+     */
+    private void styleShell() {
         getContentPane().setBackground(UiTheme.PAGE);
-        getContentPane().setLayout(new BorderLayout());
+        polishButton(btnHome, true);
+        polishNav(jToggleButton5);
+        polishNav(jToggleButton6);
+        polishNav(jToggleButton3);
+        polishNav(jToggleButton1);
+        polishNav(jToggleButton2);
+        polishNav(jToggleButton4);
+        polishNav(jToggleButton7);
+        polishCard(cardSale);
+        polishCard(cardInvoice);
+        polishCard(cardProduct);
+        polishCard(cardCustomer);
+        polishCard(cardSupplier);
+        polishCard(cardEmployee);
+        polishCard(cardReports);
 
-        JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(UiTheme.SIDEBAR);
-        header.setBorder(new EmptyBorder(14, 22, 14, 22));
-
-        JLabel brand = new JLabel("CMart");
-        brand.setFont(new Font("Segoe UI", Font.BOLD, 26));
-        brand.setForeground(Color.WHITE);
-        JLabel tag = new JLabel("Supermarket desk");
-        tag.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        tag.setForeground(new Color(0xB7E4C7));
-
-        JPanel brandBox = new JPanel();
-        brandBox.setOpaque(false);
-        brandBox.setLayout(new BoxLayout(brandBox, BoxLayout.Y_AXIS));
-        brandBox.add(brand);
-        brandBox.add(Box.createVerticalStrut(2));
-        brandBox.add(tag);
-        brandBox.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        brandBox.addMouseListener(new MouseAdapter() {
+        brandPanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        brandPanel.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 showWelcome();
             }
         });
-        header.add(brandBox, BorderLayout.WEST);
 
-        screenTitle = new JLabel("Home");
-        screenTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        screenTitle.setForeground(Color.WHITE);
-        header.add(screenTitle, BorderLayout.EAST);
-
-        JPanel sidebar = new JPanel();
-        sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
-        sidebar.setBackground(UiTheme.SIDEBAR);
-        sidebar.setPreferredSize(new Dimension(230, 0));
-        sidebar.setBorder(new EmptyBorder(18, 12, 18, 12));
-
-        sidebar.add(homeButton());
-        sidebar.add(Box.createVerticalStrut(16));
-        sidebar.add(sectionLabel("SHOP"));
-        sidebar.add(navButton(jToggleButton5, "Sales"));
-        sidebar.add(Box.createVerticalStrut(6));
-        sidebar.add(navButton(jToggleButton6, "Invoices"));
-        sidebar.add(Box.createVerticalStrut(6));
-        sidebar.add(navButton(jToggleButton3, "Products"));
-        sidebar.add(Box.createVerticalStrut(18));
-        sidebar.add(sectionLabel("PEOPLE"));
-        sidebar.add(navButton(jToggleButton1, "Customers"));
-        sidebar.add(Box.createVerticalStrut(6));
-        sidebar.add(navButton(jToggleButton2, "Suppliers"));
-        sidebar.add(Box.createVerticalStrut(6));
-        sidebar.add(navButton(jToggleButton4, "Employees"));
-        sidebar.add(Box.createVerticalStrut(18));
-        sidebar.add(sectionLabel("OTHER"));
-        sidebar.add(navButton(jToggleButton7, "Reports"));
-        sidebar.add(Box.createVerticalGlue());
-
-        panel_load.setLayout(new BorderLayout());
-        panel_load.setBackground(UiTheme.PAGE);
-        panel_load.setBorder(new EmptyBorder(18, 18, 18, 18));
-
-        JPanel body = new JPanel(new BorderLayout());
-        body.setOpaque(false);
-        body.add(sidebar, BorderLayout.WEST);
-        body.add(panel_load, BorderLayout.CENTER);
-
-        getContentPane().add(header, BorderLayout.NORTH);
-        getContentPane().add(body, BorderLayout.CENTER);
-        showWelcome();
-    }
-
-    private JButton homeButton() {
-        JButton home = new JButton("Home");
-        home.setUI(new BasicButtonUI());
-        home.setFont(UiTheme.FONT_BOLD);
-        home.setForeground(new Color(0x143D2C));
-        home.setBackground(new Color(0xD8F3DC));
-        home.setHorizontalAlignment(SwingConstants.LEFT);
-        home.setFocusPainted(false);
-        home.setBorderPainted(false);
-        home.setContentAreaFilled(true);
-        home.setOpaque(true);
-        home.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        home.setBorder(new EmptyBorder(10, 12, 10, 12));
-        home.setAlignmentX(Component.LEFT_ALIGNMENT);
-        home.setMaximumSize(new Dimension(Integer.MAX_VALUE, 46));
-        home.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                showWelcome();
-            }
-        });
-        return home;
-    }
-
-    private JLabel sectionLabel(String text) {
-        JLabel label = new JLabel(text);
-        label.setFont(new Font("Segoe UI", Font.BOLD, 11));
-        label.setForeground(new Color(0x95D5B2));
-        label.setBorder(new EmptyBorder(0, 8, 8, 8));
-        label.setAlignmentX(Component.LEFT_ALIGNMENT);
-        return label;
-    }
-
-    private JToggleButton navButton(final JToggleButton button, final String title) {
-        button.setText(title);
-        button.setUI(new BasicButtonUI());
-        button.setFont(UiTheme.FONT);
-        button.setForeground(new Color(0xE8F5E9));
-        button.setBackground(UiTheme.SIDEBAR);
-        button.setHorizontalAlignment(SwingConstants.LEFT);
-        button.setIconTextGap(12);
-        button.setFocusPainted(false);
-        button.setBorderPainted(false);
-        button.setContentAreaFilled(true);
-        button.setOpaque(true);
-        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        button.setBorder(new EmptyBorder(10, 12, 10, 12));
-        button.setAlignmentX(Component.LEFT_ALIGNMENT);
-        button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 46));
-        button.addItemListener(new ItemListener() {
+        ItemListener navListener = new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
-                if (button.isSelected()) {
-                    screenTitle.setText(title);
-                }
                 refreshNavColors();
             }
-        });
-        return button;
+        };
+        JToggleButton[] buttons = {
+            jToggleButton1, jToggleButton2, jToggleButton3, jToggleButton4,
+            jToggleButton5, jToggleButton6, jToggleButton7
+        };
+        for (int i = 0; i < buttons.length; i++) {
+            buttons[i].addItemListener(navListener);
+        }
+        refreshNavColors();
+    }
+
+    private void polishButton(JButton button, boolean home) {
+        button.setUI(new BasicButtonUI());
+        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        button.setBorder(new EmptyBorder(10, 12, 10, 12));
+        if (home) {
+            button.setBackground(new Color(0xD8F3DC));
+            button.setForeground(new Color(0x143D2C));
+        }
+    }
+
+    private void polishNav(JToggleButton button) {
+        button.setUI(new BasicButtonUI());
+        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        button.setBorder(new EmptyBorder(10, 12, 10, 12));
+        button.setIconTextGap(12);
+    }
+
+    private void polishCard(JButton card) {
+        card.setUI(new BasicButtonUI());
+        card.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        card.setBorder(BorderFactory.createCompoundBorder(
+                new LineBorder(UiTheme.LINE, 1, true),
+                new EmptyBorder(12, 14, 12, 14)));
+        card.setBackground(Color.WHITE);
+        card.setForeground(UiTheme.TEXT);
     }
 
     private void refreshNavColors() {
@@ -470,78 +611,37 @@ public class HomeFrame extends javax.swing.JFrame {
         }
     }
 
+    private void setScreenTitle(String title) {
+        screenTitle.setText(title);
+        refreshNavColors();
+    }
+
     private void showWelcome() {
         home_bnt_grp.clearSelection();
         screenTitle.setText("Home");
         refreshNavColors();
-
-        JPanel welcome = new JPanel();
-        welcome.setOpaque(false);
-        welcome.setLayout(new BoxLayout(welcome, BoxLayout.Y_AXIS));
-        welcome.setBorder(new EmptyBorder(12, 8, 8, 8));
-
-        JLabel hello = new JLabel("What do you want to do?");
-        hello.setFont(new Font("Segoe UI", Font.BOLD, 28));
-        hello.setForeground(UiTheme.TEXT);
-        hello.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        JLabel hint = new JLabel("Pick a task, or use the menu on the left.");
-        hint.setFont(UiTheme.FONT);
-        hint.setForeground(UiTheme.MUTED);
-        hint.setAlignmentX(Component.LEFT_ALIGNMENT);
-        hint.setBorder(new EmptyBorder(6, 0, 18, 0));
-
-        JPanel grid = new JPanel(new GridLayout(0, 3, 12, 12));
-        grid.setOpaque(false);
-        grid.setAlignmentX(Component.LEFT_ALIGNMENT);
-        grid.setMaximumSize(new Dimension(860, 280));
-        grid.add(welcomeCard("New sale", "Add items and take payment", jToggleButton5));
-        grid.add(welcomeCard("Invoices", "Look up a past sale", jToggleButton6));
-        grid.add(welcomeCard("Products", "Prices, barcodes, and stock", jToggleButton3));
-        grid.add(welcomeCard("Customers", "Names and contact details", jToggleButton1));
-        grid.add(welcomeCard("Suppliers", "People you buy stock from", jToggleButton2));
-        grid.add(welcomeCard("Employees", "Staff records", jToggleButton4));
-        grid.add(welcomeCard("Reports", "Print sales and lists", jToggleButton7));
-
-        welcome.add(hello);
-        welcome.add(hint);
-        welcome.add(grid);
-
         panel_load.removeAll();
-        panel_load.setLayout(new BorderLayout());
-        panel_load.add(welcome, BorderLayout.CENTER);
+        panel_load.setLayout(new java.awt.BorderLayout());
+        panel_load.add(welcomePanel, java.awt.BorderLayout.CENTER);
         panel_load.revalidate();
         panel_load.repaint();
     }
 
-    private JButton welcomeCard(String title, String detail, final JToggleButton target) {
-        JButton card = new JButton("<html><div style='width:180px'><b>" + title
-                + "</b><br><span style='font-weight:normal;color:#5C6B73'>" + detail + "</span></div></html>");
-        card.setUI(new BasicButtonUI());
-        card.setHorizontalAlignment(SwingConstants.LEFT);
-        card.setBackground(Color.WHITE);
-        card.setForeground(UiTheme.TEXT);
-        card.setFont(UiTheme.FONT);
-        card.setFocusPainted(false);
-        card.setBorderPainted(false);
-        card.setContentAreaFilled(true);
-        card.setOpaque(true);
-        card.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        card.setBorder(BorderFactory.createCompoundBorder(
-                new LineBorder(UiTheme.LINE, 1, true),
-                new EmptyBorder(16, 16, 16, 16)));
-        card.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                target.doClick();
-            }
-        });
-        return card;
-    }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel bodyPanel;
+    private javax.swing.JLabel brandLabel;
+    private javax.swing.JPanel brandPanel;
+    private javax.swing.JButton btnHome;
+    private javax.swing.JButton cardCustomer;
+    private javax.swing.JButton cardEmployee;
+    private javax.swing.JButton cardInvoice;
+    private javax.swing.JButton cardProduct;
+    private javax.swing.JButton cardReports;
+    private javax.swing.JButton cardSale;
+    private javax.swing.JButton cardSupplier;
+    private javax.swing.JPanel headerPanel;
     private javax.swing.ButtonGroup home_bnt_grp;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel3;
     private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JToggleButton jToggleButton2;
     private javax.swing.JToggleButton jToggleButton3;
@@ -549,7 +649,14 @@ public class HomeFrame extends javax.swing.JFrame {
     private javax.swing.JToggleButton jToggleButton5;
     private javax.swing.JToggleButton jToggleButton6;
     private javax.swing.JToggleButton jToggleButton7;
+    private javax.swing.JLabel lblHello;
+    private javax.swing.JLabel lblHint;
+    private javax.swing.JLabel lblOther;
+    private javax.swing.JLabel lblPeople;
+    private javax.swing.JLabel lblShop;
     private javax.swing.JPanel panel_load;
-    private java.awt.TextField textField1;
+    private javax.swing.JLabel screenTitle;
+    private javax.swing.JLabel tagLabel;
+    private javax.swing.JPanel welcomePanel;
     // End of variables declaration//GEN-END:variables
 }
