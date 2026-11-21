@@ -17,6 +17,14 @@ public class ProductService {
         return dao.findById(id);
     }
 
+    public Product getByName(String name) throws SQLException {
+        return dao.findByName(name);
+    }
+
+    public Product getByBarcode(String barcode) throws SQLException {
+        return dao.findByBarcode(barcode);
+    }
+
     public List<Product> searchByName(String name) throws SQLException {
         return dao.findByNameLike(name);
     }
@@ -31,5 +39,9 @@ public class ProductService {
 
     public void delete(String id) throws SQLException {
         dao.delete(id);
+    }
+
+    public boolean deductStockByBarcode(String barcode, double qty) throws SQLException {
+        return dao.deductStockByBarcode(barcode, qty);
     }
 }

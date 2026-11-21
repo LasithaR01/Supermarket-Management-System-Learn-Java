@@ -53,6 +53,74 @@ public class ProductDao {
         }
     }
 
+    public Product findByName(String name) throws SQLException {
+        String sql = "SELECT pid, Product_Name, Bar_code, Price, Qty, Sid FROM product WHERE Product_Name = ?";
+        Connection con = ConnectionFactory.getConnection();
+        if (con == null) {
+            return null;
+        }
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            ps = con.prepareStatement(sql);
+            ps.setString(1, name);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return map(rs);
+            }
+            return null;
+        } finally {
+            close(rs, ps, con);
+        }
+    }
+
+    public Product findByBarcode(String barcode) throws SQLException {
+        String sql = "SELECT pid, Product_Name, Bar_code, Price, Qty, Sid FROM product WHERE Bar_code = ?";
+        Connection con = ConnectionFactory.getConnection();
+        if (con == null) {
+            return null;
+        }
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            ps = con.prepareStatement(sql);
+            ps.setString(1, barcode);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return map(rs);
+            }
+            return null;
+        } finally {
+            close(rs, ps, con);
+        }
+    }
+
+    /**
+     * Atomically reduce stock when enough Qty remains.
+     * @return true if a row was updated (stock deducted)
+     */
+    public boolean deductStockByBarcode(String barcode, double qty) throws SQLException {
+        if (barcode == null || barcode.trim().isEmpty() || qty <= 0) {
+            return false;
+        }
+        String sql = "UPDATE product SET Qty = CAST(CAST(Qty AS DECIMAL(12,2)) - ? AS CHAR) "
+                + "WHERE Bar_code = ? AND CAST(Qty AS DECIMAL(12,2)) >= ?";
+        Connection con = ConnectionFactory.getConnection();
+        if (con == null) {
+            throw new SQLException("No database connection");
+        }
+        PreparedStatement ps = null;
+        try {
+            ps = con.prepareStatement(sql);
+            ps.setDouble(1, qty);
+            ps.setString(2, barcode);
+            ps.setDouble(3, qty);
+            return ps.executeUpdate() == 1;
+        } finally {
+            close(null, ps, con);
+        }
+    }
+
     public List<Product> findByNameLike(String name) throws SQLException {
         List<Product> list = new ArrayList<Product>();
         String sql = "SELECT pid, Product_Name, Bar_code, Price, Qty, Sid FROM product WHERE Product_Name LIKE ?";
