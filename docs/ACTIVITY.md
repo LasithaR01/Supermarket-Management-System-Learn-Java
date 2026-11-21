@@ -29,6 +29,8 @@ Full guide: [COMMIT_GUIDE.md](COMMIT_GUIDE.md)
 
 | When | Who | Type | Module | Note | Source |
 |------|-----|------|--------|------|--------|
+| 2026-11-22 02:03 | Lasitha Ransara | `ci` | `ci` | Auto-delete GitHub Actions runs older than 2 days (keep Actions tab clean) | seed |
+| 2026-11-22 02:00 | Lasitha Ransara | `docs` | `general` | Add team activity log and commit guide to improve project documentation | git `cde9f84` |
 | 2026-11-22 01:54 | Lasitha Ransara | `docs` | `docs` | Add team ACTIVITY log + GitHub Action auto-update on push (dev/QA timeline) | seed |
 | 2026-11-22 01:12 | Lasitha Ransara | `refactor` | `ui` | Unify UI layout and enhance styling across customer, employee, and invoice panels | seed |
 | 2026-11-22 01:00 | Lasitha Ransara | `fix` | `ui` | Sync Design = Run for all screens (Products, Sales, Invoices, Reports, Customers, Suppliers, Employees) | seed |

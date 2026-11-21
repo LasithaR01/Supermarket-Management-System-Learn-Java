@@ -264,5 +264,12 @@
     "type": "docs",
     "module": "docs",
     "note": "Add team ACTIVITY log + GitHub Action auto-update on push (dev/QA timeline)"
+  },
+  {
+    "when": "2026-11-22 02:03",
+    "who": "Lasitha Ransara",
+    "type": "ci",
+    "module": "ci",
+    "note": "Auto-delete GitHub Actions runs older than 2 days (keep Actions tab clean)"
   }
 ]

@@ -58,6 +58,13 @@ Use your real name so the team log shows **you**, not a bot or `cursoragent`.
    - `git log` (all commits)
 4. If the file changed, the Action commits it back  
 
+## Actions tab cleanup
+
+Old GitHub Actions runs are removed automatically every **2 days**  
+(`.github/workflows/cleanup-actions.yml`). Runs older than 2 days are deleted;  
+the newest few per workflow are kept so you can still check the latest status.  
+You can also run **Cleanup old Actions runs** manually from the Actions tab.
+
 ## Adding older work by hand
 
 Edit `docs/activity-seed.json` (one JSON object per change), then run:
