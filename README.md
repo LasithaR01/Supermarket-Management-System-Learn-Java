@@ -26,5 +26,5 @@ Before you run this project, ensure you have the following installed:
 Open `src/pos/pro/db.java` and update the connection string with your local MySQL credentials:
 
 ```java
-// Change the password "78563" to your actual MySQL root password
+// Change the password "12457" to your actual MySQL root password
 con = DriverManager.getConnection("jdbc:mysql://localhost:3307/cmartdb", "root", "78563");
