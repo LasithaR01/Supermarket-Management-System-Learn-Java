@@ -1,1 +1,42 @@
+# --- Compiled class files ---
+*.class
+
+# --- NetBeans specific files ---
+# The entire build directory (compiled files, JARs)
+/build/
+# The dist directory (distribution JARs)
 /dist/
+# NetBeans private project configuration
+/nbproject/private/
+# NetBeans build-generated files
+/nbproject/build-impl.xml
+
+# --- Log files ---
+*.log
+
+# --- Package Files ---
+# It's usually good practice to ignore OS-specific generated files
+*.jar
+*.war
+*.ear
+
+# --- Operating System Files ---
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Mac
+.DS_Store
+
+# --- IDE Specific (IntelliJ, Eclipse, VS Code) ---
+# In case you or someone else opens the project in another IDE
+.idea/
+*.iml
+.project
+.classpath
+.settings/
+.vscode/
+
+# --- Database dumps (Optional but recommended) ---
+# If you have local SQL dumps that shouldn't be committed
+*.sql
