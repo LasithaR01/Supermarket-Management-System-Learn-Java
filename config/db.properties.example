@@ -1,0 +1,7 @@
+# Copy this file to db.properties and set your local MySQL settings.
+# db.properties is gitignored — do not commit real passwords.
+
+jdbc.driver=com.mysql.cj.jdbc.Driver
+jdbc.url=jdbc:mysql://localhost:3307/cmartdb
+jdbc.user=root
+jdbc.password=YOUR_PASSWORD_HERE

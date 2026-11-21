@@ -1,0 +1,55 @@
+# CMart Architecture
+
+Package root: `cmart` (flat — no `com.company` nesting)
+
+## Layout
+
+```text
+src/cmart/
+├── App.java                 # main entry
+├── config/                  # DatabaseConfig (reads config/db.properties)
+├── db/                      # ConnectionFactory
+├── model/                   # Product, Customer, Supplier, Employee, Sale, CartItem
+├── dao/                     # SQL access (ProductDao uses PreparedStatement)
+├── service/                 # ProductService, SaleService
+├── util/                    # ReportPaths, Validation
+├── resources/
+│   ├── img/                 # UI icons
+│   └── reports/             # Jasper .jrxml / .jasper
+└── ui/
+    ├── theme/               # UiTheme, RunView
+    ├── shell/               # HomeFrame, PanelLoader
+    ├── customer/            # CustomerPanel
+    ├── supplier/            # SupplierPanel
+    ├── employee/            # EmployeePanel
+    ├── product/             # ProductPanel
+    ├── sale/                # SalePanel
+    ├── invoice/             # InvoicePanel
+    └── report/              # ReportsPanel, ReportView
+```
+
+## Layers
+
+| Layer | Role |
+|-------|------|
+| **ui** | Swing screens only |
+| **service** | Business rules |
+| **dao** | Database queries |
+| **model** | Data objects |
+| **config / db** | Connection settings |
+
+## Config
+
+1. Copy `config/db.properties.example` → `config/db.properties`
+2. Set your MySQL URL, user, and password
+3. `db.properties` is gitignored
+
+## Run
+
+- Main class: `cmart.App` (also set in NetBeans `project.properties`)
+- Design view may still show old NetBeans form layouts; **Run** uses `RunView` layouts
+
+## Migration notes
+
+- Legacy package `pos.pro` was removed.
+- Product is the reference module for dao + service; other screens still call SQL in the panel and should move to dao/service next (see roadmap Phase 1).
