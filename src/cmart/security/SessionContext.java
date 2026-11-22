@@ -7,7 +7,11 @@ import cmart.model.AppUser;
  */
 public final class SessionContext {
 
+    /** Idle timeout before auto sign-out (15 minutes). */
+    public static final long IDLE_TIMEOUT_MS = 15L * 60L * 1000L;
+
     private static volatile AppUser currentUser;
+    private static volatile long lastActivityMs;
 
     private SessionContext() {
     }
@@ -17,10 +21,12 @@ public final class SessionContext {
             throw new IllegalArgumentException("User required");
         }
         currentUser = user;
+        touch();
     }
 
     public static void signOut() {
         currentUser = null;
+        lastActivityMs = 0L;
     }
 
     public static AppUser currentUser() {
@@ -29,6 +35,21 @@ public final class SessionContext {
 
     public static boolean isSignedIn() {
         return currentUser != null;
+    }
+
+    public static void touch() {
+        lastActivityMs = System.currentTimeMillis();
+    }
+
+    public static long lastActivityMs() {
+        return lastActivityMs;
+    }
+
+    public static boolean isIdleTimedOut() {
+        if (currentUser == null || lastActivityMs <= 0L) {
+            return false;
+        }
+        return System.currentTimeMillis() - lastActivityMs >= IDLE_TIMEOUT_MS;
     }
 
     public static boolean can(Permission permission) {

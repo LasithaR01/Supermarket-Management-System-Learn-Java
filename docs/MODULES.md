@@ -24,13 +24,13 @@ Use this as the master tick list while building. Phase order and outcomes live i
 | Module | Package / files | Status | Notes |
 |--------|-----------------|--------|-------|
 | Home shell | `ui/shell/HomeFrame`, `PanelLoader`, `ui/theme/*` | Done | Role-filtered nav + header ops + Settings / Sign out |
-| Login & roles | `ui/auth/LoginFrame`, `security/*`, `AuthService` | Done | PBKDF2; ADMIN / CASHIER / STORE_KEEPER |
-| Settings | `ui/settings/SettingsPanel`, `SettingService` | Done | Shop name, tax, currency, stock policy in DB |
+| Login & roles | `ui/auth/LoginFrame`, `security/*`, `AuthService` | Done | PBKDF2; SUPER_ADMIN / STORE_OWNER / CASHIER / STORE_KEEPER |
+| Settings | `ui/settings/SettingsPanel`, `SettingService` | Done | Shop options + recovery PIN |
 | Customers | `ui/customer/CustomerPanel` + Dao/Service | Done | Panel uses service only (PreparedStatement in DAO) |
 | Suppliers | `ui/supplier/SupplierPanel` + Dao/Service | Done | Same layered pattern as customers |
 | Employees | `ui/employee/EmployeePanel` + Dao/Service | Done | People CRUD; login users are separate (`app_user`) |
 | Products | `ui/product/ProductPanel` + Dao/Service | Done | Panel uses service; validation on save/update |
-| Users admin | `ui/admin/UsersPanel` + `UserAdminService` | Done | Create users, change passwords, roles (ADMIN only) |
+| Users admin | `ui/admin/UsersPanel` + `UserAdminService` | Done | Owner creates staff + reset password (no support call) |
 | Sales | `ui/sale/SalePanel` + `SaleService` / `SaleDao` | Done | Barcode, discount, live tax, typeahead, pay method, hold/recall, stock |
 | Invoices | `ui/invoice/InvoicePanel` + `InvoiceService` | Done | Filter + reprint receipt (double-click / button) |
 | Returns | `ui/refund/RefundPanel` + `ReturnService` | Done | Load invoice lines → refund qty → restock |
@@ -61,14 +61,20 @@ Use this as the master tick list while building. Phase order and outcomes live i
 
 | Sub-module | Status | Package / notes |
 |------------|--------|-----------------|
-| Login screen | Done | `ui/auth/LoginFrame` |
+| Login screen | Done | Split brand + form `LoginFrame` (UiTheme) |
 | PBKDF2 password hash | Done | `security/PasswordHasher` |
-| Roles: ADMIN / CASHIER / STORE_KEEPER | Done | `security/Role` |
-| Permissions per action | Done | `security/Permission` |
+| Roles: SUPER_ADMIN / STORE_OWNER / CASHIER / STORE_KEEPER | Done | `security/Role` (+ legacy ADMIN→STORE_OWNER) |
+| Permissions per action | Done | `security/Permission` (+ `SYSTEM`) |
+| Change own password | Done | Home → Password; forced when `must_change_password` |
+| Forgot password | Done | Recovery PIN (owner/super); staff → Owner Users reset |
+| Password policy | Done | Min 8 + letter + number (`PasswordPolicy`) |
+| Login lockout | Done | 5 fails → 15 min lock (`failed_login_count` / `locked_until`) |
+| Idle auto sign-out | Done | 15 min inactivity on Home |
 | Sign out | Done | Clears session → Login |
-| Users admin (create / password / role) | Done | `ui/admin/UsersPanel` |
+| Users admin (create / password / role) | Done | Owner self-service; cannot manage Super Admin |
+| Role dashboards | Done | Super / Owner / Cashier / Store Keeper views |
+| Security audit log | Done | `security_audit` + Owner/Super dashboard recent events |
 | Fine-grained action ACL (discount / delete / refund beyond role) | Partial | Role-level only today |
-| Audit log (who changed what) | Todo | — |
 
 ---
 

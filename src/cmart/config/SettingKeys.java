@@ -14,6 +14,16 @@ public final class SettingKeys {
     public static final String ALLOW_NEGATIVE_STOCK = "stock.allow.negative";
     public static final String STOCK_LOW_THRESHOLD = "stock.low.threshold";
 
+    /** Hashed shop recovery PIN (forgot-password for owner). Managed by AuthService. */
+    public static final String RECOVERY_PIN_HASH = "security.recovery.pin.hash";
+    public static final String RECOVERY_PIN_SALT = "security.recovery.pin.salt";
+
+    /**
+     * One-time seed marker for role/demo login accounts (super/owner/cashier/store).
+     * When bumped, AuthService re-applies those four accounts once.
+     */
+    public static final String BOOTSTRAP_USERS_VERSION = "security.bootstrap.users.version";
+
     private SettingKeys() {
     }
 }

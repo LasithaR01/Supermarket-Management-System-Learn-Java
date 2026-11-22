@@ -16,12 +16,15 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -31,7 +34,7 @@ import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
 /**
- * Admin screen to create users and change passwords (no demo-account dependency).
+ * Store Owner / Super Admin screen to create staff and reset passwords — no support call needed.
  */
 public class UsersPanel extends JPanel {
 
@@ -39,12 +42,13 @@ public class UsersPanel extends JPanel {
 
     private final JTextField usernameField = new JTextField(16);
     private final JTextField displayNameField = new JTextField(16);
-    private final JComboBox roleBox = new JComboBox(Role.values());
+    private final JComboBox roleBox = new JComboBox();
     private final JPasswordField passwordField = new JPasswordField(16);
     private final JCheckBox activeBox = new JCheckBox("Active", true);
     private final JLabel selectedLabel = new JLabel("Selected: (none)");
+    private final JLabel roleHelp = new JLabel(" ");
     private final DefaultTableModel tableModel = new DefaultTableModel(
-            new Object[] {"ID", "Username", "Display name", "Role", "Active"}, 0) {
+            new Object[] {"ID", "Username", "Display name", "Role", "Active", "Must change"}, 0) {
         public boolean isCellEditable(int row, int column) {
             return false;
         }
@@ -62,14 +66,23 @@ public class UsersPanel extends JPanel {
             JOptionPane.showMessageDialog(this, "You do not have permission to manage users.");
             return;
         }
+        reloadRoles();
         reload();
     }
 
     private void buildUi() {
-        JLabel title = new JLabel("Users & passwords");
+        JPanel north = new JPanel(new BorderLayout());
+        north.setOpaque(false);
+        JLabel title = new JLabel("Users & access");
         title.setFont(new Font("Segoe UI", Font.BOLD, 20));
         title.setForeground(UiTheme.SIDEBAR);
-        add(title, BorderLayout.NORTH);
+        JLabel subtitle = new JLabel(
+                "Create staff here. Passwords need 8+ characters with a letter and a number.");
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        subtitle.setForeground(UiTheme.MUTED);
+        north.add(title, BorderLayout.NORTH);
+        north.add(subtitle, BorderLayout.SOUTH);
+        add(north, BorderLayout.NORTH);
 
         JPanel form = new JPanel(new GridBagLayout());
         form.setOpaque(true);
@@ -87,6 +100,13 @@ public class UsersPanel extends JPanel {
         row = addRow(form, gc, row, "Username", usernameField);
         row = addRow(form, gc, row, "Display name", displayNameField);
         row = addRow(form, gc, row, "Role", roleBox);
+        roleHelp.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        roleHelp.setForeground(UiTheme.MUTED);
+        gc.gridx = 0;
+        gc.gridy = row;
+        gc.gridwidth = 2;
+        form.add(roleHelp, gc);
+        row++;
         row = addRow(form, gc, row, "Password", passwordField);
 
         gc.gridx = 0;
@@ -98,36 +118,49 @@ public class UsersPanel extends JPanel {
         gc.gridy = row++;
         form.add(selectedLabel, gc);
 
+        roleBox.setRenderer(new DefaultListCellRenderer() {
+            public java.awt.Component getListCellRendererComponent(
+                    JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof Role) {
+                    setText(((Role) value).displayLabel());
+                }
+                return this;
+            }
+        });
+        roleBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                updateRoleHelp();
+            }
+        });
+
         JPanel buttons = new JPanel();
         buttons.setOpaque(false);
-        JButton create = button("Create user");
-        create.addActionListener(new ActionListener() {
+        buttons.add(actionButton("Create user", new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 createUser();
             }
-        });
-        JButton saveProfile = button("Save profile");
-        saveProfile.addActionListener(new ActionListener() {
+        }));
+        buttons.add(actionButton("Save profile", new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 saveProfile();
             }
-        });
-        JButton changePassword = button("Change password");
-        changePassword.addActionListener(new ActionListener() {
+        }));
+        buttons.add(actionButton("Reset password", new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                changePassword();
+                resetPassword();
             }
-        });
-        JButton refresh = button("Refresh");
-        refresh.addActionListener(new ActionListener() {
+        }));
+        buttons.add(actionButton("Clear", new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                clearForm();
+            }
+        }));
+        buttons.add(actionButton("Refresh", new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 reload();
             }
-        });
-        buttons.add(create);
-        buttons.add(saveProfile);
-        buttons.add(changePassword);
-        buttons.add(refresh);
+        }));
 
         gc.gridy = row;
         form.add(buttons, gc);
@@ -145,15 +178,39 @@ public class UsersPanel extends JPanel {
                 usernameField.setText(String.valueOf(tableModel.getValueAt(r, 1)));
                 usernameField.setEditable(false);
                 displayNameField.setText(String.valueOf(tableModel.getValueAt(r, 2)));
-                roleBox.setSelectedItem(Role.fromStorage(String.valueOf(tableModel.getValueAt(r, 3))));
+                Role role = Role.fromStorage(String.valueOf(tableModel.getValueAt(r, 3)));
+                roleBox.setSelectedItem(role);
                 activeBox.setSelected("Yes".equals(String.valueOf(tableModel.getValueAt(r, 4))));
                 passwordField.setText("");
                 selectedLabel.setText("Selected: #" + selectedUserId + " " + usernameField.getText());
+                updateRoleHelp();
             }
         });
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createLineBorder(UiTheme.LINE));
         add(scroll, BorderLayout.CENTER);
+        UiTheme.apply(this);
+    }
+
+    private void reloadRoles() {
+        roleBox.removeAllItems();
+        Role[] roles = userAdminService.assignableRoles();
+        for (int i = 0; i < roles.length; i++) {
+            roleBox.addItem(roles[i]);
+        }
+        if (roleBox.getItemCount() > 0) {
+            roleBox.setSelectedItem(Role.CASHIER);
+        }
+        updateRoleHelp();
+    }
+
+    private void updateRoleHelp() {
+        Object selected = roleBox.getSelectedItem();
+        if (selected instanceof Role) {
+            roleHelp.setText(((Role) selected).shortDescription());
+        } else {
+            roleHelp.setText(" ");
+        }
     }
 
     private int addRow(JPanel form, GridBagConstraints gc, int row, String caption, java.awt.Component field) {
@@ -168,9 +225,10 @@ public class UsersPanel extends JPanel {
         return row + 1;
     }
 
-    private JButton button(String text) {
+    private JButton actionButton(String text, ActionListener listener) {
         JButton button = new JButton(text);
-        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        button.addActionListener(listener);
         return button;
     }
 
@@ -184,7 +242,8 @@ public class UsersPanel extends JPanel {
                     user.getUsername(),
                     user.getDisplayName(),
                     user.getRole().name(),
-                    user.isActive() ? "Yes" : "No"
+                    user.isActive() ? "Yes" : "No",
+                    user.isMustChangePassword() ? "Yes" : "No"
                 });
             }
             clearForm();
@@ -204,7 +263,8 @@ public class UsersPanel extends JPanel {
                     displayNameField.getText(),
                     (Role) roleBox.getSelectedItem(),
                     password);
-            JOptionPane.showMessageDialog(this, "User created.");
+            JOptionPane.showMessageDialog(this,
+                    "User created. They must change the password on first sign-in.");
             reload();
         } catch (IllegalArgumentException e) {
             JOptionPane.showMessageDialog(this, e.getMessage());
@@ -213,7 +273,7 @@ public class UsersPanel extends JPanel {
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Could not create user: " + e.getMessage());
         } finally {
-            java.util.Arrays.fill(password, '\0');
+            Arrays.fill(password, '\0');
             passwordField.setText("");
         }
     }
@@ -240,24 +300,33 @@ public class UsersPanel extends JPanel {
         }
     }
 
-    private void changePassword() {
+    private void resetPassword() {
         if (selectedUserId == null) {
             JOptionPane.showMessageDialog(this, "Select a user first.");
+            return;
+        }
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Reset password for " + usernameField.getText() + "?\nThey must change it on next sign-in.",
+                "Reset password",
+                JOptionPane.YES_NO_OPTION);
+        if (confirm != JOptionPane.YES_OPTION) {
             return;
         }
         char[] password = passwordField.getPassword();
         try {
             userAdminService.changePassword(selectedUserId.intValue(), password);
-            JOptionPane.showMessageDialog(this, "Password updated.");
+            JOptionPane.showMessageDialog(this, "Password reset. User must change it on next login.");
             passwordField.setText("");
+            reload();
         } catch (IllegalArgumentException e) {
             JOptionPane.showMessageDialog(this, e.getMessage());
         } catch (SecurityException e) {
             JOptionPane.showMessageDialog(this, e.getMessage());
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Could not change password: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Could not reset password: " + e.getMessage());
         } finally {
-            java.util.Arrays.fill(password, '\0');
+            Arrays.fill(password, '\0');
         }
     }
 
@@ -267,8 +336,11 @@ public class UsersPanel extends JPanel {
         usernameField.setText("");
         displayNameField.setText("");
         passwordField.setText("");
-        roleBox.setSelectedItem(Role.CASHIER);
+        if (roleBox.getItemCount() > 0) {
+            roleBox.setSelectedItem(Role.CASHIER);
+        }
         activeBox.setSelected(true);
         selectedLabel.setText("Selected: (none)");
+        updateRoleHelp();
     }
 }

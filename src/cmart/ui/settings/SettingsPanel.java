@@ -3,6 +3,7 @@ package cmart.ui.settings;
 import cmart.config.SettingKeys;
 import cmart.security.Permission;
 import cmart.security.SessionContext;
+import cmart.service.AuthService;
 import cmart.service.SettingService;
 import cmart.ui.theme.UiTheme;
 import java.awt.BorderLayout;
@@ -13,6 +14,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.swing.BorderFactory;
@@ -21,6 +23,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 /**
@@ -29,6 +32,7 @@ import javax.swing.JTextField;
 public class SettingsPanel extends JPanel {
 
     private final SettingService settingService = new SettingService();
+    private final AuthService authService = new AuthService();
 
     private final JTextField shopNameField = new JTextField(24);
     private final JTextField taglineField = new JTextField(24);
@@ -38,6 +42,8 @@ public class SettingsPanel extends JPanel {
     private final JTextField lowStockField = new JTextField(8);
     private final JCheckBox taxEnabledBox = new JCheckBox("Enable tax on bills");
     private final JCheckBox allowNegativeStockBox = new JCheckBox("Allow selling below stock (not recommended)");
+    private final JPasswordField recoveryPinField = new JPasswordField(16);
+    private final JLabel recoveryStatus = new JLabel(" ");
 
     public SettingsPanel() {
         setLayout(new BorderLayout(0, 12));
@@ -80,6 +86,38 @@ public class SettingsPanel extends JPanel {
         gc.gridy = row++;
         form.add(allowNegativeStockBox, gc);
 
+        JLabel securityTitle = new JLabel("Security — recovery PIN (forgot password for Owner / Super Admin)");
+        securityTitle.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        securityTitle.setForeground(UiTheme.SIDEBAR);
+        gc.gridy = row++;
+        form.add(securityTitle, gc);
+
+        recoveryStatus.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        recoveryStatus.setForeground(UiTheme.MUTED);
+        gc.gridy = row++;
+        form.add(recoveryStatus, gc);
+
+        JLabel pinHint = new JLabel("Min 6 characters, include a number. Keep this PIN private.");
+        pinHint.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        pinHint.setForeground(UiTheme.MUTED);
+        gc.gridy = row++;
+        form.add(pinHint, gc);
+
+        gc.gridwidth = 1;
+        row = addRow(form, gc, row, "New recovery PIN", recoveryPinField);
+
+        JButton savePin = new JButton("Save recovery PIN");
+        savePin.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        savePin.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                saveRecoveryPin();
+            }
+        });
+        gc.gridx = 0;
+        gc.gridy = row++;
+        gc.gridwidth = 2;
+        form.add(savePin, gc);
+
         JButton save = new JButton("Save settings");
         save.setFont(new Font("Segoe UI", Font.BOLD, 14));
         save.addActionListener(new ActionListener() {
@@ -94,11 +132,12 @@ public class SettingsPanel extends JPanel {
 
         if (!SessionContext.can(Permission.SETTINGS)) {
             save.setEnabled(false);
+            savePin.setEnabled(false);
             JOptionPane.showMessageDialog(this, "You do not have permission to change settings.");
         }
     }
 
-    private int addRow(JPanel form, GridBagConstraints gc, int row, String caption, JTextField field) {
+    private int addRow(JPanel form, GridBagConstraints gc, int row, String caption, java.awt.Component field) {
         gc.gridwidth = 1;
         gc.gridx = 0;
         gc.gridy = row;
@@ -122,8 +161,31 @@ public class SettingsPanel extends JPanel {
             lowStockField.setText(all.get(SettingKeys.STOCK_LOW_THRESHOLD));
             taxEnabledBox.setSelected(Boolean.parseBoolean(all.get(SettingKeys.TAX_ENABLED)));
             allowNegativeStockBox.setSelected(Boolean.parseBoolean(all.get(SettingKeys.ALLOW_NEGATIVE_STOCK)));
+            if (authService.isRecoveryPinConfigured()) {
+                recoveryStatus.setText("Recovery PIN is configured.");
+            } else {
+                recoveryStatus.setText("Not set yet — set a PIN so Owner can use Forgot password on login.");
+            }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Could not load settings: " + e.getMessage());
+        }
+    }
+
+    private void saveRecoveryPin() {
+        char[] pin = recoveryPinField.getPassword();
+        try {
+            authService.setRecoveryPin(pin);
+            recoveryPinField.setText("");
+            recoveryStatus.setText("Recovery PIN is configured.");
+            JOptionPane.showMessageDialog(this, "Recovery PIN saved.");
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        } catch (SecurityException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Could not save PIN: " + e.getMessage());
+        } finally {
+            Arrays.fill(pin, '\0');
         }
     }
 

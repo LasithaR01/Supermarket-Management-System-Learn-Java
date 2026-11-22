@@ -1,6 +1,7 @@
 package cmart.model;
 
 import cmart.security.Role;
+import java.sql.Timestamp;
 
 public class AppUser {
 
@@ -11,6 +12,9 @@ public class AppUser {
     private String passwordSalt;
     private Role role;
     private boolean active;
+    private boolean mustChangePassword;
+    private int failedLoginCount;
+    private Timestamp lockedUntil;
 
     public int getId() {
         return id;
@@ -66,5 +70,33 @@ public class AppUser {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public boolean isMustChangePassword() {
+        return mustChangePassword;
+    }
+
+    public void setMustChangePassword(boolean mustChangePassword) {
+        this.mustChangePassword = mustChangePassword;
+    }
+
+    public int getFailedLoginCount() {
+        return failedLoginCount;
+    }
+
+    public void setFailedLoginCount(int failedLoginCount) {
+        this.failedLoginCount = failedLoginCount;
+    }
+
+    public Timestamp getLockedUntil() {
+        return lockedUntil;
+    }
+
+    public void setLockedUntil(Timestamp lockedUntil) {
+        this.lockedUntil = lockedUntil;
+    }
+
+    public boolean isLockedNow() {
+        return lockedUntil != null && lockedUntil.getTime() > System.currentTimeMillis();
     }
 }

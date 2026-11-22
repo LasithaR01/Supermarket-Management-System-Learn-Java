@@ -77,16 +77,17 @@ Goal: turn the current desktop POS into a **fast, easy system** a shop owner can
 
 ## Phase 4 — Business management for the owner
 
-1. ~~Login + roles: Admin, Cashier, Store keeper.~~ Done (`LoginFrame` + `Role`/`Permission`).
-2. ~~Dashboard: today sales, top products, low stock, dues.~~
+1. ~~Login + roles: Super Admin, Store Owner, Cashier, Store keeper.~~ Done (`LoginFrame` + `Role`/`Permission`).
+2. ~~Dashboard: today sales, top products, low stock, dues~~ (+ role-aware views).
 3. Daily / weekly / monthly sales reports.
 4. Profit report (sales − cost − discounts).
 5. Expense module (rent, utilities, wages).
 6. Customer outstanding report.
 7. Supplier payable report.
-8. Employee permissions (who can delete / discount / refund).
+8. Employee permissions (who can delete / discount / refund) — Partial (role sets; per-action toggles later).
 9. Audit log (who changed price / deleted record).
 10. ~~Backup MySQL with one click~~ (`mysqldump`; restore later).
+11. ~~Change / forgot password~~ (self-service + recovery PIN + Owner reset).
 
 **Outcome:** Owner manages the business without opening Workbench.
 

@@ -35,10 +35,10 @@ public class RefundPanel extends JPanel {
         setLayout(new BorderLayout(8, 8));
         setBackground(UiTheme.PAGE);
         setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
-        JLabel title = new JLabel("Returns / refunds");
+        putClientProperty(UiTheme.KEEP, Boolean.TRUE);
+        JLabel title = new JLabel("Returns");
         title.setFont(new Font("Segoe UI", Font.BOLD, 20));
         title.setForeground(UiTheme.SIDEBAR);
-        add(title, BorderLayout.NORTH);
 
         JPanel top = new JPanel(new GridLayout(2, 1, 6, 6));
         top.setOpaque(false);
@@ -64,7 +64,12 @@ public class RefundPanel extends JPanel {
         row2.add(refund);
         top.add(row1);
         top.add(row2);
-        add(top, BorderLayout.PAGE_START);
+
+        JPanel north = new JPanel(new BorderLayout(0, 10));
+        north.setOpaque(false);
+        north.add(title, BorderLayout.NORTH);
+        north.add(top, BorderLayout.CENTER);
+        add(north, BorderLayout.NORTH);
         table.setRowHeight(30);
         add(new JScrollPane(table), BorderLayout.CENTER);
     }

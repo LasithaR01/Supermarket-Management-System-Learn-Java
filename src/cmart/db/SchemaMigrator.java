@@ -28,8 +28,9 @@ public final class SchemaMigrator {
                             + "`display_name` VARCHAR(80) NOT NULL,"
                             + "`password_hash` VARCHAR(128) NOT NULL,"
                             + "`password_salt` VARCHAR(64) NOT NULL,"
-                            + "`role` VARCHAR(20) NOT NULL,"
+                            + "`role` VARCHAR(30) NOT NULL,"
                             + "`active` TINYINT(1) NOT NULL DEFAULT 1,"
+                            + "`must_change_password` TINYINT(1) NOT NULL DEFAULT 0,"
                             + "`created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
                             + "PRIMARY KEY (`user_id`),"
                             + "UNIQUE KEY `uk_app_user_username` (`username`)"
@@ -139,6 +140,31 @@ public final class SchemaMigrator {
                             + "`qty` VARCHAR(20) NOT NULL,"
                             + "`unit_cost` VARCHAR(20) NOT NULL DEFAULT '0',"
                             + "PRIMARY KEY (`line_id`)"
+                            + ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
+
+            // Auth upgrades: force password change + widen role column for SUPER_ADMIN / STORE_OWNER
+            ensureColumn(st, "app_user", "must_change_password", "TINYINT(1) NOT NULL DEFAULT 0");
+            ensureColumn(st, "app_user", "failed_login_count", "INT NOT NULL DEFAULT 0");
+            ensureColumn(st, "app_user", "locked_until", "TIMESTAMP NULL DEFAULT NULL");
+            try {
+                st.execute("ALTER TABLE `app_user` MODIFY COLUMN `role` VARCHAR(30) NOT NULL");
+            } catch (SQLException ignored) {
+            }
+            // Legacy ADMIN → STORE_OWNER (shop boss); Super Admin is a separate role for the dev team
+            try {
+                st.execute("UPDATE `app_user` SET `role` = 'STORE_OWNER' WHERE `role` = 'ADMIN'");
+            } catch (SQLException ignored) {
+            }
+
+            st.execute(
+                    "CREATE TABLE IF NOT EXISTS `security_audit` ("
+                            + "`audit_id` INT NOT NULL AUTO_INCREMENT,"
+                            + "`event_type` VARCHAR(40) NOT NULL,"
+                            + "`username` VARCHAR(50) NOT NULL DEFAULT '',"
+                            + "`actor_username` VARCHAR(50) NOT NULL DEFAULT '',"
+                            + "`detail` VARCHAR(255) NOT NULL DEFAULT '',"
+                            + "`created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                            + "PRIMARY KEY (`audit_id`)"
                             + ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
         } finally {
             try {

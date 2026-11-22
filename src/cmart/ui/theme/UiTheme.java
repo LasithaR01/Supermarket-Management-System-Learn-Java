@@ -72,6 +72,11 @@ public final class UiTheme {
     }
 
     private static void style(Component component) {
+        // KEEP panels (and their children) keep custom layout / colors — e.g. login, titled pages
+        if (component instanceof JPanel
+                && Boolean.TRUE.equals(((JPanel) component).getClientProperty(KEEP))) {
+            return;
+        }
         if (component instanceof JPanel) {
             stylePanel((JPanel) component);
         } else if (component instanceof JButton) {
@@ -120,17 +125,31 @@ public final class UiTheme {
     }
 
     private static void stylePanel(JPanel panel) {
-        if (Boolean.TRUE.equals(panel.getClientProperty(KEEP))) {
-            return;
-        }
-        boolean card = panel.getBorder() != null;
+        // Page padding (EmptyBorder only) is not a "card" — only line-bordered panels are
+        boolean card = hasLineBorder(panel.getBorder());
         panel.setOpaque(true);
-        panel.setBackground(card ? CARD : PAGE);
         if (card) {
+            panel.setBackground(CARD);
             panel.setBorder(BorderFactory.createCompoundBorder(
                     new LineBorder(LINE, 1, true),
                     new EmptyBorder(10, 12, 10, 12)));
+        } else {
+            panel.setBackground(PAGE);
         }
+    }
+
+    private static boolean hasLineBorder(javax.swing.border.Border border) {
+        if (border == null) {
+            return false;
+        }
+        if (border instanceof LineBorder) {
+            return true;
+        }
+        if (border instanceof javax.swing.border.CompoundBorder) {
+            javax.swing.border.CompoundBorder compound = (javax.swing.border.CompoundBorder) border;
+            return hasLineBorder(compound.getOutsideBorder()) || hasLineBorder(compound.getInsideBorder());
+        }
+        return false;
     }
 
     private static void styleButton(JButton button) {
@@ -184,6 +203,9 @@ public final class UiTheme {
             @Override
             public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof cmart.security.Role) {
+                    label.setText(((cmart.security.Role) value).displayLabel());
+                }
                 label.setFont(FONT);
                 label.setBorder(new EmptyBorder(4, 8, 4, 8));
                 label.setOpaque(true);
@@ -200,6 +222,11 @@ public final class UiTheme {
     }
 
     private static void styleLabel(JLabel label) {
+        // Keep hand-styled page titles (bold / large / sidebar green)
+        Font current = label.getFont();
+        if (current != null && (current.isBold() || current.getSize() >= 18)) {
+            return;
+        }
         String text = label.getText() == null ? "" : label.getText().trim();
         boolean value = text.length() > 0 && text.indexOf(':') < 0 && text.matches(".*\\d.*") && text.length() < 16;
         if (value) {

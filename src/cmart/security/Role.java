@@ -7,9 +7,16 @@ import java.util.Set;
 
 /**
  * Application roles with explicit permission sets (no scattered if-role hardcoding).
+ * <ul>
+ *   <li>{@link #SUPER_ADMIN} — development / support team</li>
+ *   <li>{@link #STORE_OWNER} — shop owner (manages staff, settings, money)</li>
+ *   <li>{@link #CASHIER} — counter staff</li>
+ *   <li>{@link #STORE_KEEPER} — stock / purchasing staff</li>
+ * </ul>
  */
 public enum Role {
-    ADMIN(EnumSet.allOf(Permission.class)),
+    SUPER_ADMIN(EnumSet.allOf(Permission.class)),
+    STORE_OWNER(EnumSet.complementOf(EnumSet.of(Permission.SYSTEM))),
     CASHIER(EnumSet.of(
             Permission.HOME,
             Permission.SALE,
@@ -18,14 +25,16 @@ public enum Role {
             Permission.PRODUCT,
             Permission.REPORT,
             Permission.REFUND,
-            Permission.SHIFT
+            Permission.SHIFT,
+            Permission.DASHBOARD
     )),
     STORE_KEEPER(EnumSet.of(
             Permission.HOME,
             Permission.PRODUCT,
             Permission.SUPPLIER,
             Permission.REPORT,
-            Permission.PURCHASE
+            Permission.PURCHASE,
+            Permission.DASHBOARD
     ));
 
     private final Set<Permission> permissions;
@@ -42,10 +51,55 @@ public enum Role {
         return permissions;
     }
 
+    public String displayLabel() {
+        switch (this) {
+            case SUPER_ADMIN:
+                return "Super Admin (dev team)";
+            case STORE_OWNER:
+                return "Store Owner";
+            case CASHIER:
+                return "Cashier";
+            case STORE_KEEPER:
+                return "Store Keeper";
+            default:
+                return name();
+        }
+    }
+
+    public String shortDescription() {
+        switch (this) {
+            case SUPER_ADMIN:
+                return "Install, support, system recovery — not daily shop work";
+            case STORE_OWNER:
+                return "Users, settings, dashboard, sales & stock oversight";
+            case CASHIER:
+                return "Till, invoices, customers, refunds, shifts";
+            case STORE_KEEPER:
+                return "Products, suppliers, purchase orders / goods in";
+            default:
+                return "";
+        }
+    }
+
+    /** Roles a Store Owner may assign when creating staff. */
+    public static Role[] staffAssignableRoles() {
+        return new Role[] {Role.STORE_OWNER, Role.CASHIER, Role.STORE_KEEPER};
+    }
+
+    /** Roles Super Admin may assign (includes Super Admin). */
+    public static Role[] allAssignableRoles() {
+        return Role.values();
+    }
+
     public static Role fromStorage(String value) {
         if (value == null || value.trim().isEmpty()) {
             throw new IllegalArgumentException("Role is required");
         }
-        return Role.valueOf(value.trim().toUpperCase(Locale.ROOT));
+        String normalized = value.trim().toUpperCase(Locale.ROOT);
+        // Legacy single ADMIN role → shop owner
+        if ("ADMIN".equals(normalized)) {
+            return STORE_OWNER;
+        }
+        return Role.valueOf(normalized);
     }
 }
