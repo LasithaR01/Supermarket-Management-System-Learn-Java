@@ -25,7 +25,8 @@ public class ShiftPanel extends JPanel {
         setLayout(new BorderLayout(8, 8));
         setBackground(UiTheme.PAGE);
         setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
-        JLabel title = new JLabel("Cashier shift");
+        putClientProperty(UiTheme.KEEP, Boolean.TRUE);
+        JLabel title = new JLabel("Shift");
         title.setFont(new Font("Segoe UI", Font.BOLD, 20));
         title.setForeground(UiTheme.SIDEBAR);
         add(title, BorderLayout.NORTH);

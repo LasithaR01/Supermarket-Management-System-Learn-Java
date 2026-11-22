@@ -272,11 +272,24 @@ CREATE TABLE IF NOT EXISTS `app_user` (
   `display_name` VARCHAR(80) NOT NULL,
   `password_hash` VARCHAR(128) NOT NULL,
   `password_salt` VARCHAR(64) NOT NULL,
-  `role` VARCHAR(20) NOT NULL,
+  `role` VARCHAR(30) NOT NULL,
   `active` TINYINT(1) NOT NULL DEFAULT 1,
+  `must_change_password` TINYINT(1) NOT NULL DEFAULT 0,
+  `failed_login_count` INT NOT NULL DEFAULT 0,
+  `locked_until` TIMESTAMP NULL DEFAULT NULL,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `uk_app_user_username` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `security_audit` (
+  `audit_id` INT NOT NULL AUTO_INCREMENT,
+  `event_type` VARCHAR(40) NOT NULL,
+  `username` VARCHAR(50) NOT NULL DEFAULT '',
+  `actor_username` VARCHAR(50) NOT NULL DEFAULT '',
+  `detail` VARCHAR(255) NOT NULL DEFAULT '',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`audit_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `app_setting` (

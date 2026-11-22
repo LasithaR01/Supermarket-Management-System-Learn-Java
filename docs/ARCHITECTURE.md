@@ -60,9 +60,22 @@ project/
 
 - Login required before `HomeFrame`
 - Passwords: PBKDF2-HMAC-SHA256 + per-user salt (`PasswordHasher`)
+- Self-service **Change password** (Home header) + forced change when `must_change_password`
+- **Forgot password**: staff → Owner resets in Users; Owner/Super Admin → recovery PIN on login
+- Password policy: min 8 chars, letter + number (`PasswordPolicy`)
+- Login lockout: 5 failed attempts → 15 minute lock
+- Idle auto sign-out: 15 minutes with no keyboard/mouse activity
+- Security audit table `security_audit` (login, lock, password, user changes)
 - Menus gated by `Permission` via `SessionContext.can(...)`
-- First-run accounts (created only when `app_user` is empty):
-  - `admin` / `admin123` (ADMIN)
+- Roles:
+  - `SUPER_ADMIN` — dev / support team (`SYSTEM` permission)
+  - `STORE_OWNER` — shop owner (users, settings, dashboard, backup; no `SYSTEM`)
+  - `CASHIER` — till, invoices, refunds, shifts
+  - `STORE_KEEPER` — products, suppliers, purchase
+- Legacy DB role `ADMIN` migrates to `STORE_OWNER`
+- First-run accounts (created only when `app_user` is empty; must change password):
+  - `super` / `super123` (SUPER_ADMIN)
+  - `owner` / `owner123` (STORE_OWNER)
   - `cashier` / `cashier123` (CASHIER)
   - `store` / `store123` (STORE_KEEPER)
 

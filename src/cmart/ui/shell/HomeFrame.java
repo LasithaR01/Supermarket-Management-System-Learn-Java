@@ -8,6 +8,7 @@ import cmart.security.SessionContext;
 import cmart.service.AuthService;
 import cmart.service.ProductService;
 import cmart.service.SettingService;
+import cmart.ui.auth.ChangePasswordDialog;
 import cmart.ui.auth.LoginFrame;
 import cmart.ui.customer.CustomerPanel;
 import cmart.ui.dashboard.DashboardPanel;
@@ -23,17 +24,22 @@ import cmart.ui.settings.SettingsPanel;
 import cmart.ui.shift.ShiftPanel;
 import cmart.ui.supplier.SupplierPanel;
 import cmart.ui.theme.UiTheme;
+import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Toolkit;
+import java.awt.event.AWTEventListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.sql.SQLException;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -41,6 +47,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
+import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.plaf.basic.BasicButtonUI;
@@ -56,12 +63,15 @@ public class HomeFrame extends javax.swing.JFrame {
     private final ProductService productService = new ProductService();
     private JButton btnSettings;
     private JButton btnUsers;
+    private JButton btnPassword;
     private JButton btnLogout;
     private JButton btnRefund;
     private JButton btnShift;
     private JButton btnPurchase;
     private JButton btnDashboard;
     private JLabel userLabel;
+    private Timer idleCheckTimer;
+    private AWTEventListener activityListener;
 
     public HomeFrame() {
         if (!SessionContext.isSignedIn()) {
@@ -71,7 +81,58 @@ public class HomeFrame extends javax.swing.JFrame {
         styleShell();
         applyBranding();
         applyRoleAccess();
+        installIdleWatch();
         setExtendedState(HomeFrame.MAXIMIZED_BOTH);
+    }
+
+    private void installIdleWatch() {
+        SessionContext.touch();
+        activityListener = new AWTEventListener() {
+            public void eventDispatched(AWTEvent event) {
+                if (SessionContext.isSignedIn()) {
+                    SessionContext.touch();
+                }
+            }
+        };
+        long mask = AWTEvent.KEY_EVENT_MASK
+                | AWTEvent.MOUSE_EVENT_MASK
+                | AWTEvent.MOUSE_MOTION_EVENT_MASK
+                | AWTEvent.MOUSE_WHEEL_EVENT_MASK;
+        Toolkit.getDefaultToolkit().addAWTEventListener(activityListener, mask);
+
+        idleCheckTimer = new Timer(30000, new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (SessionContext.isIdleTimedOut()) {
+                    JOptionPane.showMessageDialog(
+                            HomeFrame.this,
+                            "Signed out after 15 minutes of inactivity.");
+                    signOut();
+                }
+            }
+        });
+        idleCheckTimer.setRepeats(true);
+        idleCheckTimer.start();
+
+        addWindowListener(new WindowAdapter() {
+            public void windowClosed(WindowEvent e) {
+                stopIdleWatch();
+            }
+
+            public void windowClosing(WindowEvent e) {
+                stopIdleWatch();
+            }
+        });
+    }
+
+    private void stopIdleWatch() {
+        if (idleCheckTimer != null) {
+            idleCheckTimer.stop();
+            idleCheckTimer = null;
+        }
+        if (activityListener != null) {
+            Toolkit.getDefaultToolkit().removeAWTEventListener(activityListener);
+            activityListener = null;
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -612,7 +673,7 @@ public class HomeFrame extends javax.swing.JFrame {
         userLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         userLabel.setForeground(new Color(0xB7E4C7));
         if (user != null) {
-            userLabel.setText(user.getDisplayName() + " · " + user.getRole().name());
+            userLabel.setText(user.getDisplayName() + " · " + user.getRole().displayLabel());
         }
 
         btnDashboard = headerOpButton("Dashboard", new ActionListener() {
@@ -654,6 +715,13 @@ public class HomeFrame extends javax.swing.JFrame {
             }
         });
 
+        btnPassword = headerOpButton("Password", new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                ChangePasswordDialog dialog = new ChangePasswordDialog(HomeFrame.this, false);
+                dialog.setVisible(true);
+            }
+        });
+
         btnLogout = headerOpButton("Sign out", new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 signOut();
@@ -669,6 +737,7 @@ public class HomeFrame extends javax.swing.JFrame {
         sessionBar.add(btnPurchase);
         sessionBar.add(btnUsers);
         sessionBar.add(btnSettings);
+        sessionBar.add(btnPassword);
         sessionBar.add(btnLogout);
 
         // Move title + session into LINE_END without fighting the form layout
@@ -777,7 +846,7 @@ public class HomeFrame extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "You do not have permission to manage users.");
             return;
         }
-        setScreenTitle("Users");
+        setScreenTitle("Users & access");
         jpload.jPanelLoader(panel_load, new UsersPanel());
     }
 
@@ -818,6 +887,7 @@ public class HomeFrame extends javax.swing.JFrame {
     }
 
     private void signOut() {
+        stopIdleWatch();
         authService.logout();
         dispose();
         new LoginFrame().setVisible(true);

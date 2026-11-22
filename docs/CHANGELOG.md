@@ -8,6 +8,8 @@ Format: date · short summary · related docs if useful.
 
 ## 2026-11-23
 
+- Auth security harden: password policy (8+ letter/number), 5-fail / 15-min lockout, 15-min idle auto sign-out, `security_audit` trail (login/password/role), recovery PIN min 6 — demo login hint kept on Sign in.
+- Auth rebuild: four roles (SUPER_ADMIN, STORE_OWNER, CASHIER, STORE_KEEPER), role-aware dashboards, split login UI, self-service change password, forgot-password recovery PIN, Owner Users self-service (create staff / reset password), `must_change_password` + legacy ADMIN→STORE_OWNER migrate.
 - Cleaned project structure: removed duplicate `src/reports/`, moved `pos.sql` to `sql/pos.sql`, moved `SaleCheckoutRequest` into `cmart.model`, dropped unused MySQL connector JARs, refreshed architecture docs.
 
 ## 2026-11-22

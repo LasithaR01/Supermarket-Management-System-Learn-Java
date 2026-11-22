@@ -18,5 +18,7 @@ public enum Permission {
     SHIFT,
     PURCHASE,
     DASHBOARD,
-    BACKUP
+    BACKUP,
+    /** Dev-team only: system tools, create SUPER_ADMIN, emergency recovery. */
+    SYSTEM
 }
