@@ -8,12 +8,11 @@ package cmart.ui.product;
 
 import cmart.ui.theme.UiTheme;
 
-import cmart.db.ConnectionFactory;
+import cmart.model.Product;
+import cmart.service.ProductService;
 
-import java.awt.HeadlessException;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.List;
 import java.util.Vector;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -25,6 +24,8 @@ import javax.swing.table.DefaultTableModel;
  */
 public class ProductPanel extends javax.swing.JPanel {
 
+    private final ProductService productService = new ProductService();
+
     /**
      * Creates new form customer
      */
@@ -35,43 +36,48 @@ public class ProductPanel extends javax.swing.JPanel {
     }
 
   public void tb_load(){
-  
-  
       try {
-          
-          DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
-          dt.setRowCount(0);
-          
-          Statement s = ConnectionFactory.getConnection().createStatement();
-          ResultSet rs = s.executeQuery(" SELECT * FROM product");
-          
-          while (rs.next()) {              
-              
-              Vector v = new Vector();
-              
-              v.add(rs.getString(1));
-              v.add(rs.getString(2));
-              v.add(rs.getString(3));
-              v.add(rs.getString(4));
-              v.add(rs.getString(5));
-              v.add(rs.getString(6));
-              
-              dt.addRow(v);
-                          
-              
-              
-              
-          }
-          
+          fillTable(productService.listAll());
       } catch (SQLException e) {
           System.out.println(e);
+          JOptionPane.showMessageDialog(this, "Could not load products: " + e.getMessage());
       }
-  
-  }  
-    
-    
-    
-    
+  }
+
+  private void fillTable(List<Product> products) {
+      DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
+      dt.setRowCount(0);
+      for (Product p : products) {
+          Vector v = new Vector();
+          v.add(p.getId());
+          v.add(p.getName());
+          v.add(p.getBarcode());
+          v.add(p.getPrice());
+          v.add(p.getQty());
+          v.add(p.getSupplierId());
+          dt.addRow(v);
+      }
+  }
+
+  private Product readForm() {
+      Product p = new Product();
+      p.setId(p_src.getText().trim());
+      p.setName(p_name.getText().trim());
+      p.setBarcode(p_bcode.getText().trim());
+      p.setPrice(p_price.getText().trim());
+      p.setQty(p_qty.getText().trim());
+      p.setSupplierId(p_sid.getText().trim());
+      return p;
+  }
+
+  private void writeForm(Product p) {
+      p_name.setText(p.getName());
+      p_bcode.setText(p.getBarcode());
+      p_price.setText(p.getPrice());
+      p_qty.setText(p.getQty());
+      p_sid.setText(p.getSupplierId());
+  }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -240,113 +246,63 @@ public class ProductPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_p_bcodeActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // save product
-        
-        String name = p_name.getText();
-        String bcode = p_bcode.getText();
-        String price = p_price.getText();
-        String qty = p_qty.getText();
-        String sid = p_sid.getText();
-      
         try {
-            
-            Statement s = ConnectionFactory.getConnection().createStatement();
-          // `pid`, `Product_Name`, `Bar_code`, `Price`, `Qty`, `Sid` 
-            s.executeUpdate("INSERT INTO product (Product_Name,Bar_code,Price,Qty,Sid) VALUES ('"+name+"','"+bcode+"','"+price+"','"+qty+"','"+sid+"')");
-            JOptionPane.showMessageDialog(null, "Saved");
-            
-            
+            productService.save(readForm());
+            JOptionPane.showMessageDialog(this, "Saved");
+            tb_load();
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        } catch (SecurityException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
         } catch (SQLException e) {
-            System.out.println(e);
+            JOptionPane.showMessageDialog(this, "Could not save: " + e.getMessage());
         }
-  
-        
-        
-         tb_load();
-        
-        
-        
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // search btn code
-        
-        String search = p_src.getText();
-        
         try {
-            Statement s = ConnectionFactory.getConnection().createStatement();
-            
-            ResultSet rs = s.executeQuery(" SELECT * FROM product WHERE pid ='"+search+"'  ");
-            
-            if (rs.next()) {
-              
-                p_name.setText(rs.getString("Product_Name"));
-                p_bcode.setText(rs.getString("Bar_code"));
-                p_price.setText(rs.getString("Price"));
-                p_qty.setText(rs.getString("Qty"));
-                p_sid.setText(rs.getString("Sid"));
-                
-                
-                
+            Product product = productService.getById(p_src.getText().trim());
+            if (product != null) {
+                writeForm(product);
+            } else {
+                JOptionPane.showMessageDialog(this, "Product not found.");
             }
-            
-            
         } catch (SQLException e) {
-            
-            System.out.println(e);
+            JOptionPane.showMessageDialog(this, "Search failed: " + e.getMessage());
         }
-        
-        
-        
-        
-        
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // update btn code
-        
-        String id =p_src.getText();
-        String name = p_name.getText();
-        String bcode = p_bcode.getText();
-        String price = p_price.getText();
-        String qty = p_qty.getText();
-        String sid = p_sid.getText();
-        
         try {
-            
-          Statement s = ConnectionFactory.getConnection().createStatement();
-          
-          //  Full texts 	pid 	Product_Name 	Bar_code 	Price 	Qty 	Sid 
-          
-          s.executeUpdate("UPDATE product SET Product_Name='"+name+"',Bar_code='"+bcode+"' ,Price='"+price+"',Qty='"+qty+"',Sid='"+sid+"' WHERE pid ='"+id+"' ");
-            
-            JOptionPane.showMessageDialog(null, "Data Updated");
-            
-            
-        } catch (Exception e) {
+            productService.update(readForm());
+            JOptionPane.showMessageDialog(this, "Data Updated");
+            tb_load();
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        } catch (SecurityException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Could not update: " + e.getMessage());
         }
-        
-        
-         tb_load();
-        
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // delete btn code
-        
-       String id = p_src.getText();
-       
-        try {
-            Statement s = ConnectionFactory.getConnection().createStatement();
-            s.executeUpdate("DELETE FROM product WHERE pid = '"+id+"' ");
-            JOptionPane.showMessageDialog(null, "Data Deleted");
-            
-        } catch (HeadlessException | SQLException e) {
-            System.out.println(e);
+        int confirm = JOptionPane.showConfirmDialog(this, "Delete this product?", "Confirm delete",
+                JOptionPane.YES_NO_OPTION);
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
         }
-        
-         tb_load();
-        
+        try {
+            productService.delete(p_src.getText());
+            JOptionPane.showMessageDialog(this, "Data Deleted");
+            tb_load();
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        } catch (SecurityException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Could not delete: " + e.getMessage());
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jTable1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTable1KeyPressed
@@ -376,43 +332,11 @@ public class ProductPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_jTable1MouseClicked
 
     private void c_search_tblKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_c_search_tblKeyReleased
-
-        String name = c_search_tbl.getText();
         try {
-            
-            DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
-            dt.setRowCount(0);
-            Statement s = ConnectionFactory.getConnection().createStatement();
-            
-            ResultSet rs = s.executeQuery("SELECT * FROM product WHERE Product_Name LIKE '%"+name+"%' ");
-            
-            while (rs.next()) {                
-                Vector v = new Vector();
-                
-                v.add(rs.getString(1));
-                v.add(rs.getString(2));
-                v.add(rs.getString(3));
-                v.add(rs.getString(4));
-                v.add(rs.getString(5));
-                v.add(rs.getString(6));
-                
-                dt.addRow(v);
-                
-                
-            }
-            
-            
-            
-            
-            
+            fillTable(productService.searchByName(c_search_tbl.getText()));
         } catch (Exception e) {
             tb_load();
-            
         }
- 
-        
-        
-
     }//GEN-LAST:event_c_search_tblKeyReleased
 
 

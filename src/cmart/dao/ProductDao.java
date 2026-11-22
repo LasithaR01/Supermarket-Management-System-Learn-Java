@@ -121,6 +121,29 @@ public class ProductDao {
         }
     }
 
+    public List<Product> findLowStock(double threshold) throws SQLException {
+        List<Product> list = new ArrayList<Product>();
+        String sql = "SELECT pid, Product_Name, Bar_code, Price, Qty, Sid FROM product "
+                + "WHERE CAST(Qty AS DECIMAL(12,2)) <= ? ORDER BY CAST(Qty AS DECIMAL(12,2)) ASC";
+        Connection con = ConnectionFactory.getConnection();
+        if (con == null) {
+            return list;
+        }
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            ps = con.prepareStatement(sql);
+            ps.setDouble(1, threshold);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(map(rs));
+            }
+            return list;
+        } finally {
+            close(rs, ps, con);
+        }
+    }
+
     public List<Product> findByNameLike(String name) throws SQLException {
         List<Product> list = new ArrayList<Product>();
         String sql = "SELECT pid, Product_Name, Bar_code, Price, Qty, Sid FROM product WHERE Product_Name LIKE ?";
