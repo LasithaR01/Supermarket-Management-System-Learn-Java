@@ -54,7 +54,7 @@ public enum Role {
     public String displayLabel() {
         switch (this) {
             case SUPER_ADMIN:
-                return "Super Admin (dev team)";
+                return "Super Admin";
             case STORE_OWNER:
                 return "Store Owner";
             case CASHIER:
@@ -64,6 +64,36 @@ public enum Role {
             default:
                 return name();
         }
+    }
+
+    /** Resolve a table / form label or storage code to a Role. */
+    public static Role fromLabel(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            throw new IllegalArgumentException("Role is required");
+        }
+        String trimmed = value.trim();
+        Role[] all = Role.values();
+        for (int i = 0; i < all.length; i++) {
+            if (all[i].displayLabel().equalsIgnoreCase(trimmed)
+                    || all[i].name().equalsIgnoreCase(trimmed)) {
+                return all[i];
+            }
+        }
+        // Legacy / longer labels
+        String lower = trimmed.toLowerCase(Locale.ROOT);
+        if (lower.contains("super")) {
+            return SUPER_ADMIN;
+        }
+        if (lower.contains("owner") || "admin".equals(lower)) {
+            return STORE_OWNER;
+        }
+        if (lower.contains("cashier")) {
+            return CASHIER;
+        }
+        if (lower.contains("keeper") || lower.contains("store keep")) {
+            return STORE_KEEPER;
+        }
+        return fromStorage(trimmed);
     }
 
     public String shortDescription() {

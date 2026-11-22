@@ -110,6 +110,9 @@ public class SaleService {
         if (request.getDiscountAmount() < 0) {
             throw new IllegalArgumentException("Discount cannot be negative.");
         }
+        if (request.getDiscountAmount() > 0) {
+            cmart.security.ActionAcl.requireDiscountAllowed();
+        }
         if (request.getDiscountAmount() > request.getBillTotal() + request.getDiscountAmount()) {
             throw new IllegalArgumentException("Discount cannot exceed bill subtotal.");
         }
@@ -127,6 +130,12 @@ public class SaleService {
         sale.setPayMethod(request.getPayMethod().name());
         sale.setTaxAmount(String.valueOf(request.getTaxAmount()));
         saleDao.insertSale(sale);
+
+        if (request.getDiscountAmount() > 0) {
+            String by = SessionContext.currentUser() == null ? "" : SessionContext.currentUser().getUsername();
+            new AuditService().record(AuditService.SALE_DISCOUNT, by,
+                    "Invoice " + invoiceId + " discount " + request.getDiscountAmount());
+        }
 
         return invoiceId;
     }

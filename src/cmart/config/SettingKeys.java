@@ -24,6 +24,18 @@ public final class SettingKeys {
      */
     public static final String BOOTSTRAP_USERS_VERSION = "security.bootstrap.users.version";
 
+    /** When true, only SUPER_ADMIN may sign in (restore / migrate window). */
+    public static final String MAINTENANCE_MODE = "system.maintenance.mode";
+
+    /** Last SchemaMigrator run timestamp (ISO-ish string). */
+    public static final String SCHEMA_LAST_MIGRATE = "schema.migrate.last";
+    public static final String SCHEMA_VERSION = "schema.version";
+
+    /** Fine-grained staff ACL (Owner/Super always allowed). Default true. */
+    public static final String ACL_ALLOW_DISCOUNT = "acl.allow.discount";
+    public static final String ACL_ALLOW_PRODUCT_DELETE = "acl.allow.product.delete";
+    public static final String ACL_ALLOW_REFUND = "acl.allow.refund";
+
     private SettingKeys() {
     }
 }

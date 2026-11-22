@@ -28,6 +28,7 @@ public class ReturnService {
 
     public void processReturn(String inid, String barcode, double qty, String reason) throws SQLException {
         SessionContext.require(Permission.REFUND);
+        cmart.security.ActionAcl.requireRefundAllowed();
         if (qty <= 0) {
             throw new IllegalArgumentException("Return qty must be > 0.");
         }
@@ -47,6 +48,8 @@ public class ReturnService {
         String by = SessionContext.currentUser() == null ? "" : SessionContext.currentUser().getUsername();
         returnDao.insert(inid.trim(), barcode, product.getName(), String.valueOf(qty),
                 String.valueOf(refund), reason == null ? "" : reason.trim(), by);
+        new AuditService().record(AuditService.REFUND, by,
+                "Invoice " + inid.trim() + " barcode " + barcode + " qty " + qty + " amount " + refund);
     }
 
     private void restock(String barcode, double qty) throws SQLException {

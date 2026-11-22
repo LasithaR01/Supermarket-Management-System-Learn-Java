@@ -209,6 +209,49 @@ public class UserDao {
         }
     }
 
+    public int countLockedNow() throws SQLException {
+        String sql = "SELECT COUNT(*) FROM app_user WHERE locked_until IS NOT NULL AND locked_until > NOW()";
+        Connection con = requireConnection();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            ps = con.prepareStatement(sql);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+            return 0;
+        } finally {
+            DaoSupport.close(rs, ps, con);
+        }
+    }
+
+    public List<AppUser> findLockedNow() throws SQLException {
+        String sql = "SELECT " + COLS + " FROM app_user "
+                + "WHERE locked_until IS NOT NULL AND locked_until > NOW() ORDER BY locked_until";
+        List<AppUser> list = new ArrayList<AppUser>();
+        Connection con = ConnectionFactory.getConnection();
+        if (con == null) {
+            return list;
+        }
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            ps = con.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(map(rs));
+            }
+            return list;
+        } finally {
+            DaoSupport.close(rs, ps, con);
+        }
+    }
+
+    public void unlockUser(int userId) throws SQLException {
+        clearLoginFailures(userId);
+    }
+
     private AppUser map(ResultSet rs) throws SQLException {
         AppUser user = new AppUser();
         user.setId(rs.getInt("user_id"));

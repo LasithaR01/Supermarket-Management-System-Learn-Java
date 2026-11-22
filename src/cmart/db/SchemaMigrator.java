@@ -1,14 +1,28 @@
 package cmart.db;
 
+import cmart.config.AppInfo;
+import cmart.config.SettingKeys;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Idempotent schema upgrades for existing MySQL databases.
  * Keeps SQL out of UI code and avoids manual phpMyAdmin steps for new tables.
  */
 public final class SchemaMigrator {
+
+    private static final String[] EXPECTED_TABLES = {
+        "app_user", "app_setting", "security_audit", "app_error_log", "backup_log",
+        "customer", "supplier", "employee", "product", "sales", "sale_return",
+        "cashier_shift", "purchase_order", "held_sale"
+    };
 
     private SchemaMigrator() {
     }
@@ -166,6 +180,36 @@ public final class SchemaMigrator {
                             + "`created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
                             + "PRIMARY KEY (`audit_id`)"
                             + ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
+
+            st.execute(
+                    "CREATE TABLE IF NOT EXISTS `app_error_log` ("
+                            + "`error_id` INT NOT NULL AUTO_INCREMENT,"
+                            + "`level` VARCHAR(20) NOT NULL DEFAULT 'ERROR',"
+                            + "`source` VARCHAR(80) NOT NULL DEFAULT '',"
+                            + "`message` VARCHAR(255) NOT NULL,"
+                            + "`detail` VARCHAR(500) NOT NULL DEFAULT '',"
+                            + "`username` VARCHAR(50) NOT NULL DEFAULT '',"
+                            + "`created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                            + "PRIMARY KEY (`error_id`)"
+                            + ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
+
+            st.execute(
+                    "CREATE TABLE IF NOT EXISTS `backup_log` ("
+                            + "`backup_id` INT NOT NULL AUTO_INCREMENT,"
+                            + "`status` VARCHAR(20) NOT NULL,"
+                            + "`file_path` VARCHAR(255) NOT NULL DEFAULT '',"
+                            + "`message` VARCHAR(255) NOT NULL DEFAULT '',"
+                            + "`created_by` VARCHAR(50) NOT NULL DEFAULT '',"
+                            + "`created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                            + "PRIMARY KEY (`backup_id`)"
+                            + ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
+
+            try {
+                st.execute("ALTER TABLE `app_error_log` MODIFY COLUMN `detail` MEDIUMTEXT");
+            } catch (SQLException ignored) {
+            }
+
+            recordMigrateStamp(con);
         } finally {
             try {
                 if (st != null) {
@@ -176,6 +220,117 @@ public final class SchemaMigrator {
             try {
                 con.close();
             } catch (SQLException ignored) {
+            }
+        }
+    }
+
+    /** Table presence checklist for Super Admin health. */
+    public static List<String> tableStatus() throws SQLException {
+        List<String> lines = new ArrayList<String>();
+        Connection con = ConnectionFactory.getConnection();
+        if (con == null) {
+            lines.add("FAIL — no connection");
+            return lines;
+        }
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            ps = con.prepareStatement(
+                    "SELECT COUNT(*) FROM information_schema.tables "
+                            + "WHERE table_schema = DATABASE() AND table_name = ?");
+            for (int i = 0; i < EXPECTED_TABLES.length; i++) {
+                String table = EXPECTED_TABLES[i];
+                ps.setString(1, table);
+                rs = ps.executeQuery();
+                boolean ok = rs.next() && rs.getInt(1) > 0;
+                rs.close();
+                rs = null;
+                lines.add((ok ? "OK  " : "MISS") + "  " + table);
+            }
+            return lines;
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ignored) {
+                }
+            }
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException ignored) {
+                }
+            }
+            try {
+                con.close();
+            } catch (SQLException ignored) {
+            }
+        }
+    }
+
+    private static void recordMigrateStamp(Connection con) {
+        try {
+            String stamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+            upsertSetting(con, SettingKeys.SCHEMA_LAST_MIGRATE, stamp);
+            upsertSetting(con, SettingKeys.SCHEMA_VERSION, AppInfo.SCHEMA_VERSION);
+            upsertSetting(con, SettingKeys.MAINTENANCE_MODE, "false");
+            upsertSetting(con, SettingKeys.ACL_ALLOW_DISCOUNT, "true");
+            upsertSetting(con, SettingKeys.ACL_ALLOW_PRODUCT_DELETE, "true");
+            upsertSetting(con, SettingKeys.ACL_ALLOW_REFUND, "true");
+        } catch (SQLException ignored) {
+        }
+    }
+
+    private static void upsertSetting(Connection con, String key, String value) throws SQLException {
+        // Only insert if missing — never overwrite maintenance/ACL toggles on every startup
+        PreparedStatement find = null;
+        ResultSet rs = null;
+        PreparedStatement insert = null;
+        try {
+            find = con.prepareStatement("SELECT setting_value FROM app_setting WHERE setting_key = ?");
+            find.setString(1, key);
+            rs = find.executeQuery();
+            if (rs.next()) {
+                if (SettingKeys.SCHEMA_LAST_MIGRATE.equals(key) || SettingKeys.SCHEMA_VERSION.equals(key)) {
+                    rs.close();
+                    rs = null;
+                    find.close();
+                    find = null;
+                    PreparedStatement up = con.prepareStatement(
+                            "UPDATE app_setting SET setting_value = ? WHERE setting_key = ?");
+                    try {
+                        up.setString(1, value);
+                        up.setString(2, key);
+                        up.executeUpdate();
+                    } finally {
+                        up.close();
+                    }
+                }
+                return;
+            }
+            insert = con.prepareStatement(
+                    "INSERT INTO app_setting (setting_key, setting_value) VALUES (?, ?)");
+            insert.setString(1, key);
+            insert.setString(2, value == null ? "" : value);
+            insert.executeUpdate();
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ignored) {
+                }
+            }
+            if (find != null) {
+                try {
+                    find.close();
+                } catch (SQLException ignored) {
+                }
+            }
+            if (insert != null) {
+                try {
+                    insert.close();
+                } catch (SQLException ignored) {
+                }
             }
         }
     }

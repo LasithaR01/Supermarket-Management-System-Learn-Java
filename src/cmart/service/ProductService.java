@@ -53,10 +53,12 @@ public class ProductService {
 
     public void delete(String id) throws SQLException {
         SessionContext.require(Permission.PRODUCT);
+        cmart.security.ActionAcl.requireProductDeleteAllowed();
         if (Validation.isBlank(id)) {
             throw new IllegalArgumentException("Select a product id to delete.");
         }
         dao.delete(id.trim());
+        new AuditService().record(AuditService.PRODUCT_DELETE, "", "Deleted product id " + id.trim());
     }
 
     public boolean deductStockByBarcode(String barcode, double qty) throws SQLException {

@@ -99,6 +99,11 @@ public class AuthService {
             auditService.record(AuditService.LOGIN_FAIL, userKey, "Unknown user or inactive");
             return null;
         }
+        if (isMaintenanceModeOn() && user.getRole() != Role.SUPER_ADMIN) {
+            auditService.record(AuditService.LOGIN_FAIL, userKey, "Blocked by maintenance mode");
+            throw new IllegalStateException(
+                    "System is in maintenance mode. Only Super Admin can sign in right now.");
+        }
         if (user.isLockedNow()) {
             long mins = Math.max(1L, (user.getLockedUntil().getTime() - System.currentTimeMillis() + 59999L) / 60000L);
             auditService.record(AuditService.LOGIN_LOCKED, userKey, "Attempt while locked");
@@ -116,8 +121,26 @@ public class AuthService {
         user.setFailedLoginCount(0);
         user.setLockedUntil(null);
         SessionContext.signIn(user);
-        auditService.record(AuditService.LOGIN_OK, userKey, "Signed in as " + user.getRole().name());
+        auditService.record(AuditService.LOGIN_OK, userKey,
+                "Signed in as " + user.getRole().name() + " @ " + workstationName());
         return user;
+    }
+
+    private boolean isMaintenanceModeOn() {
+        try {
+            String value = settingDao.findValue(SettingKeys.MAINTENANCE_MODE);
+            return value != null && Boolean.parseBoolean(value.trim());
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
+    private static String workstationName() {
+        try {
+            return java.net.InetAddress.getLocalHost().getHostName();
+        } catch (Exception e) {
+            return "unknown-pc";
+        }
     }
 
     private void registerFailedLogin(AppUser user) throws SQLException {

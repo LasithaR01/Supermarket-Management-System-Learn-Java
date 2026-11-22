@@ -7,9 +7,11 @@ import cmart.security.SessionContext;
 import cmart.service.UserAdminService;
 import cmart.ui.theme.UiTheme;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -58,7 +60,7 @@ public class UsersPanel extends JPanel {
     private Integer selectedUserId;
 
     public UsersPanel() {
-        setLayout(new BorderLayout(0, 12));
+        setLayout(new BorderLayout(12, 12));
         setBackground(UiTheme.PAGE);
         setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
         buildUi();
@@ -77,7 +79,8 @@ public class UsersPanel extends JPanel {
         title.setFont(new Font("Segoe UI", Font.BOLD, 20));
         title.setForeground(UiTheme.SIDEBAR);
         JLabel subtitle = new JLabel(
-                "Create staff here. Passwords need 8+ characters with a letter and a number.");
+                "Roles: Super Admin · Store Owner · Store Keeper · Cashier. "
+                        + "Passwords need 8+ characters with a letter and a number.");
         subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         subtitle.setForeground(UiTheme.MUTED);
         north.add(title, BorderLayout.NORTH);
@@ -105,6 +108,7 @@ public class UsersPanel extends JPanel {
         gc.gridx = 0;
         gc.gridy = row;
         gc.gridwidth = 2;
+        gc.weightx = 1;
         form.add(roleHelp, gc);
         row++;
         row = addRow(form, gc, row, "Password", passwordField);
@@ -112,6 +116,7 @@ public class UsersPanel extends JPanel {
         gc.gridx = 0;
         gc.gridy = row;
         gc.gridwidth = 2;
+        gc.weightx = 1;
         form.add(activeBox, gc);
         row++;
 
@@ -134,7 +139,7 @@ public class UsersPanel extends JPanel {
             }
         });
 
-        JPanel buttons = new JPanel();
+        JPanel buttons = new JPanel(new GridLayout(0, 1, 6, 6));
         buttons.setOpaque(false);
         buttons.add(actionButton("Create user", new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -163,11 +168,19 @@ public class UsersPanel extends JPanel {
         }));
 
         gc.gridy = row;
+        gc.fill = GridBagConstraints.HORIZONTAL;
         form.add(buttons, gc);
 
-        add(form, BorderLayout.WEST);
+        JScrollPane formScroll = new JScrollPane(form);
+        formScroll.setBorder(BorderFactory.createEmptyBorder());
+        formScroll.setOpaque(false);
+        formScroll.getViewport().setOpaque(false);
+        formScroll.setPreferredSize(new Dimension(320, 420));
+        formScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        add(formScroll, BorderLayout.WEST);
 
         table.setRowHeight(30);
+        table.getColumnModel().getColumn(3).setPreferredWidth(120);
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 int r = table.getSelectedRow();
@@ -178,7 +191,7 @@ public class UsersPanel extends JPanel {
                 usernameField.setText(String.valueOf(tableModel.getValueAt(r, 1)));
                 usernameField.setEditable(false);
                 displayNameField.setText(String.valueOf(tableModel.getValueAt(r, 2)));
-                Role role = Role.fromStorage(String.valueOf(tableModel.getValueAt(r, 3)));
+                Role role = Role.fromLabel(String.valueOf(tableModel.getValueAt(r, 3)));
                 roleBox.setSelectedItem(role);
                 activeBox.setSelected("Yes".equals(String.valueOf(tableModel.getValueAt(r, 4))));
                 passwordField.setText("");
@@ -217,10 +230,14 @@ public class UsersPanel extends JPanel {
         gc.gridwidth = 1;
         gc.gridx = 0;
         gc.gridy = row;
+        gc.weightx = 0;
         JLabel label = new JLabel(caption);
         label.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        label.setForeground(UiTheme.TEXT);
+        label.setPreferredSize(new Dimension(100, 24));
         form.add(label, gc);
         gc.gridx = 1;
+        gc.weightx = 1;
         form.add(field, gc);
         return row + 1;
     }
@@ -241,7 +258,7 @@ public class UsersPanel extends JPanel {
                     Integer.valueOf(user.getId()),
                     user.getUsername(),
                     user.getDisplayName(),
-                    user.getRole().name(),
+                    user.getRole().displayLabel(),
                     user.isActive() ? "Yes" : "No",
                     user.isMustChangePassword() ? "Yes" : "No"
                 });
