@@ -51,8 +51,9 @@ On first start the app creates `app_user` / `app_setting` tables and seeds demo 
 
 | Username | Password | Role |
 |----------|----------|------|
-| `admin` | `admin123` | Full access + Settings |
-| `cashier` | `cashier123` | Sales / invoices / customers |
-| `store` | `store123` | Products / suppliers |
+| `super` | `super123` | Super Admin — system monitor, users, recovery |
+| `owner` | `owner123` | Store Owner — shop users, settings, dashboard, backup |
+| `cashier` | `cashier123` | Cashier — sales, invoices, customers, refunds, shifts |
+| `store` | `store123` | Store Keeper — products, suppliers, purchase |
 
-Change these after install (Admin → **Users** in the header: create accounts and change passwords).
+Change these after install (Users in the header: create accounts and change passwords). Legacy `admin` accounts migrate to Store Owner.
