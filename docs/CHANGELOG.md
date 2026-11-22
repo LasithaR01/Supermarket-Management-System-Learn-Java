@@ -8,6 +8,8 @@ Format: date · short summary · related docs if useful.
 
 ## 2026-11-23
 
+- Super Admin ops pack: backup **restore**, audit/error **CSV export**, error stack detail + clear, emergency deactivate / force password, **maintenance mode**, schema status panel, staff **ACL** (discount / product delete / refund).
+- Super Admin Home rearranged: shop sidebar/top ops hidden; Home cards → Monitor / Users / Settings / Password / Backup; header keeps Monitor · Users · Settings · Password · Sign out.
 - Super Admin System Monitor: DB/health cards, filterable audit, error log, unlock locked users, backup history, demo-password warnings, critical-action audit (refund/discount/product delete).
 - Auth security harden: password policy (8+ letter/number), 5-fail / 15-min lockout, 15-min idle auto sign-out, `security_audit` trail (login/password/role), recovery PIN min 6 — demo login hint kept on Sign in.
 - Auth rebuild: four roles (SUPER_ADMIN, STORE_OWNER, CASHIER, STORE_KEEPER), role-aware dashboards, split login UI, self-service change password, forgot-password recovery PIN, Owner Users self-service (create staff / reset password), `must_change_password` + legacy ADMIN→STORE_OWNER migrate.

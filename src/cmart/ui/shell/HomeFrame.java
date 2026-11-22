@@ -557,65 +557,117 @@ public class HomeFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnHomeActionPerformed
 
     private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
+        if (isSuperAdmin()) {
+            new ChangePasswordDialog(HomeFrame.this, false).setVisible(true);
+            return;
+        }
         setScreenTitle("Customers");
         jpload.jPanelLoader(panel_load, new CustomerPanel());
     }//GEN-LAST:event_jToggleButton1ActionPerformed
 
     private void jToggleButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton2ActionPerformed
+        if (isSuperAdmin()) {
+            return;
+        }
         setScreenTitle("Suppliers");
         jpload.jPanelLoader(panel_load, new SupplierPanel());
     }//GEN-LAST:event_jToggleButton2ActionPerformed
 
     private void jToggleButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton3ActionPerformed
+        if (isSuperAdmin()) {
+            openSettings();
+            return;
+        }
         setScreenTitle("Products");
         jpload.jPanelLoader(panel_load, new ProductPanel());
     }//GEN-LAST:event_jToggleButton3ActionPerformed
 
     private void jToggleButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton4ActionPerformed
+        if (isSuperAdmin()) {
+            return;
+        }
         setScreenTitle("Employees");
         jpload.jPanelLoader(panel_load, new EmployeePanel());
     }//GEN-LAST:event_jToggleButton4ActionPerformed
 
     private void jToggleButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton5ActionPerformed
+        if (isSuperAdmin()) {
+            openDashboard();
+            return;
+        }
         setScreenTitle("Sales");
         jpload.jPanelLoader(panel_load, new SalePanel());
     }//GEN-LAST:event_jToggleButton5ActionPerformed
 
     private void jToggleButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton6ActionPerformed
+        if (isSuperAdmin()) {
+            openUsers();
+            return;
+        }
         setScreenTitle("Invoices");
         jpload.jPanelLoader(panel_load, new InvoicePanel());
     }//GEN-LAST:event_jToggleButton6ActionPerformed
 
     private void jToggleButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton7ActionPerformed
+        if (isSuperAdmin()) {
+            openDashboard();
+            return;
+        }
         setScreenTitle("Reports");
         jpload.jPanelLoader(panel_load, new ReportsPanel());
     }//GEN-LAST:event_jToggleButton7ActionPerformed
 
     private void cardSaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cardSaleActionPerformed
+        if (isSuperAdmin()) {
+            openDashboard();
+            return;
+        }
         jToggleButton5.doClick();
     }//GEN-LAST:event_cardSaleActionPerformed
 
     private void cardInvoiceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cardInvoiceActionPerformed
+        if (isSuperAdmin()) {
+            openUsers();
+            return;
+        }
         jToggleButton6.doClick();
     }//GEN-LAST:event_cardInvoiceActionPerformed
 
     private void cardProductActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cardProductActionPerformed
+        if (isSuperAdmin()) {
+            openSettings();
+            return;
+        }
         jToggleButton3.doClick();
     }//GEN-LAST:event_cardProductActionPerformed
 
     private void cardCustomerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cardCustomerActionPerformed
+        if (isSuperAdmin()) {
+            new ChangePasswordDialog(HomeFrame.this, false).setVisible(true);
+            return;
+        }
         jToggleButton1.doClick();
     }//GEN-LAST:event_cardCustomerActionPerformed
 
     private void cardSupplierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cardSupplierActionPerformed
+        if (isSuperAdmin()) {
+            openDashboard(); // Monitor → Backup / ops tab
+            return;
+        }
         jToggleButton2.doClick();
     }//GEN-LAST:event_cardSupplierActionPerformed
 
     private void cardEmployeeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cardEmployeeActionPerformed
+        if (isSuperAdmin()) {
+            return;
+        }
         jToggleButton4.doClick();
     }//GEN-LAST:event_cardEmployeeActionPerformed
 
     private void cardReportsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cardReportsActionPerformed
+        if (isSuperAdmin()) {
+            return;
+        }
         jToggleButton7.doClick();
     }//GEN-LAST:event_cardReportsActionPerformed
 
@@ -752,12 +804,23 @@ public class HomeFrame extends javax.swing.JFrame {
         headerPanel.add(east, BorderLayout.LINE_END);
     }
 
+    private boolean isSuperAdmin() {
+        AppUser user = SessionContext.currentUser();
+        return user != null && user.getRole() == Role.SUPER_ADMIN;
+    }
+
     private void applyBranding() {
         try {
             brandLabel.setText(settingService.get(SettingKeys.SHOP_NAME));
             tagLabel.setText(settingService.get(SettingKeys.SHOP_TAGLINE));
             setTitle(settingService.get(SettingKeys.SHOP_NAME) + " — Supermarket");
-            lblHello.setText("Hello — " + SessionContext.currentUser().getDisplayName());
+            AppUser user = SessionContext.currentUser();
+            if (isSuperAdmin()) {
+                lblHello.setText("Hello — " + user.getDisplayName());
+                setTitle(settingService.get(SettingKeys.SHOP_NAME) + " — System console");
+            } else {
+                lblHello.setText("Hello — " + user.getDisplayName());
+            }
             refreshLowStockHint();
         } catch (SQLException e) {
             System.out.println(e);
@@ -765,6 +828,10 @@ public class HomeFrame extends javax.swing.JFrame {
     }
 
     private void refreshLowStockHint() {
+        if (isSuperAdmin()) {
+            lblHint.setText("System console — monitor health, security, users, and backups. Not the daily till.");
+            return;
+        }
         try {
             double threshold = settingService.getDouble(SettingKeys.STOCK_LOW_THRESHOLD, 5);
             java.util.List<Product> low = productService.listLowStock(threshold);
@@ -790,6 +857,10 @@ public class HomeFrame extends javax.swing.JFrame {
     }
 
     private void applyRoleAccess() {
+        if (isSuperAdmin()) {
+            applySuperAdminShell();
+            return;
+        }
         setModuleVisible(Permission.SALE, jToggleButton5, cardSale);
         setModuleVisible(Permission.INVOICE, jToggleButton6, cardInvoice);
         setModuleVisible(Permission.PRODUCT, jToggleButton3, cardProduct);
@@ -797,12 +868,29 @@ public class HomeFrame extends javax.swing.JFrame {
         setModuleVisible(Permission.SUPPLIER, jToggleButton2, cardSupplier);
         setModuleVisible(Permission.EMPLOYEE, jToggleButton4, cardEmployee);
         setModuleVisible(Permission.REPORT, jToggleButton7, cardReports);
+        // Restore shop labels/texts if returning from a Super Admin session on same JVM (rare)
+        if (lblShop != null) {
+            lblShop.setVisible(true);
+            lblShop.setText("SHOP");
+        }
+        if (lblPeople != null) {
+            lblPeople.setVisible(true);
+            lblPeople.setText("PEOPLE");
+        }
+        if (lblOther != null) {
+            lblOther.setVisible(true);
+            lblOther.setText("OTHER");
+        }
+        jToggleButton5.setText("Sales");
+        jToggleButton6.setText("Invoices");
+        jToggleButton3.setText("Products");
+        jToggleButton1.setText("Customers");
+        jToggleButton2.setText("Suppliers");
+        jToggleButton4.setText("Employees");
+        jToggleButton7.setText("Reports");
         if (btnDashboard != null) {
             btnDashboard.setVisible(SessionContext.can(Permission.DASHBOARD));
-            AppUser u = SessionContext.currentUser();
-            if (u != null && u.getRole() == Role.SUPER_ADMIN) {
-                btnDashboard.setText("Monitor");
-            }
+            btnDashboard.setText("Dashboard");
         }
         if (btnRefund != null) {
             btnRefund.setVisible(SessionContext.can(Permission.REFUND));
@@ -819,6 +907,88 @@ public class HomeFrame extends javax.swing.JFrame {
         if (btnUsers != null) {
             btnUsers.setVisible(SessionContext.can(Permission.USER_ADMIN));
         }
+    }
+
+    /**
+     * Super Admin = system control room: system sidebar + top ops; home cards for quick access.
+     */
+    private void applySuperAdminShell() {
+        // Sidebar → SYSTEM / ACCOUNT / OPS (reuse shop toggle slots)
+        if (lblShop != null) {
+            lblShop.setVisible(true);
+            lblShop.setText("SYSTEM");
+        }
+        if (lblPeople != null) {
+            lblPeople.setVisible(true);
+            lblPeople.setText("ACCOUNT");
+        }
+        if (lblOther != null) {
+            lblOther.setVisible(true);
+            lblOther.setText("OPS");
+        }
+
+        jToggleButton5.setVisible(true);
+        jToggleButton5.setText("Monitor");
+        jToggleButton6.setVisible(true);
+        jToggleButton6.setText("Users");
+        jToggleButton3.setVisible(true);
+        jToggleButton3.setText("Settings");
+
+        jToggleButton1.setVisible(true);
+        jToggleButton1.setText("Password");
+        jToggleButton2.setVisible(false);
+        jToggleButton4.setVisible(false);
+
+        jToggleButton7.setVisible(true);
+        jToggleButton7.setText("Backup");
+
+        polishNav(jToggleButton5);
+        polishNav(jToggleButton6);
+        polishNav(jToggleButton3);
+        polishNav(jToggleButton1);
+        polishNav(jToggleButton7);
+        refreshNavColors();
+
+        // Top bar: Monitor, Users, Settings, Password, Sign out only
+        if (btnDashboard != null) {
+            btnDashboard.setVisible(true);
+            btnDashboard.setText("Monitor");
+        }
+        if (btnRefund != null) {
+            btnRefund.setVisible(false);
+        }
+        if (btnShift != null) {
+            btnShift.setVisible(false);
+        }
+        if (btnPurchase != null) {
+            btnPurchase.setVisible(false);
+        }
+        if (btnUsers != null) {
+            btnUsers.setVisible(true);
+        }
+        if (btnSettings != null) {
+            btnSettings.setVisible(true);
+        }
+
+        // Home cards → system shortcuts
+        cardSale.setVisible(true);
+        cardSale.setText("<html><b>System Monitor</b><br>Health, audit, errors, unlock</html>");
+        cardInvoice.setVisible(true);
+        cardInvoice.setText("<html><b>Users &amp; access</b><br>Create staff and reset passwords</html>");
+        cardProduct.setVisible(true);
+        cardProduct.setText("<html><b>Settings</b><br>Shop options and recovery PIN</html>");
+        cardCustomer.setVisible(true);
+        cardCustomer.setText("<html><b>Change password</b><br>Update your Super Admin password</html>");
+        cardSupplier.setVisible(true);
+        cardSupplier.setText("<html><b>Backup</b><br>Open Monitor → Backup / ops</html>");
+        cardEmployee.setVisible(false);
+        cardReports.setVisible(false);
+
+        polishCard(cardSale);
+        polishCard(cardInvoice);
+        polishCard(cardProduct);
+        polishCard(cardCustomer);
+        polishCard(cardSupplier);
     }
 
     private JButton headerOpButton(String text, ActionListener listener) {

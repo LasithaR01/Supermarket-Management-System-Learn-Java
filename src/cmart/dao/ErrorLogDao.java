@@ -20,7 +20,7 @@ public class ErrorLogDao {
             ps.setString(1, truncate(level, 20));
             ps.setString(2, truncate(source, 80));
             ps.setString(3, truncate(message, 255));
-            ps.setString(4, truncate(detail, 500));
+            ps.setString(4, truncate(detail, 8000));
             ps.setString(5, truncate(username, 50));
             ps.executeUpdate();
         } finally {
@@ -47,7 +47,7 @@ public class ErrorLogDao {
     }
 
     public List<String[]> findRecent(int limit) throws SQLException {
-        String sql = "SELECT created_at, level, source, message, username "
+        String sql = "SELECT error_id, created_at, level, source, message, username "
                 + "FROM app_error_log ORDER BY error_id DESC LIMIT ?";
         List<String[]> rows = new ArrayList<String[]>();
         Connection con = ConnectionFactory.getConnection();
@@ -62,6 +62,7 @@ public class ErrorLogDao {
             rs = ps.executeQuery();
             while (rs.next()) {
                 rows.add(new String[] {
+                    String.valueOf(rs.getInt("error_id")),
                     rs.getString("created_at"),
                     rs.getString("level"),
                     rs.getString("source"),
@@ -72,6 +73,58 @@ public class ErrorLogDao {
             return rows;
         } finally {
             DaoSupport.close(rs, ps, con);
+        }
+    }
+
+    public String[] findById(int errorId) throws SQLException {
+        String sql = "SELECT error_id, created_at, level, source, message, detail, username "
+                + "FROM app_error_log WHERE error_id = ?";
+        Connection con = requireConnection();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            ps = con.prepareStatement(sql);
+            ps.setInt(1, errorId);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return new String[] {
+                    String.valueOf(rs.getInt("error_id")),
+                    rs.getString("created_at"),
+                    rs.getString("level"),
+                    rs.getString("source"),
+                    rs.getString("message"),
+                    rs.getString("detail"),
+                    rs.getString("username")
+                };
+            }
+            return null;
+        } finally {
+            DaoSupport.close(rs, ps, con);
+        }
+    }
+
+    public int deleteAll() throws SQLException {
+        String sql = "DELETE FROM app_error_log";
+        Connection con = requireConnection();
+        PreparedStatement ps = null;
+        try {
+            ps = con.prepareStatement(sql);
+            return ps.executeUpdate();
+        } finally {
+            DaoSupport.close(null, ps, con);
+        }
+    }
+
+    public int deleteOlderThanDays(int days) throws SQLException {
+        String sql = "DELETE FROM app_error_log WHERE created_at < (NOW() - INTERVAL ? DAY)";
+        Connection con = requireConnection();
+        PreparedStatement ps = null;
+        try {
+            ps = con.prepareStatement(sql);
+            ps.setInt(1, Math.max(1, days));
+            return ps.executeUpdate();
+        } finally {
+            DaoSupport.close(null, ps, con);
         }
     }
 

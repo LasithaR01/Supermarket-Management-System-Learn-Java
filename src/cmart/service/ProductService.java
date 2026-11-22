@@ -53,6 +53,7 @@ public class ProductService {
 
     public void delete(String id) throws SQLException {
         SessionContext.require(Permission.PRODUCT);
+        cmart.security.ActionAcl.requireProductDeleteAllowed();
         if (Validation.isBlank(id)) {
             throw new IllegalArgumentException("Select a product id to delete.");
         }

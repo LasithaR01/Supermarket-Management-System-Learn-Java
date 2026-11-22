@@ -67,8 +67,11 @@ project/
 - Idle auto sign-out: 15 minutes with no keyboard/mouse activity
 - Security audit table `security_audit` (login, lock, password, user changes)
 - Menus gated by `Permission` via `SessionContext.can(...)`
+- Staff action ACL (`ActionAcl` + `acl.allow.*` settings) for discount / product delete / refund; Owner/Super always allowed
+- Maintenance mode (`system.maintenance.mode`) blocks non–Super Admin login
+- Super Admin Monitor: health, audit/error export, unlock, emergency users, ACL, schema, backup/restore
 - Roles:
-  - `SUPER_ADMIN` — dev / support team (`SYSTEM` permission)
+  - `SUPER_ADMIN` — dev / support team (`SYSTEM` permission; can create another Super Admin in Users)
   - `STORE_OWNER` — shop owner (users, settings, dashboard, backup; no `SYSTEM`)
   - `CASHIER` — till, invoices, refunds, shifts
   - `STORE_KEEPER` — products, suppliers, purchase

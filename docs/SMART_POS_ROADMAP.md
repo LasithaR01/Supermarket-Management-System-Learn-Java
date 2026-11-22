@@ -86,8 +86,9 @@ Goal: turn the current desktop POS into a **fast, easy system** a shop owner can
 7. Supplier payable report.
 8. Employee permissions (who can delete / discount / refund) — Partial (role sets; per-action toggles later).
 9. Audit log (who changed price / deleted record).
-10. ~~Backup MySQL with one click~~ (`mysqldump`; restore later).
+10. ~~Backup MySQL with one click~~ (`mysqldump` + Super Admin restore from `.sql`).
 11. ~~Change / forgot password~~ (self-service + recovery PIN + Owner reset).
+12. ~~Fine-grained staff ACL + maintenance mode + Super Admin ops~~ (Monitor).
 
 **Outcome:** Owner manages the business without opening Workbench.
 

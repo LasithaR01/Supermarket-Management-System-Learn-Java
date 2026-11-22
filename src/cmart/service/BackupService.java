@@ -4,6 +4,7 @@ import cmart.config.DatabaseConfig;
 import cmart.dao.BackupLogDao;
 import cmart.model.AppUser;
 import cmart.security.Permission;
+import cmart.security.Role;
 import cmart.security.SessionContext;
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Runs {@code mysqldump} when available on PATH. Requires MySQL client tools installed.
+ * Runs {@code mysqldump} / {@code mysql} when available on PATH. Requires MySQL client tools.
  */
 public class BackupService {
 
@@ -27,7 +28,7 @@ public class BackupService {
         }
         if (!folder.exists() && !folder.mkdirs()) {
             IOException err = new IOException("Cannot create folder: " + folder.getAbsolutePath());
-            logFail(by, err.getMessage());
+            logFail(by, err.getMessage(), false);
             throw err;
         }
 
@@ -58,21 +59,73 @@ public class BackupService {
             auditService.record(AuditService.BACKUP, by, "OK " + out.getName());
             return out;
         } catch (IOException e) {
-            logFail(by, e.getMessage());
+            logFail(by, e.getMessage(), false);
             throw e;
         } catch (InterruptedException e) {
-            logFail(by, e.getMessage());
+            logFail(by, e.getMessage(), false);
             throw e;
         }
     }
 
-    private void logFail(String by, String message) {
+    /**
+     * Restores a {@code .sql} dump via the {@code mysql} client. Super Admin only.
+     * Prefer enabling maintenance mode first so staff cannot sign in during restore.
+     */
+    public void restoreFromFile(File sqlFile) throws IOException, InterruptedException {
+        SessionContext.require(Permission.SYSTEM);
+        AppUser user = SessionContext.currentUser();
+        if (user == null || user.getRole() != Role.SUPER_ADMIN) {
+            throw new SecurityException("Restore is Super Admin only.");
+        }
+        String by = currentUsername();
+        if (sqlFile == null || !sqlFile.isFile()) {
+            throw new IllegalArgumentException("Select a valid .sql backup file.");
+        }
+        String name = sqlFile.getName().toLowerCase();
+        if (!name.endsWith(".sql")) {
+            throw new IllegalArgumentException("Restore file must be a .sql dump.");
+        }
+
+        String dbName = extractDatabaseName(DatabaseConfig.url());
+        ProcessBuilder pb = new ProcessBuilder(
+                "mysql",
+                "-u", DatabaseConfig.user(),
+                "--password=" + DatabaseConfig.password(),
+                dbName
+        );
+        pb.redirectInput(sqlFile);
+        pb.redirectErrorStream(true);
         try {
-            backupLogDao.insert("FAIL", "", message == null ? "" : message, by);
+            Process process = pb.start();
+            int code = process.waitFor();
+            if (code != 0) {
+                throw new IOException("mysql restore failed (exit " + code
+                        + "). Install MySQL client tools and ensure mysql is on PATH.");
+            }
+            try {
+                backupLogDao.insert("RESTORE_OK", sqlFile.getAbsolutePath(), "Restore completed", by);
+            } catch (Exception ignored) {
+            }
+            auditService.record(AuditService.RESTORE, by, "OK " + sqlFile.getName());
+        } catch (IOException e) {
+            logFail(by, e.getMessage(), true);
+            throw e;
+        } catch (InterruptedException e) {
+            logFail(by, e.getMessage(), true);
+            throw e;
+        }
+    }
+
+    private void logFail(String by, String message, boolean restore) {
+        String status = restore ? "RESTORE_FAIL" : "FAIL";
+        try {
+            backupLogDao.insert(status, "", message == null ? "" : message, by);
         } catch (Exception ignored) {
         }
-        errorLogService.error("BackupService", "Backup failed", new Exception(message));
-        auditService.record(AuditService.BACKUP, by, "FAIL " + (message == null ? "" : message));
+        errorLogService.error("BackupService", restore ? "Restore failed" : "Backup failed",
+                new Exception(message));
+        auditService.record(restore ? AuditService.RESTORE : AuditService.BACKUP, by,
+                "FAIL " + (message == null ? "" : message));
     }
 
     private static String currentUsername() {

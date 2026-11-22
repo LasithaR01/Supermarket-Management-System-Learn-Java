@@ -1,5 +1,6 @@
 package cmart.ui.admin;
 
+import cmart.config.SettingKeys;
 import cmart.model.AppUser;
 import cmart.security.Permission;
 import cmart.security.Role;
@@ -17,8 +18,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -27,11 +30,13 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
 /**
- * Super Admin control room: health, audit, errors, locked users, backup history.
+ * Super Admin control room: health, audit, errors, users, ACL, backup/restore, schema.
  */
 public class SuperAdminMonitorPanel extends JPanel {
 
@@ -47,6 +52,7 @@ public class SuperAdminMonitorPanel extends JPanel {
     private final JLabel cardPin = new JLabel("-");
     private final JLabel cardVersion = new JLabel("-");
     private final JLabel warningsLabel = new JLabel(" ");
+    private final JLabel maintenanceLabel = new JLabel(" ");
 
     private final DefaultTableModel auditModel = new DefaultTableModel(
             new Object[] {"When", "Event", "User", "Actor", "Detail"}, 0) {
@@ -66,16 +72,22 @@ public class SuperAdminMonitorPanel extends JPanel {
         AuditService.USER_CREATE,
         AuditService.USER_UPDATE,
         AuditService.USER_UNLOCK,
+        AuditService.USER_FORCE_PASSWORD,
         AuditService.PRODUCT_DELETE,
         AuditService.SALE_DISCOUNT,
         AuditService.REFUND,
         AuditService.BACKUP,
+        AuditService.RESTORE,
+        AuditService.EXPORT,
+        AuditService.ERROR_LOG_CLEAR,
+        AuditService.MAINTENANCE,
+        AuditService.ACL_CHANGE,
         AuditService.RECOVERY_PIN_SET
     });
     private final JTextField userFilter = new JTextField(12);
 
     private final DefaultTableModel errorModel = new DefaultTableModel(
-            new Object[] {"When", "Level", "Source", "Message", "User"}, 0) {
+            new Object[] {"ID", "When", "Level", "Source", "Message", "User"}, 0) {
         public boolean isCellEditable(int r, int c) {
             return false;
         }
@@ -90,6 +102,14 @@ public class SuperAdminMonitorPanel extends JPanel {
     };
     private final JTable lockedTable = new JTable(lockedModel);
 
+    private final DefaultTableModel emergencyModel = new DefaultTableModel(
+            new Object[] {"ID", "Username", "Role", "Active", "Must change pwd"}, 0) {
+        public boolean isCellEditable(int r, int c) {
+            return false;
+        }
+    };
+    private final JTable emergencyTable = new JTable(emergencyModel);
+
     private final DefaultTableModel backupModel = new DefaultTableModel(
             new Object[] {"When", "Status", "Path", "Message", "By"}, 0) {
         public boolean isCellEditable(int r, int c) {
@@ -99,6 +119,11 @@ public class SuperAdminMonitorPanel extends JPanel {
     private final JTable backupTable = new JTable(backupModel);
 
     private final JLabel configLabel = new JLabel(" ");
+    private final JTextArea schemaArea = new JTextArea(12, 40);
+    private final JCheckBox aclDiscount = new JCheckBox("Staff may apply discounts");
+    private final JCheckBox aclProductDelete = new JCheckBox("Staff may delete products");
+    private final JCheckBox aclRefund = new JCheckBox("Staff may process refunds");
+    private final JCheckBox maintenanceBox = new JCheckBox("Maintenance mode (block non–Super Admin login)");
 
     public SuperAdminMonitorPanel() {
         setLayout(new BorderLayout(8, 8));
@@ -122,7 +147,12 @@ public class SuperAdminMonitorPanel extends JPanel {
         north.add(buildCards(), BorderLayout.CENTER);
         warningsLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         warningsLabel.setForeground(UiTheme.DANGER);
-        north.add(warningsLabel, BorderLayout.SOUTH);
+        maintenanceLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        JPanel warnStack = new JPanel(new GridLayout(2, 1));
+        warnStack.setOpaque(false);
+        warnStack.add(maintenanceLabel);
+        warnStack.add(warningsLabel);
+        north.add(warnStack, BorderLayout.SOUTH);
         add(north, BorderLayout.PAGE_START);
 
         JTabbedPane tabs = new JTabbedPane();
@@ -130,6 +160,9 @@ public class SuperAdminMonitorPanel extends JPanel {
         tabs.addTab("Security audit", buildAuditTab());
         tabs.addTab("Errors / faults", buildErrorsTab());
         tabs.addTab("Locked users", buildLockedTab());
+        tabs.addTab("Emergency users", buildEmergencyTab());
+        tabs.addTab("ACL / maintenance", buildAclTab());
+        tabs.addTab("Schema", buildSchemaTab());
         tabs.addTab("Backup / ops", buildBackupTab());
         add(tabs, BorderLayout.CENTER);
 
@@ -180,8 +213,9 @@ public class SuperAdminMonitorPanel extends JPanel {
         configLabel.setBorder(BorderFactory.createEmptyBorder(8, 4, 8, 4));
         panel.add(configLabel, BorderLayout.NORTH);
         JLabel help = new JLabel(
-                "<html>Use this console for system health, security, faults, and ops — "
-                        + "not daily shop sales (that is Store Owner).</html>");
+                "<html>Use this console for system health, security, faults, ACL, restore, and schema — "
+                        + "not daily shop sales (that is Store Owner).<br>"
+                        + "Users panel can create another Super Admin when you need a second support login.</html>");
         help.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         help.setForeground(UiTheme.MUTED);
         panel.add(help, BorderLayout.CENTER);
@@ -204,6 +238,13 @@ public class SuperAdminMonitorPanel extends JPanel {
             }
         });
         filters.add(search);
+        JButton export = new JButton("Export CSV…");
+        export.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                exportAudit();
+            }
+        });
+        filters.add(export);
         panel.add(filters, BorderLayout.NORTH);
         auditTable.setRowHeight(28);
         panel.add(new JScrollPane(auditTable), BorderLayout.CENTER);
@@ -211,10 +252,41 @@ public class SuperAdminMonitorPanel extends JPanel {
     }
 
     private JPanel buildErrorsTab() {
-        JPanel panel = new JPanel(new BorderLayout());
+        JPanel panel = new JPanel(new BorderLayout(8, 8));
         panel.setOpaque(false);
         errorTable.setRowHeight(28);
         panel.add(new JScrollPane(errorTable), BorderLayout.CENTER);
+        JPanel south = new JPanel();
+        south.setOpaque(false);
+        JButton detail = new JButton("View stack / detail");
+        detail.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                showErrorDetail();
+            }
+        });
+        JButton export = new JButton("Export CSV…");
+        export.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                exportErrors();
+            }
+        });
+        JButton clearOld = new JButton("Clear older than 30 days");
+        clearOld.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                clearErrors(false);
+            }
+        });
+        JButton clearAll = new JButton("Clear all");
+        clearAll.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                clearErrors(true);
+            }
+        });
+        south.add(detail);
+        south.add(export);
+        south.add(clearOld);
+        south.add(clearAll);
+        panel.add(south, BorderLayout.SOUTH);
         return panel;
     }
 
@@ -236,6 +308,74 @@ public class SuperAdminMonitorPanel extends JPanel {
         return panel;
     }
 
+    private JPanel buildEmergencyTab() {
+        JPanel panel = new JPanel(new BorderLayout(8, 8));
+        panel.setOpaque(false);
+        emergencyTable.setRowHeight(28);
+        panel.add(new JScrollPane(emergencyTable), BorderLayout.CENTER);
+        JPanel south = new JPanel();
+        south.setOpaque(false);
+        JButton deactivate = new JButton("Deactivate");
+        deactivate.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                emergencyDeactivate();
+            }
+        });
+        JButton activate = new JButton("Activate");
+        activate.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                emergencyActivate();
+            }
+        });
+        JButton forcePwd = new JButton("Force password change");
+        forcePwd.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                emergencyForcePassword();
+            }
+        });
+        south.add(deactivate);
+        south.add(activate);
+        south.add(forcePwd);
+        panel.add(south, BorderLayout.SOUTH);
+        return panel;
+    }
+
+    private JPanel buildAclTab() {
+        JPanel panel = new JPanel(new BorderLayout(8, 8));
+        panel.setOpaque(false);
+        JPanel form = new JPanel(new GridLayout(0, 1, 6, 6));
+        form.setOpaque(false);
+        form.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        JLabel hint = new JLabel(
+                "<html>These flags restrict <b>Cashier / Store Keeper</b> only. "
+                        + "Store Owner and Super Admin always keep full access.</html>");
+        hint.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        form.add(hint);
+        form.add(aclDiscount);
+        form.add(aclProductDelete);
+        form.add(aclRefund);
+        form.add(maintenanceBox);
+        JButton save = new JButton("Save ACL & maintenance");
+        save.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                saveAcl();
+            }
+        });
+        form.add(save);
+        panel.add(form, BorderLayout.NORTH);
+        return panel;
+    }
+
+    private JPanel buildSchemaTab() {
+        JPanel panel = new JPanel(new BorderLayout(8, 8));
+        panel.setOpaque(false);
+        schemaArea.setEditable(false);
+        schemaArea.setFont(new Font("Consolas", Font.PLAIN, 12));
+        schemaArea.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        panel.add(new JScrollPane(schemaArea), BorderLayout.CENTER);
+        return panel;
+    }
+
     private JPanel buildBackupTab() {
         JPanel panel = new JPanel(new BorderLayout(8, 8));
         panel.setOpaque(false);
@@ -247,9 +387,16 @@ public class SuperAdminMonitorPanel extends JPanel {
                 runBackup();
             }
         });
+        JButton restore = new JButton("Restore from .sql…");
+        restore.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                runRestore();
+            }
+        });
         JPanel south = new JPanel();
         south.setOpaque(false);
         south.add(run);
+        south.add(restore);
         panel.add(south, BorderLayout.SOUTH);
         return panel;
     }
@@ -271,6 +418,23 @@ public class SuperAdminMonitorPanel extends JPanel {
                     + "<br>" + monitorService.schemaLabel() + "</html>");
             configLabel.setText(monitorService.configHealth());
 
+            boolean maint = monitorService.isMaintenanceMode();
+            if (maint) {
+                maintenanceLabel.setText("MAINTENANCE MODE ON — only Super Admin can sign in");
+                maintenanceLabel.setForeground(UiTheme.DANGER);
+            } else {
+                maintenanceLabel.setText("Maintenance mode: off");
+                maintenanceLabel.setForeground(UiTheme.PRIMARY);
+            }
+            maintenanceBox.setSelected(maint);
+
+            Map<String, Boolean> acl = monitorService.aclFlags();
+            aclDiscount.setSelected(Boolean.TRUE.equals(acl.get(SettingKeys.ACL_ALLOW_DISCOUNT)));
+            aclProductDelete.setSelected(Boolean.TRUE.equals(acl.get(SettingKeys.ACL_ALLOW_PRODUCT_DELETE)));
+            aclRefund.setSelected(Boolean.TRUE.equals(acl.get(SettingKeys.ACL_ALLOW_REFUND)));
+
+            schemaArea.setText(monitorService.schemaStatusText());
+
             List<String> warnings = monitorService.demoPasswordWarnings();
             if (warnings.isEmpty()) {
                 warningsLabel.setText("Demo passwords: OK (defaults changed).");
@@ -290,6 +454,7 @@ public class SuperAdminMonitorPanel extends JPanel {
             reloadAudit();
             reloadErrors();
             reloadLocked();
+            reloadEmergency();
             reloadBackups();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage());
@@ -329,8 +494,26 @@ public class SuperAdminMonitorPanel extends JPanel {
                 lockedModel.addRow(new Object[] {
                     Integer.valueOf(user.getId()),
                     user.getUsername(),
-                    user.getRole().name(),
+                    user.getRole().displayLabel(),
                     user.getLockedUntil() == null ? "" : String.valueOf(user.getLockedUntil())
+                });
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+    }
+
+    private void reloadEmergency() {
+        try {
+            emergencyModel.setRowCount(0);
+            List<AppUser> users = monitorService.allUsersPublic();
+            for (AppUser user : users) {
+                emergencyModel.addRow(new Object[] {
+                    Integer.valueOf(user.getId()),
+                    user.getUsername(),
+                    user.getRole().displayLabel(),
+                    user.isActive() ? "yes" : "no",
+                    user.isMustChangePassword() ? "yes" : "no"
                 });
             }
         } catch (Exception e) {
@@ -372,6 +555,165 @@ public class SuperAdminMonitorPanel extends JPanel {
         }
     }
 
+    private int selectedEmergencyUserId() {
+        int row = emergencyTable.getSelectedRow();
+        if (row < 0) {
+            JOptionPane.showMessageDialog(this, "Select a user.");
+            return -1;
+        }
+        return Integer.parseInt(String.valueOf(emergencyModel.getValueAt(row, 0)));
+    }
+
+    private void emergencyDeactivate() {
+        int userId = selectedEmergencyUserId();
+        if (userId < 0) {
+            return;
+        }
+        String username = String.valueOf(emergencyModel.getValueAt(emergencyTable.getSelectedRow(), 1));
+        int ok = JOptionPane.showConfirmDialog(this, "Deactivate " + username + "?", "Deactivate",
+                JOptionPane.YES_NO_OPTION);
+        if (ok != JOptionPane.YES_OPTION) {
+            return;
+        }
+        try {
+            monitorService.deactivateUser(userId);
+            refreshAll();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+    }
+
+    private void emergencyActivate() {
+        int userId = selectedEmergencyUserId();
+        if (userId < 0) {
+            return;
+        }
+        try {
+            monitorService.activateUser(userId);
+            refreshAll();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+    }
+
+    private void emergencyForcePassword() {
+        int userId = selectedEmergencyUserId();
+        if (userId < 0) {
+            return;
+        }
+        String username = String.valueOf(emergencyModel.getValueAt(emergencyTable.getSelectedRow(), 1));
+        int ok = JOptionPane.showConfirmDialog(this,
+                "Force " + username + " to change password at next login?",
+                "Force password change", JOptionPane.YES_NO_OPTION);
+        if (ok != JOptionPane.YES_OPTION) {
+            return;
+        }
+        try {
+            monitorService.forcePasswordChange(userId);
+            refreshAll();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+    }
+
+    private void saveAcl() {
+        try {
+            monitorService.setAclFlag(SettingKeys.ACL_ALLOW_DISCOUNT, aclDiscount.isSelected());
+            monitorService.setAclFlag(SettingKeys.ACL_ALLOW_PRODUCT_DELETE, aclProductDelete.isSelected());
+            monitorService.setAclFlag(SettingKeys.ACL_ALLOW_REFUND, aclRefund.isSelected());
+            monitorService.setMaintenanceMode(maintenanceBox.isSelected());
+            JOptionPane.showMessageDialog(this, "ACL and maintenance saved.");
+            refreshAll();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+    }
+
+    private void showErrorDetail() {
+        int row = errorTable.getSelectedRow();
+        if (row < 0) {
+            JOptionPane.showMessageDialog(this, "Select an error row.");
+            return;
+        }
+        try {
+            int id = Integer.parseInt(String.valueOf(errorModel.getValueAt(row, 0)));
+            String[] full = errorLogService.detail(id);
+            if (full == null) {
+                JOptionPane.showMessageDialog(this, "Error not found.");
+                return;
+            }
+            JTextArea area = new JTextArea(18, 60);
+            area.setText(
+                    "When: " + full[1] + "\nLevel: " + full[2] + "\nSource: " + full[3]
+                            + "\nUser: " + full[6] + "\nMessage: " + full[4]
+                            + "\n\nDetail / stack:\n" + (full[5] == null ? "" : full[5]));
+            area.setCaretPosition(0);
+            area.setEditable(false);
+            JOptionPane.showMessageDialog(this, new JScrollPane(area), "Error #" + id,
+                    JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+    }
+
+    private void clearErrors(boolean all) {
+        String msg = all ? "Clear the entire error log?" : "Clear errors older than 30 days?";
+        int ok = JOptionPane.showConfirmDialog(this, msg, "Clear errors", JOptionPane.YES_NO_OPTION);
+        if (ok != JOptionPane.YES_OPTION) {
+            return;
+        }
+        try {
+            int n = all ? errorLogService.clearAll() : errorLogService.clearOlderThanDays(30);
+            JOptionPane.showMessageDialog(this, "Removed " + n + " row(s).");
+            refreshAll();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+    }
+
+    private void exportAudit() {
+        File file = chooseSaveCsv("cmart_audit.csv");
+        if (file == null) {
+            return;
+        }
+        try {
+            String event = String.valueOf(eventFilter.getSelectedItem());
+            auditService.exportCsv(file, event, userFilter.getText(), 2000);
+            JOptionPane.showMessageDialog(this, "Saved:\n" + file.getAbsolutePath());
+            refreshAll();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+    }
+
+    private void exportErrors() {
+        File file = chooseSaveCsv("cmart_errors.csv");
+        if (file == null) {
+            return;
+        }
+        try {
+            errorLogService.exportCsv(file, 500);
+            JOptionPane.showMessageDialog(this, "Saved:\n" + file.getAbsolutePath());
+            refreshAll();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+    }
+
+    private File chooseSaveCsv(String defaultName) {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setSelectedFile(new File(defaultName));
+        chooser.setFileFilter(new FileNameExtensionFilter("CSV files", "csv"));
+        if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
+            return null;
+        }
+        File file = chooser.getSelectedFile();
+        if (!file.getName().toLowerCase().endsWith(".csv")) {
+            file = new File(file.getParentFile(), file.getName() + ".csv");
+        }
+        return file;
+    }
+
     private void runBackup() {
         JFileChooser chooser = new JFileChooser();
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -381,6 +723,30 @@ public class SuperAdminMonitorPanel extends JPanel {
         try {
             File out = backupService.backupToFolder(chooser.getSelectedFile());
             JOptionPane.showMessageDialog(this, "Backup saved:\n" + out.getAbsolutePath());
+            refreshAll();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+            refreshAll();
+        }
+    }
+
+    private void runRestore() {
+        int warn = JOptionPane.showConfirmDialog(this,
+                "Restore overwrites live database data.\n"
+                        + "Turn on Maintenance mode first if staff might still sign in.\n\nContinue?",
+                "Restore backup", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+        if (warn != JOptionPane.YES_OPTION) {
+            return;
+        }
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileFilter(new FileNameExtensionFilter("SQL dump", "sql"));
+        if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+        try {
+            backupService.restoreFromFile(chooser.getSelectedFile());
+            JOptionPane.showMessageDialog(this,
+                    "Restore finished.\nRestart the app if screens look stale.");
             refreshAll();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage());

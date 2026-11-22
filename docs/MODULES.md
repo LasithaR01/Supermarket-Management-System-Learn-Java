@@ -74,10 +74,12 @@ Use this as the master tick list while building. Phase order and outcomes live i
 | Users admin (create / password / role) | Done | Owner self-service; cannot manage Super Admin |
 | Role dashboards | Done | Super / Owner / Cashier / Store Keeper views |
 | Security audit log | Done | `security_audit` + filterable Super Admin Monitor |
-| Super Admin system monitor | Done | Health / audit / errors / unlock / backup (`SuperAdminMonitorPanel`) |
-| App error / fault log | Done | `app_error_log` |
+| Super Admin system monitor | Done | Health / audit / errors / unlock / emergency users / ACL / schema / backup-restore |
+| App error / fault log | Done | `app_error_log` + stack detail / clear / CSV export |
 | Backup history | Done | `backup_log` + Monitor tab |
-| Fine-grained action ACL (discount / delete / refund beyond role) | Partial | Role-level only today |
+| Maintenance mode | Done | Blocks non–Super Admin login (`system.maintenance.mode`) |
+| Schema status | Done | Monitor → Schema (version + table checklist) |
+| Fine-grained action ACL (discount / delete / refund beyond role) | Done | Monitor → ACL toggles; Owner/Super always allowed |
 
 ---
 
@@ -254,7 +256,7 @@ Use this as the master tick list while building. Phase order and outcomes live i
 | Sub-module | Status | Package / notes |
 |------------|--------|-----------------|
 | MySQL dump backup | Done | `BackupService` (mysqldump on PATH) |
-| Restore from backup | Todo | |
+| Restore from backup | Done | Monitor → Restore from .sql (`mysql` on PATH) |
 
 ---
 
@@ -309,9 +311,8 @@ Use this as the master tick list while building. Phase order and outcomes live i
 1. Finish **Partial** items: credit/due, shift dating, refund history, people↔user link  
 2. **Stock adjustment** + categories / brands  
 3. **Reports** (daily / profit) + **Expenses**  
-4. **Audit log** + backup **restore**  
-5. Phase 5 polish  
-6. Phase 6 extras last  
+4. Phase 5 polish  
+5. Phase 6 extras last  
 
 ---
 

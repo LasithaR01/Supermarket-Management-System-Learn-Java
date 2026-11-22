@@ -28,6 +28,7 @@ public class ReturnService {
 
     public void processReturn(String inid, String barcode, double qty, String reason) throws SQLException {
         SessionContext.require(Permission.REFUND);
+        cmart.security.ActionAcl.requireRefundAllowed();
         if (qty <= 0) {
             throw new IllegalArgumentException("Return qty must be > 0.");
         }

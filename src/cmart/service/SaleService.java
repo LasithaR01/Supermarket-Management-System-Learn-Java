@@ -110,6 +110,9 @@ public class SaleService {
         if (request.getDiscountAmount() < 0) {
             throw new IllegalArgumentException("Discount cannot be negative.");
         }
+        if (request.getDiscountAmount() > 0) {
+            cmart.security.ActionAcl.requireDiscountAllowed();
+        }
         if (request.getDiscountAmount() > request.getBillTotal() + request.getDiscountAmount()) {
             throw new IllegalArgumentException("Discount cannot exceed bill subtotal.");
         }
