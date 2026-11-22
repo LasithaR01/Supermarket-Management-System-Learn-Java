@@ -29,9 +29,9 @@ Before you run this project, ensure you have the following installed:
 ### 1. Database Setup
 1. Open **MySQL Workbench**.
 2. Create a new database (Schema) named `cmartdb`.
-3. Open the `pos.sql` file located in the root of this project.
+3. Open the `sql/pos.sql` file in this project.
 4. In MySQL Workbench, go to **Server > Data Import**.
-5. Select **Import from Self-Contained File** and choose the `pos.sql` file.
+5. Select **Import from Self-Contained File** and choose `sql/pos.sql`.
 6. Set the **Default Target Schema** to `cmartdb` and click **Start Import**.
 
 ### 2. Configure Database Connection

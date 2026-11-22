@@ -38,7 +38,7 @@ Use this as the master tick list while building. Phase order and outcomes live i
 | Purchase | `ui/purchase/PurchasePanel` + `PurchaseService` | Done | Create PO + receive goods (stock +) |
 | Dashboard | `ui/dashboard/DashboardPanel` + Backup | Done | Sales / dues / low stock / top products + mysqldump backup |
 | Reports | `ui/report/*`, `resources/reports/*` | Partial | Jasper all-sales / by invoice (still works) |
-| Database | `config` + `SchemaMigrator`, `pos.sql` | Done | Auto-migrate users, settings, held_sale, returns, shifts, PO, tax |
+| Database | `config` + `SchemaMigrator`, `sql/pos.sql` | Done | Auto-migrate users, settings, held_sale, returns, shifts, PO, tax |
 
 ---
 

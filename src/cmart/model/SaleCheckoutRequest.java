@@ -1,13 +1,11 @@
-package cmart.service;
+package cmart.model;
 
-import cmart.model.CartItem;
-import cmart.model.PayMethod;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Immutable checkout payload built by the UI and executed by {@link SaleService}.
+ * Immutable checkout payload built by the UI and executed by SaleService.
  */
 public final class SaleCheckoutRequest {
 

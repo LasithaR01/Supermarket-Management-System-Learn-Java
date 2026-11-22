@@ -11,14 +11,6 @@ public final class ReportPaths {
     }
 
     public static String jasper(String fileName) {
-        File primary = new File("src/cmart/resources/reports", fileName);
-        if (primary.isFile()) {
-            return primary.getPath();
-        }
-        File legacy = new File("src/reports", fileName);
-        if (legacy.isFile()) {
-            return legacy.getPath();
-        }
-        return primary.getPath();
+        return new File("src/cmart/resources/reports", fileName).getPath();
     }
 }

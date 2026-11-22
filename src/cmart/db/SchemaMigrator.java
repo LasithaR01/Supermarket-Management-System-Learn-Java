@@ -158,7 +158,7 @@ public final class SchemaMigrator {
         try {
             st.execute("ALTER TABLE `" + table + "` ADD COLUMN `" + column + "` " + definition);
         } catch (SQLException ignored) {
-            // Column already exists (or table missing on brand-new empty server — create via pos.sql)
+            // Column already exists (or table missing on brand-new empty server — create via sql/pos.sql)
         }
     }
 }
