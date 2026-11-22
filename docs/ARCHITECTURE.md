@@ -6,48 +6,60 @@ Package root: `cmart` (flat — no `com.company` nesting)
 
 ```text
 src/cmart/
-├── App.java                 # main entry
-├── config/                  # DatabaseConfig (reads config/db.properties)
-├── db/                      # ConnectionFactory
-├── model/                   # Product, Customer, Supplier, Employee, Sale, CartItem
-├── dao/                     # SQL access (ProductDao uses PreparedStatement)
-├── service/                 # ProductService, SaleService
+├── App.java                 # migrate → defaults → login → home
+├── config/                  # DatabaseConfig, SettingKeys
+├── db/                      # ConnectionFactory, SchemaMigrator
+├── security/                # Role, Permission, PasswordHasher, SessionContext
+├── model/                   # AppUser, Product, Customer, … Sale, CartItem
+├── dao/                     # PreparedStatement access (Product, Sale, User, Setting, Customer)
+├── service/                 # Auth, Setting, Sale, Product, Customer
 ├── util/                    # ReportPaths, Validation
 ├── resources/
-│   ├── img/                 # UI icons
-│   └── reports/             # Jasper .jrxml / .jasper
+│   ├── img/
+│   └── reports/
 └── ui/
-    ├── theme/               # UiTheme, RunView
-    ├── shell/               # HomeFrame, PanelLoader
-    ├── customer/            # CustomerPanel
-    ├── supplier/            # SupplierPanel
-    ├── employee/            # EmployeePanel
-    ├── product/             # ProductPanel
-    ├── sale/                # SalePanel
-    ├── invoice/             # InvoicePanel
-    └── report/              # ReportsPanel, ReportView
+    ├── auth/                # LoginFrame
+    ├── admin/               # UsersPanel (create / password / roles)
+    ├── settings/            # SettingsPanel (DB-backed options)
+    ├── theme/
+    ├── shell/               # HomeFrame (role-filtered menus)
+    ├── customer/ supplier/ employee/ product/  # service-backed CRUD
+    ├── sale/ invoice/ report/
 ```
 
 ## Layers
 
 | Layer | Role |
 |-------|------|
-| **ui** | Swing screens only |
-| **service** | Business rules |
-| **dao** | Database queries |
+| **ui** | Swing only — no SQL, no password logic |
+| **service** | Business rules, checkout, auth, settings |
+| **dao** | PreparedStatement queries |
+| **security** | Roles / permissions / PBKDF2 hashing / session |
 | **model** | Data objects |
-| **config / db** | Connection settings |
+| **config / db** | JDBC + idempotent schema migrate |
 
 ## Config
 
 1. Copy `config/db.properties.example` → `config/db.properties`
 2. Set your MySQL URL, user, and password
 3. `db.properties` is gitignored
+4. Shop options live in `app_setting` (keys in `SettingKeys`) — not hardcoded in screens
+
+## Security
+
+- Login required before `HomeFrame`
+- Passwords: PBKDF2-HMAC-SHA256 + per-user salt (`PasswordHasher`)
+- Menus gated by `Permission` via `SessionContext.can(...)`
+- First-run accounts (created only when `app_user` is empty):
+  - `admin` / `admin123` (ADMIN)
+  - `cashier` / `cashier123` (CASHIER)
+  - `store` / `store123` (STORE_KEEPER)
 
 ## Run
 
 - Main class: `cmart.App` (also set in NetBeans `project.properties`)
-- **All screens**: Design and Run use the same form layout (Home shell + Products, Sales, Invoices, Reports, Customers, Suppliers, Employees). Runtime only applies `UiTheme` styling — it no longer rebuilds the UI with `RunView.install`.
+- Startup: `SchemaMigrator` → setting defaults → bootstrap users → `LoginFrame`
+- **All screens**: Design and Run use the same form layout where forms exist. Runtime applies theme + role visibility.
 
 ## Team activity log
 

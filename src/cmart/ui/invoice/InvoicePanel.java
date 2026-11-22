@@ -1,15 +1,25 @@
-
 package cmart.ui.invoice;
 
+import cmart.ui.report.ReportView;
 import cmart.ui.theme.UiTheme;
 
+import cmart.model.InvoiceFilter;
+import cmart.model.Sale;
+import cmart.service.InvoiceService;
+import cmart.util.ReportPaths;
 
-import cmart.db.ConnectionFactory;
-
-import java.sql.ResultSet;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Vector;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 
@@ -19,89 +29,99 @@ import javax.swing.table.DefaultTableModel;
  */
 public class InvoicePanel extends javax.swing.JPanel {
 
+    private final InvoiceService invoiceService = new InvoiceService();
+
     /**
      * Creates new form Invoice
      */
     public InvoicePanel() {
         initComponents();
+        installReprintControls();
         datalad();
         stylePanel();
     }
 
+    private void installReprintControls() {
+        JButton reprint = new JButton("Reprint selected (or double-click)");
+        reprint.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                reprintSelected();
+            }
+        });
+        JPanel south = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        south.setOpaque(false);
+        south.add(reprint);
+        add(south, BorderLayout.PAGE_END);
+
+        jTable1.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    reprintSelected();
+                }
+            }
+        });
+    }
+
+    private void reprintSelected() {
+        int row = jTable1.getSelectedRow();
+        if (row < 0) {
+            JOptionPane.showMessageDialog(this, "Select an invoice row first.");
+            return;
+        }
+        String invId = String.valueOf(jTable1.getValueAt(row, 1));
+        try {
+            HashMap para = new HashMap();
+            para.put("inv_id", invId);
+            ReportView r = new ReportView(ReportPaths.jasper("print.jasper"), para);
+            r.setVisible(true);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Could not open receipt: " + e.getMessage());
+        }
+    }
+
     
   public void datalad(){
-  
       try {
-          
-          DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
-          dt.setRowCount(0);
-          
-          Statement s = ConnectionFactory.getConnection().createStatement();
-          ResultSet rs =  s.executeQuery("SELECT * FROM sales");
-          
-          while (rs.next()) {              
-           
-           Vector v = new Vector();    
-            v.add(rs.getString(1));
-            v.add(rs.getString(2));
-            v.add(rs.getString(3));
-            v.add(rs.getString(4));
-            v.add(rs.getString(5));
-            v.add(rs.getString(6));
-            v.add(rs.getString(7));
-            v.add(rs.getString(8));
-            
-            dt.addRow(v);
-              
-          }
-    
+          fillTable(invoiceService.listAll());
+      } catch (SecurityException e) {
+          JOptionPane.showMessageDialog(this, e.getMessage());
       } catch (SQLException e) {
           System.out.println(e);
+          JOptionPane.showMessageDialog(this, "Could not load invoices: " + e.getMessage());
       }
-     
-      
-      
-  }  
+  }
+
+  private void fillTable(List<Sale> sales) {
+      DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
+      dt.setRowCount(0);
+      for (Sale sale : sales) {
+          Vector v = new Vector();
+          v.add(sale.getSaleId());
+          v.add(sale.getInvoiceId());
+          v.add(sale.getCustomerId());
+          v.add(sale.getCustomerName());
+          v.add(sale.getTotalQty());
+          v.add(sale.getTotalBill());
+          v.add(sale.getStatus());
+          v.add(sale.getBalance());
+          dt.addRow(v);
+      }
+  }
     
  public void search_para(){
- 
- String inv_id = inid.getText();
- String c_Name = cus_name.getText();
- String sta = com_status.getSelectedItem().toString();
- 
+     InvoiceFilter filter = new InvoiceFilter();
+     filter.setInvoiceId(inid.getText());
+     filter.setCustomerName(cus_name.getText());
+     Object status = com_status.getSelectedItem();
+     filter.setStatus(status == null ? "" : status.toString());
      try {
-        
-         DefaultTableModel dt =  (DefaultTableModel) jTable1.getModel();
-         dt.setRowCount(0);
-       
-         Statement s = ConnectionFactory.getConnection().createStatement();         
-         ResultSet rs = s.executeQuery("SELECT * FROM sales WHERE INID  LIKE '%"+inv_id+"%' AND Customer_Name LIKE '%"+c_Name+"%' AND Status LIKE '%"+sta+"%'  ");
-         
-         while (rs.next()) {             
-             
-             Vector v =new Vector();
-             v.add(rs.getString(1));
-             v.add(rs.getString(2));
-             v.add(rs.getString(3));
-             v.add(rs.getString(4));
-             v.add(rs.getString(5));
-             v.add(rs.getString(6));
-             v.add(rs.getString(7));
-             v.add(rs.getString(8));
-             
-             dt.addRow(v);
-             
-         }
-         
-       
-         
+         fillTable(invoiceService.search(filter));
+     } catch (SecurityException e) {
+         JOptionPane.showMessageDialog(this, e.getMessage());
      } catch (SQLException e) {
          System.out.println(e);
          datalad();
      }
- 
- 
- 
  } 
 
   

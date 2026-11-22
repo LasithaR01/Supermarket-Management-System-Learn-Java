@@ -262,6 +262,29 @@ INSERT INTO `supplier` (`sid`, `supplier_Name`, `Tp_Number`) VALUES
 (3, 'albert', '789-88'),
 (4, 'baby', '222-33');
 
+-- --------------------------------------------------------
+-- CMart v2 security + settings (also applied by SchemaMigrator at runtime)
+-- --------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `app_user` (
+  `user_id` INT NOT NULL AUTO_INCREMENT,
+  `username` VARCHAR(50) NOT NULL,
+  `display_name` VARCHAR(80) NOT NULL,
+  `password_hash` VARCHAR(128) NOT NULL,
+  `password_salt` VARCHAR(64) NOT NULL,
+  `role` VARCHAR(20) NOT NULL,
+  `active` TINYINT(1) NOT NULL DEFAULT 1,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`user_id`),
+  UNIQUE KEY `uk_app_user_username` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `app_setting` (
+  `setting_key` VARCHAR(64) NOT NULL,
+  `setting_value` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`setting_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

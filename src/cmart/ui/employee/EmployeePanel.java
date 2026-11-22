@@ -12,13 +12,13 @@ import cmart.ui.report.ReportView;
 
 import cmart.util.ReportPaths;
 
-import cmart.db.ConnectionFactory;
+import cmart.model.Employee;
+import cmart.model.PartyFilter;
+import cmart.service.EmployeeService;
 
-import java.awt.HeadlessException;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Vector;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -28,6 +28,8 @@ import javax.swing.table.DefaultTableModel;
  * @author Go
  */
 public class EmployeePanel extends javax.swing.JPanel {
+
+    private final EmployeeService employeeService = new EmployeeService();
 
     /**
      * Creates new form customer
@@ -40,96 +42,80 @@ public class EmployeePanel extends javax.swing.JPanel {
     }
 
   public void tb_load(){
-  
-  
       try {
-          
-          DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
-          dt.setRowCount(0);
-          
-          Statement s = ConnectionFactory.getConnection().createStatement();
-          ResultSet rs = s.executeQuery(" SELECT * FROM employee");
-          
-          while (rs.next()) {              
-              
-              Vector v = new Vector();
-              
-              v.add(rs.getString(1));
-              v.add(rs.getString(2));
-              v.add(rs.getString(3));
-              v.add(rs.getString(4));
-              v.add(rs.getString(5));
-              v.add(rs.getString(6));
-              v.add(rs.getString(7));
-              v.add(rs.getString(8));
-              v.add(rs.getString(9));
-              v.add(rs.getString(10));
-              v.add(rs.getString(11));
-              v.add(rs.getString(12));
-              
-              dt.addRow(v);
-                          
-              
-              
-              
-          }
-          
+          fillTable(employeeService.listAll());
       } catch (SQLException e) {
           System.out.println(e);
+          JOptionPane.showMessageDialog(this, "Could not load employees: " + e.getMessage());
       }
-  
-  } 
+  }
+
+  private void fillTable(List<Employee> employees) {
+      DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
+      dt.setRowCount(0);
+      for (Employee emp : employees) {
+          Vector v = new Vector();
+          v.add(emp.getId());
+          v.add(emp.getName());
+          v.add(emp.getPhone());
+          v.add(emp.getMainAddress());
+          v.add(emp.getTempAddress());
+          v.add(emp.getBank());
+          v.add(emp.getCity());
+          v.add(emp.getPersonName());
+          v.add(emp.getContactPerson());
+          v.add(emp.getPersonPhone());
+          v.add(emp.getEmail());
+          v.add(emp.getOnline());
+          dt.addRow(v);
+      }
+  }
+
+  private Employee readForm() {
+      Employee emp = new Employee();
+      emp.setId(c_search.getText().trim());
+      emp.setName(c_name.getText().trim());
+      emp.setPhone(c_tp.getText().trim());
+      emp.setMainAddress(c_billadd.getText().trim());
+      emp.setTempAddress(c_shipadd.getText().trim());
+      emp.setBank(c_bank.getText().trim());
+      emp.setCity(c_city.getText().trim());
+      emp.setPersonName(cp_name.getText().trim());
+      emp.setContactPerson(c_person.getText().trim());
+      emp.setPersonPhone(cp_tp.getText().trim());
+      emp.setEmail(cp_email.getText().trim());
+      emp.setOnline(cp_online.getText().trim());
+      return emp;
+  }
+
+  private void writeForm(Employee emp) {
+      c_name.setText(emp.getName());
+      c_tp.setText(emp.getPhone());
+      c_billadd.setText(emp.getMainAddress());
+      c_shipadd.setText(emp.getTempAddress());
+      c_bank.setText(emp.getBank());
+      c_city.setText(emp.getCity());
+      cp_name.setText(emp.getPersonName());
+      c_person.setText(emp.getContactPerson());
+      cp_tp.setText(emp.getPersonPhone());
+      cp_email.setText(emp.getEmail());
+      cp_online.setText(emp.getOnline());
+  }
     
  public void serch(){
- 
-     String city = sh_city.getText();
-     String tp = sh_tp.getText();
-     String contact_person = sh_cp.getText();
-     String person_name = sh_pn.getText();
-     
-     
+     PartyFilter filter = new PartyFilter();
+     filter.setCity(sh_city.getText());
+     filter.setPhone(sh_tp.getText());
+     filter.setContactPerson(sh_cp.getText());
+     filter.setPersonName(sh_pn.getText());
      try {
-         
-         DefaultTableModel dtm = (DefaultTableModel) jTable1.getModel();
-         dtm.setRowCount(0);
-         
-         Statement s = ConnectionFactory.getConnection().createStatement();
-         ResultSet rs = s.executeQuery(" SELECT * FROM employee WHERE city LIKE  '%"+ city +"%' AND tp_number LIKE '%"+ tp +"%' AND contact_person LIKE '%"+contact_person+"%' AND person_name LIKE '%"+person_name+"%' ");
-         
-        // You can Use OR or AND
-         
-          while (rs.next()) {              
-              
-              Vector v = new Vector();
-              
-              v.add(rs.getString(1));
-              v.add(rs.getString(2));
-              v.add(rs.getString(3));
-              v.add(rs.getString(4));
-              v.add(rs.getString(5));
-              v.add(rs.getString(6));
-              v.add(rs.getString(7));
-              v.add(rs.getString(8));
-              v.add(rs.getString(9));
-              v.add(rs.getString(10));
-              v.add(rs.getString(11));
-              v.add(rs.getString(12));
-              
-              dtm.addRow(v);
-          }
-         
-         
-     } catch (Exception e) {
-         
+         fillTable(employeeService.search(filter));
+     } catch (SQLException e) {
          System.out.println(e);
+         tb_load();
      }
-  
-     
-     
-     
- 
- }   
-    
+ }
+
  public void clearText(){
  
     c_name.setText("");
@@ -498,42 +484,11 @@ public class EmployeePanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void c_search_tblKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_c_search_tblKeyReleased
-
-        String name = c_search_tbl.getText();
         try {
-
-            DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
-            dt.setRowCount(0);
-            Statement s = ConnectionFactory.getConnection().createStatement();
-
-            ResultSet rs = s.executeQuery("SELECT * FROM employee WHERE employee_name LIKE '%"+name+"%' ");
-
-            while (rs.next()) {
-                Vector v = new Vector();
-
-                v.add(rs.getString(1));
-                v.add(rs.getString(2));
-                v.add(rs.getString(3));
-                v.add(rs.getString(4));
-                v.add(rs.getString(5));
-                v.add(rs.getString(6));
-                v.add(rs.getString(7));
-                v.add(rs.getString(8));
-                v.add(rs.getString(9));
-                v.add(rs.getString(10));
-                v.add(rs.getString(11));
-                v.add(rs.getString(12));
-                
-
-                dt.addRow(v);
-
-            }
-
+            fillTable(employeeService.searchByName(c_search_tbl.getText()));
         } catch (Exception e) {
             tb_load();
-
         }
-
     }//GEN-LAST:event_c_search_tblKeyReleased
 
     private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
@@ -595,128 +550,66 @@ public class EmployeePanel extends javax.swing.JPanel {
     }//GEN-LAST:event_sameActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-
-        String name = c_name.getText();
-        String tp = c_tp.getText();
-
-        String bill_add = c_billadd.getText();
-        String shipp_add = c_shipadd.getText();
-        String bank = c_bank.getText();
-        String city = c_city.getText();
-        String person_name = cp_name.getText();
-        String contact_person = c_person.getText();
-        String person_tp = cp_tp.getText();
-        String email = cp_email.getText();
-        String online = cp_online.getText();
-
         try {
-
-            Statement s = ConnectionFactory.getConnection().createStatement();
-            s.executeUpdate(" INSERT INTO employee (employee_name,Tp_Number,main_address,temp_address,bank,city,person_name,contact_person,person_tp,email,online) "
-                + "VALUES ('"+name+"','"+tp+"','"+bill_add+"','"+shipp_add+"','"+bank+"','"+city+"','"+person_name+"','"+contact_person+"','"+person_tp+"','"+email+"','"+online+"')");
-
-            JOptionPane.showMessageDialog(null, "Saved");
-
+            employeeService.save(readForm());
+            JOptionPane.showMessageDialog(this, "Saved");
+            tb_load();
+            clearText();
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        } catch (SecurityException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
         } catch (SQLException e) {
-
-            System.out.println(e);
-
+            JOptionPane.showMessageDialog(this, "Could not save: " + e.getMessage());
         }
-
-        tb_load();
-        clearText();
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // search btn code
-        String search = c_search.getText();
         try {
-
-            Statement s = ConnectionFactory.getConnection().createStatement();
-
-            ResultSet rs = s.executeQuery(" SELECT * FROM employee WHERE eid = '"+search+"'");
-
-            if (rs.next()) {
-
-                c_name.setText(rs.getString("employee_name"));
-                c_tp.setText(rs.getString("tp_number"));
-                c_billadd.setText(rs.getString("main_address"));
-                c_shipadd.setText(rs.getString("temp_address"));
-                c_bank.setText(rs.getString("bank"));
-                c_city.setText(rs.getString("city"));
-
-                cp_name.setText(rs.getString("person_name"));
-                c_person.setText(rs.getString("contact_person"));
-                cp_tp.setText(rs.getString("person_tp"));
-                cp_email.setText(rs.getString("email"));
-                cp_online.setText(rs.getString("online"));
-
+            Employee employee = employeeService.getById(c_search.getText().trim());
+            if (employee != null) {
+                writeForm(employee);
+            } else {
+                JOptionPane.showMessageDialog(this, "Employee not found.");
             }
-
         } catch (SQLException e) {
-            System.out.println(e);
+            JOptionPane.showMessageDialog(this, "Search failed: " + e.getMessage());
         }
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // update btn code
-
-        String id = c_search.getText();
-
-        String name = c_name.getText();
-        String tp = c_tp.getText();
-
-        String bill_add = c_billadd.getText();
-        String shipp_add = c_shipadd.getText();
-        String bank = c_bank.getText();
-        String city = c_city.getText();
-        String person_name = cp_name.getText();
-        String contact_person = c_person.getText();
-        String person_tp = cp_tp.getText();
-        String email = cp_email.getText();
-        String online = cp_online.getText();
-
         try {
-
-            Statement s = ConnectionFactory.getConnection().createStatement();
-            s.executeUpdate(" UPDATE employee SET employee_name ='"+name+"'"
-                + " ,Tp_Number ='"+tp+"'"
-                + ",main_address ='"+ bill_add +"'"
-                + ",temp_address ='"+ shipp_add +"' "
-                + ",bank ='"+ bank +"' "
-                + ",city ='"+ city +"' "
-                + ",person_name ='"+ person_name +"' "
-                + ",contact_person ='"+ contact_person +"' "
-                + ",person_tp ='"+ person_tp +"' "
-                + ",email ='"+ email +"' "
-                + ",online ='"+ online +"' "
-                + " WHERE eid = '"+id+"' ");
-            JOptionPane.showMessageDialog(null, "Updated");
-
-        } catch (HeadlessException | SQLException e) {
-            System.out.println(e);
+            employeeService.update(readForm());
+            JOptionPane.showMessageDialog(this, "Updated");
+            tb_load();
+            clearText();
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        } catch (SecurityException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Could not update: " + e.getMessage());
         }
-
-        tb_load();
-        clearText();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        //delete btn code
-
-        String id = c_search.getText();
-        try {
-
-            Statement s = ConnectionFactory.getConnection().createStatement();
-            s.executeUpdate("DELETE FROM employee WHERE eid = '"+id+"'");
-            JOptionPane.showMessageDialog(null, "Deleted");
-
-        } catch (SQLException e) {
-            System.out.println(e);
+        int confirm = JOptionPane.showConfirmDialog(this, "Delete this employee?", "Confirm delete",
+                JOptionPane.YES_NO_OPTION);
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
         }
-
-        tb_load();
-        clearText();
+        try {
+            employeeService.delete(c_search.getText());
+            JOptionPane.showMessageDialog(this, "Deleted");
+            tb_load();
+            clearText();
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        } catch (SecurityException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Could not delete: " + e.getMessage());
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void c_bankActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_c_bankActionPerformed

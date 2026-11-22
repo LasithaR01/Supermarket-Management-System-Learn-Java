@@ -29,6 +29,8 @@ Full guide: [COMMIT_GUIDE.md](COMMIT_GUIDE.md)
 
 | When | Who | Type | Module | Note | Source |
 |------|-----|------|--------|------|--------|
+| 2026-11-22 16:58 | Lasitha Ransara | `chore` | `repo` | Merge pull request #17 from LasithaR01/feature | git `ff1d012` |
+| 2026-11-22 16:57 | Lasitha Ransara | `feat` | `database` | Add security and settings tables, and implement DAOs for user and settings management | git `07fd1e2` |
 | 2026-11-22 03:06 | Lasitha Ransara | `chore` | `repo` | Merge pull request #16 from LasithaR01/feature | git `fd2193a` |
 | 2026-11-22 03:05 | Lasitha Ransara | `feat` | `product` | Add methods for product retrieval and stock management | git `e9d810c` |
 | 2026-11-22 02:12 | Lasitha Ransara | `chore` | `repo` | Merge pull request #15 from LasithaR01/feature | git `667591b` |

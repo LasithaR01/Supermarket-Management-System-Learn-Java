@@ -1,95 +1,36 @@
 package cmart.service;
 
-import cmart.db.ConnectionFactory;
+import cmart.config.SettingKeys;
+import cmart.dao.HeldSaleDao;
 import cmart.dao.ProductDao;
+import cmart.dao.SaleDao;
+import cmart.model.CartItem;
+import cmart.model.HeldSale;
 import cmart.model.Product;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import cmart.model.Sale;
+import cmart.security.Permission;
+import cmart.security.SessionContext;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Sale rules that should not live inside Swing panels.
+ * Sale business rules. UI must not contain SQL.
  */
 public class SaleService {
 
     private final ProductDao productDao = new ProductDao();
+    private final SaleDao saleDao = new SaleDao();
+    private final HeldSaleDao heldSaleDao = new HeldSaleDao();
+    private final SettingService settingService = new SettingService();
 
-    /**
-     * Preview of the next invoice number (does not reserve it).
-     */
     public String peekNextInvoiceNumber() throws SQLException {
-        Connection con = ConnectionFactory.getConnection();
-        if (con == null) {
-            throw new SQLException("No database connection");
-        }
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-            ps = con.prepareStatement("SELECT val FROM extra WHERE exid = 1");
-            rs = ps.executeQuery();
-            int current = 0;
-            if (rs.next()) {
-                current = Integer.parseInt(rs.getString("val").trim());
-            }
-            return String.valueOf(current + 1);
-        } finally {
-            try { if (rs != null) rs.close(); } catch (SQLException ignored) {}
-            try { if (ps != null) ps.close(); } catch (SQLException ignored) {}
-            try { if (con != null) con.close(); } catch (SQLException ignored) {}
-        }
+        return saleDao.peekNextInvoiceNumber();
     }
 
-    /**
-     * Atomically reserves the next invoice number so two tills cannot get the same INID.
-     * Uses row lock ({@code SELECT ... FOR UPDATE}) then increments {@code extra.val}.
-     */
     public String allocateInvoiceNumber() throws SQLException {
-        Connection con = ConnectionFactory.getConnection();
-        if (con == null) {
-            throw new SQLException("No database connection");
-        }
-        PreparedStatement lockPs = null;
-        PreparedStatement updPs = null;
-        ResultSet rs = null;
-        boolean originalAutoCommit = true;
-        try {
-            originalAutoCommit = con.getAutoCommit();
-            con.setAutoCommit(false);
-
-            lockPs = con.prepareStatement("SELECT val FROM extra WHERE exid = 1 FOR UPDATE");
-            rs = lockPs.executeQuery();
-            int current = 0;
-            if (rs.next()) {
-                current = Integer.parseInt(rs.getString("val").trim());
-            } else {
-                throw new SQLException("extra row exid=1 is missing");
-            }
-            int next = current + 1;
-
-            updPs = con.prepareStatement("UPDATE extra SET val = ? WHERE exid = 1");
-            updPs.setString(1, String.valueOf(next));
-            if (updPs.executeUpdate() != 1) {
-                throw new SQLException("Failed to update invoice counter");
-            }
-
-            con.commit();
-            return String.valueOf(next);
-        } catch (SQLException | NumberFormatException e) {
-            try { con.rollback(); } catch (SQLException ignored) {}
-            if (e instanceof SQLException) {
-                throw (SQLException) e;
-            }
-            throw new SQLException("Invalid invoice counter value", e);
-        } finally {
-            try { if (rs != null) rs.close(); } catch (SQLException ignored) {}
-            try { if (lockPs != null) lockPs.close(); } catch (SQLException ignored) {}
-            try { if (updPs != null) updPs.close(); } catch (SQLException ignored) {}
-            try {
-                con.setAutoCommit(originalAutoCommit);
-            } catch (SQLException ignored) {}
-            try { if (con != null) con.close(); } catch (SQLException ignored) {}
-        }
+        return saleDao.allocateInvoiceNumber();
     }
 
     /**
@@ -113,7 +54,8 @@ public class SaleService {
             return "Product stock value is invalid.";
         }
         double needed = alreadyInCart + requestQty;
-        if (needed > stock) {
+        boolean allowNegative = settingService.getBoolean(SettingKeys.ALLOW_NEGATIVE_STOCK);
+        if (!allowNegative && needed > stock) {
             return "Not enough stock. Available: " + trimQty(stock)
                     + ", already in cart: " + trimQty(alreadyInCart)
                     + ", requested: " + trimQty(requestQty) + ".";
@@ -121,9 +63,6 @@ public class SaleService {
         return null;
     }
 
-    /**
-     * Deduct stock for one sold line. Returns an error message, or null on success.
-     */
     public String deductStock(String barcode, double qty) throws SQLException {
         if (qty <= 0) {
             return "Invalid quantity for stock deduct.";
@@ -134,6 +73,115 @@ public class SaleService {
                     + " (not enough Qty or product missing).";
         }
         return null;
+    }
+
+    /**
+     * Full checkout: validate → allocate INID → deduct stock → persist cart + sale.
+     *
+     * @return allocated invoice id
+     */
+    public String completeSale(SaleCheckoutRequest request) throws SQLException {
+        SessionContext.require(Permission.SALE);
+        if (request == null || request.getLines() == null || request.getLines().isEmpty()) {
+            throw new IllegalArgumentException("Cart is empty.");
+        }
+        if (request.getCustomerName() == null || request.getCustomerName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Select a customer.");
+        }
+
+        validateCartStock(request.getLines());
+
+        String invoiceId = saleDao.allocateInvoiceNumber();
+
+        for (CartItem line : request.getLines()) {
+            double qty = Double.parseDouble(line.getQty().trim());
+            String stockError = deductStock(line.getBarcode(), qty);
+            if (stockError != null) {
+                throw new SQLException(stockError);
+            }
+        }
+
+        for (CartItem line : request.getLines()) {
+            CartItem toSave = copyWithInvoice(line, invoiceId);
+            saleDao.insertCartItem(toSave);
+        }
+
+        if (request.getDiscountAmount() < 0) {
+            throw new IllegalArgumentException("Discount cannot be negative.");
+        }
+        if (request.getDiscountAmount() > request.getBillTotal() + request.getDiscountAmount()) {
+            throw new IllegalArgumentException("Discount cannot exceed bill subtotal.");
+        }
+
+        double balance = request.getPaidAmount() - request.getBillTotal();
+        Sale sale = new Sale();
+        sale.setInvoiceId(invoiceId);
+        sale.setCustomerId(request.getCustomerId());
+        sale.setCustomerName(request.getCustomerName());
+        sale.setTotalQty(trimQty(request.getTotalQty()));
+        sale.setTotalBill(String.valueOf(request.getBillTotal()));
+        sale.setStatus(paymentStatus(request.getBillTotal(), request.getPaidAmount()));
+        sale.setBalance(String.valueOf(balance));
+        sale.setDiscountAmount(String.valueOf(request.getDiscountAmount()));
+        sale.setPayMethod(request.getPayMethod().name());
+        sale.setTaxAmount(String.valueOf(request.getTaxAmount()));
+        saleDao.insertSale(sale);
+
+        return invoiceId;
+    }
+
+    public String holdSale(HeldSale held) throws SQLException {
+        SessionContext.require(Permission.SALE);
+        if (held == null || held.getLines() == null || held.getLines().isEmpty()) {
+            throw new IllegalArgumentException("Cart is empty — nothing to hold.");
+        }
+        String code = "H" + System.currentTimeMillis();
+        held.setHoldCode(code);
+        if (SessionContext.currentUser() != null) {
+            held.setCreatedBy(SessionContext.currentUser().getUsername());
+        }
+        heldSaleDao.insert(held);
+        return code;
+    }
+
+    public List<HeldSale> listHeldSales() throws SQLException {
+        SessionContext.require(Permission.SALE);
+        return heldSaleDao.findAll();
+    }
+
+    public HeldSale recallHeldSale(String holdCode) throws SQLException {
+        SessionContext.require(Permission.SALE);
+        HeldSale held = heldSaleDao.findByCode(holdCode);
+        if (held == null) {
+            throw new IllegalArgumentException("Hold code not found: " + holdCode);
+        }
+        heldSaleDao.deleteByCode(holdCode);
+        return held;
+    }
+
+    private void validateCartStock(List<CartItem> lines) throws SQLException {
+        Map<String, Double> priorByBarcode = new HashMap<String, Double>();
+        for (CartItem line : lines) {
+            String barcode = line.getBarcode();
+            double qty = Double.parseDouble(line.getQty().trim());
+            double prior = priorByBarcode.containsKey(barcode) ? priorByBarcode.get(barcode) : 0.0;
+            String error = validateSaleQty(barcode, qty, prior);
+            if (error != null) {
+                throw new IllegalArgumentException(error);
+            }
+            priorByBarcode.put(barcode, prior + qty);
+        }
+    }
+
+    private static CartItem copyWithInvoice(CartItem source, String invoiceId) {
+        CartItem item = new CartItem();
+        item.setInvoiceId(invoiceId);
+        item.setProductName(source.getProductName());
+        item.setBarcode(source.getBarcode());
+        item.setQty(source.getQty());
+        item.setUnitPrice(source.getUnitPrice());
+        item.setTotalPrice(source.getTotalPrice());
+        return item;
     }
 
     public static String paymentStatus(double billTotal, double paid) {
