@@ -2,29 +2,39 @@
 
 Package root: `cmart` (flat — no `com.company` nesting)
 
-## Layout
+## Project layout
 
 ```text
-src/cmart/
-├── App.java                 # migrate → defaults → login → home
-├── config/                  # DatabaseConfig, SettingKeys
-├── db/                      # ConnectionFactory, SchemaMigrator
-├── security/                # Role, Permission, PasswordHasher, SessionContext
-├── model/                   # AppUser, Product, Customer, … Sale, CartItem
-├── dao/                     # PreparedStatement access (Product, Sale, User, Setting, Customer)
-├── service/                 # Auth, Setting, Sale, Product, Customer
-├── util/                    # ReportPaths, Validation
-├── resources/
-│   ├── img/
-│   └── reports/
-└── ui/
-    ├── auth/                # LoginFrame
-    ├── admin/               # UsersPanel (create / password / roles)
-    ├── settings/            # SettingsPanel (DB-backed options)
-    ├── theme/
-    ├── shell/               # HomeFrame (role-filtered menus)
-    ├── customer/ supplier/ employee/ product/  # service-backed CRUD
-    ├── sale/ invoice/ report/
+project/
+├── config/                  # db.properties (+ example); gitignored secrets
+├── docs/                    # architecture, modules, roadmap, activity
+├── lib/                     # MySQL 8 connector + Jasper deps
+├── scripts/                 # activity log generator
+├── sql/
+│   ├── pos.sql              # base schema (import into cmartdb)
+│   └── migrate_*.sql        # optional / historical SQL scripts
+├── src/cmart/
+│   ├── App.java             # migrate → defaults → login → home
+│   ├── config/              # DatabaseConfig, SettingKeys
+│   ├── db/                  # ConnectionFactory, SchemaMigrator
+│   ├── security/            # Role, Permission, PasswordHasher, SessionContext
+│   ├── model/               # entities, filters, SaleCheckoutRequest
+│   ├── dao/                 # PreparedStatement access
+│   ├── service/             # *Service business rules only
+│   ├── util/                # ReportPaths, Validation, CartCodec
+│   ├── resources/
+│   │   ├── img/             # UI icons (classpath /cmart/resources/img/…)
+│   │   └── reports/         # Jasper templates (single reports home)
+│   └── ui/
+│       ├── auth/            # LoginFrame
+│       ├── admin/           # UsersPanel
+│       ├── settings/        # SettingsPanel
+│       ├── theme/
+│       ├── shell/           # HomeFrame, PanelLoader
+│       ├── customer/ supplier/ employee/ product/
+│       ├── sale/ invoice/ refund/ purchase/ shift/
+│       ├── dashboard/ report/
+└── test/                    # reserved for automated tests
 ```
 
 ## Layers
@@ -35,7 +45,7 @@ src/cmart/
 | **service** | Business rules, checkout, auth, settings |
 | **dao** | PreparedStatement queries |
 | **security** | Roles / permissions / PBKDF2 hashing / session |
-| **model** | Data objects |
+| **model** | Data objects + checkout/filter DTOs |
 | **config / db** | JDBC + idempotent schema migrate |
 
 ## Config
@@ -44,6 +54,7 @@ src/cmart/
 2. Set your MySQL URL, user, and password
 3. `db.properties` is gitignored
 4. Shop options live in `app_setting` (keys in `SettingKeys`) — not hardcoded in screens
+5. Base schema: import `sql/pos.sql` into `cmartdb` before first run
 
 ## Security
 
@@ -71,4 +82,5 @@ src/cmart/
 ## Migration notes
 
 - Legacy package `pos.pro` was removed.
-- Product is the reference module for dao + service; other screens still call SQL in the panel and should move to dao/service next (see roadmap Phase 1).
+- Legacy duplicate `src/reports/` removed; Jasper files live only under `src/cmart/resources/reports/`.
+- Product is the reference module for dao + service; other screens follow the same pattern.

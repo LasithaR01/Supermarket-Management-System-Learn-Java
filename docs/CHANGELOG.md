@@ -6,6 +6,10 @@ Format: date · short summary · related docs if useful.
 
 ---
 
+## 2026-11-23
+
+- Cleaned project structure: removed duplicate `src/reports/`, moved `pos.sql` to `sql/pos.sql`, moved `SaleCheckoutRequest` into `cmart.model`, dropped unused MySQL connector JARs, refreshed architecture docs.
+
 ## 2026-11-22
 
 - Rewrote docs/MODULES.md into a full module + sub-module build checklist (Done / Partial / Todo) aligned with current code and roadmap.

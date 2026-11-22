@@ -8,6 +8,7 @@ import cmart.model.CartItem;
 import cmart.model.HeldSale;
 import cmart.model.Product;
 import cmart.model.Sale;
+import cmart.model.SaleCheckoutRequest;
 import cmart.security.Permission;
 import cmart.security.SessionContext;
 import java.sql.SQLException;

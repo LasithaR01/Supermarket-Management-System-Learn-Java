@@ -18,9 +18,9 @@ import cmart.model.Customer;
 import cmart.model.HeldSale;
 import cmart.model.PayMethod;
 import cmart.model.Product;
+import cmart.model.SaleCheckoutRequest;
 import cmart.service.CustomerService;
 import cmart.service.ProductService;
-import cmart.service.SaleCheckoutRequest;
 import cmart.service.SaleService;
 import cmart.service.SettingService;
 
