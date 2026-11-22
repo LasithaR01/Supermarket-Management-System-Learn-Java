@@ -10,6 +10,9 @@ public class Sale {
     private String totalBill;
     private String status;
     private String balance;
+    private String discountAmount;
+    private String payMethod;
+    private String taxAmount;
 
     public String getSaleId() { return saleId; }
     public void setSaleId(String saleId) { this.saleId = saleId; }
@@ -27,4 +30,10 @@ public class Sale {
     public void setStatus(String status) { this.status = status; }
     public String getBalance() { return balance; }
     public void setBalance(String balance) { this.balance = balance; }
+    public String getDiscountAmount() { return discountAmount; }
+    public void setDiscountAmount(String discountAmount) { this.discountAmount = discountAmount; }
+    public String getPayMethod() { return payMethod; }
+    public void setPayMethod(String payMethod) { this.payMethod = payMethod; }
+    public String getTaxAmount() { return taxAmount; }
+    public void setTaxAmount(String taxAmount) { this.taxAmount = taxAmount; }
 }

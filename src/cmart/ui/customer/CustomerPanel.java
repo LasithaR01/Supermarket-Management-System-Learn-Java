@@ -12,13 +12,13 @@ import cmart.ui.report.ReportView;
 
 import cmart.util.ReportPaths;
 
-import cmart.db.ConnectionFactory;
+import cmart.model.Customer;
+import cmart.model.PartyFilter;
+import cmart.service.CustomerService;
 
-import java.awt.HeadlessException;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Vector;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -28,6 +28,8 @@ import javax.swing.table.DefaultTableModel;
  * @author Go
  */
 public class CustomerPanel extends javax.swing.JPanel {
+
+    private final CustomerService customerService = new CustomerService();
 
     /**
      * Creates new form customer
@@ -40,95 +42,79 @@ public class CustomerPanel extends javax.swing.JPanel {
     }
 
   public void tb_load(){
-  
-  
       try {
-          
-          DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
-          dt.setRowCount(0);
-          
-          Statement s = ConnectionFactory.getConnection().createStatement();
-          ResultSet rs = s.executeQuery(" SELECT * FROM customer");
-          
-          while (rs.next()) {              
-              
-              Vector v = new Vector();
-              
-              v.add(rs.getString(1));
-              v.add(rs.getString(2));
-              v.add(rs.getString(3));
-              v.add(rs.getString(4));
-              v.add(rs.getString(5));
-              v.add(rs.getString(6));
-              v.add(rs.getString(7));
-              v.add(rs.getString(8));
-              v.add(rs.getString(9));
-              v.add(rs.getString(10));
-              v.add(rs.getString(11));
-              v.add(rs.getString(12));
-              
-              dt.addRow(v);
-                          
-              
-              
-              
-          }
-          
+          fillTable(customerService.listAll());
       } catch (SQLException e) {
           System.out.println(e);
+          JOptionPane.showMessageDialog(this, "Could not load customers: " + e.getMessage());
       }
-  
-  } 
+  }
+
+  private void fillTable(List<Customer> customers) {
+      DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
+      dt.setRowCount(0);
+      for (Customer c : customers) {
+          Vector v = new Vector();
+          v.add(c.getId());
+          v.add(c.getName());
+          v.add(c.getPhone());
+          v.add(c.getBillingAddress());
+          v.add(c.getShippingAddress());
+          v.add(c.getBank());
+          v.add(c.getCity());
+          v.add(c.getPersonName());
+          v.add(c.getContactPerson());
+          v.add(c.getPersonPhone());
+          v.add(c.getEmail());
+          v.add(c.getOnline());
+          dt.addRow(v);
+      }
+  }
+
+  private Customer readForm() {
+      Customer c = new Customer();
+      c.setId(c_search.getText().trim());
+      c.setName(c_name.getText().trim());
+      c.setPhone(c_tp.getText().trim());
+      c.setBillingAddress(c_billadd.getText().trim());
+      c.setShippingAddress(c_shipadd.getText().trim());
+      c.setBank(c_bank.getText().trim());
+      c.setCity(c_city.getText().trim());
+      c.setPersonName(cp_name.getText().trim());
+      c.setContactPerson(c_person.getText().trim());
+      c.setPersonPhone(cp_tp.getText().trim());
+      c.setEmail(cp_email.getText().trim());
+      c.setOnline(cp_online.getText().trim());
+      return c;
+  }
+
+  private void writeForm(Customer c) {
+      c_name.setText(c.getName());
+      c_tp.setText(c.getPhone());
+      c_billadd.setText(c.getBillingAddress());
+      c_shipadd.setText(c.getShippingAddress());
+      c_bank.setText(c.getBank());
+      c_city.setText(c.getCity());
+      cp_name.setText(c.getPersonName());
+      c_person.setText(c.getContactPerson());
+      cp_tp.setText(c.getPersonPhone());
+      cp_email.setText(c.getEmail());
+      cp_online.setText(c.getOnline());
+  }
     
  public void serch(){
- 
-     String city = sh_city.getText();
-     String tp = sh_tp.getText();
-     String contact_person = sh_cp.getText();
-     String person_name = sh_pn.getText();
-     
-     
+     PartyFilter filter = new PartyFilter();
+     filter.setCity(sh_city.getText());
+     filter.setPhone(sh_tp.getText());
+     filter.setContactPerson(sh_cp.getText());
+     filter.setPersonName(sh_pn.getText());
      try {
-         
-         DefaultTableModel dtm = (DefaultTableModel) jTable1.getModel();
-         dtm.setRowCount(0);
-         
-         Statement s = ConnectionFactory.getConnection().createStatement();
-         ResultSet rs = s.executeQuery(" SELECT * FROM customer WHERE city LIKE  '%"+ city +"%' AND tp_number LIKE '%"+ tp +"%' AND contact_person LIKE '%"+contact_person+"%' AND person_name LIKE '%"+person_name+"%' ");
-         
-        // You can Use OR or AND
-         
-          while (rs.next()) {              
-              
-              Vector v = new Vector();
-              
-              v.add(rs.getString(1));
-              v.add(rs.getString(2));
-              v.add(rs.getString(3));
-              v.add(rs.getString(4));
-              v.add(rs.getString(5));
-              v.add(rs.getString(6));
-              v.add(rs.getString(7));
-              v.add(rs.getString(8));
-              v.add(rs.getString(9));
-              v.add(rs.getString(10));
-              v.add(rs.getString(11));
-              v.add(rs.getString(12));
-              
-              dtm.addRow(v);
-          }
-         
-         
-     } catch (Exception e) {
-         
+         fillTable(customerService.search(filter));
+     } catch (SQLException e) {
          System.out.println(e);
+         tb_load();
      }
-  
-     
-     
-     
- 
- }   
+ }
     
  public void clearText(){
  
@@ -490,42 +476,11 @@ public class CustomerPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void c_search_tblKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_c_search_tblKeyReleased
-
-        String name = c_search_tbl.getText();
         try {
-
-            DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
-            dt.setRowCount(0);
-            Statement s = ConnectionFactory.getConnection().createStatement();
-
-            ResultSet rs = s.executeQuery("SELECT * FROM customer WHERE customer_name LIKE '%"+name+"%' ");
-
-            while (rs.next()) {
-                Vector v = new Vector();
-
-                v.add(rs.getString(1));
-                v.add(rs.getString(2));
-                v.add(rs.getString(3));
-                v.add(rs.getString(4));
-                v.add(rs.getString(5));
-                v.add(rs.getString(6));
-                v.add(rs.getString(7));
-                v.add(rs.getString(8));
-                v.add(rs.getString(9));
-                v.add(rs.getString(10));
-                v.add(rs.getString(11));
-                v.add(rs.getString(12));
-                
-
-                dt.addRow(v);
-
-            }
-
+            fillTable(customerService.searchByName(c_search_tbl.getText()));
         } catch (Exception e) {
             tb_load();
-
         }
-
     }//GEN-LAST:event_c_search_tblKeyReleased
 
     private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
@@ -595,128 +550,66 @@ public class CustomerPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_sameActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-
-        String name = c_name.getText();
-        String tp = c_tp.getText();
-
-        String bill_add = c_billadd.getText();
-        String shipp_add = c_shipadd.getText();
-        String bank = c_bank.getText();
-        String city = c_city.getText();
-        String person_name = cp_name.getText();
-        String contact_person = c_person.getText();
-        String person_tp = cp_tp.getText();
-        String email = cp_email.getText();
-        String online = cp_online.getText();
-
         try {
-
-            Statement s = ConnectionFactory.getConnection().createStatement();
-            s.executeUpdate(" INSERT INTO customer (customer_name,Tp_Number,billing_address,shipping_address,bank,city,person_name,contact_person,person_tp,email,online) "
-                + "VALUES ('"+name+"','"+tp+"','"+bill_add+"','"+shipp_add+"','"+bank+"','"+city+"','"+person_name+"','"+contact_person+"','"+person_tp+"','"+email+"','"+online+"')");
-
-            JOptionPane.showMessageDialog(null, "Saved");
-
+            customerService.save(readForm());
+            JOptionPane.showMessageDialog(this, "Saved");
+            tb_load();
+            clearText();
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        } catch (SecurityException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
         } catch (SQLException e) {
-
-            System.out.println(e);
-
+            JOptionPane.showMessageDialog(this, "Could not save: " + e.getMessage());
         }
-
-        tb_load();
-        clearText();
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // search btn code
-        String search = c_search.getText();
         try {
-
-            Statement s = ConnectionFactory.getConnection().createStatement();
-
-            ResultSet rs = s.executeQuery(" SELECT * FROM customer WHERE cid = '"+search+"'");
-
-            if (rs.next()) {
-
-                c_name.setText(rs.getString("customer_name"));
-                c_tp.setText(rs.getString("Tp_Number"));
-                c_billadd.setText(rs.getString("billing_address"));
-                c_shipadd.setText(rs.getString("shipping_address"));
-                c_bank.setText(rs.getString("bank"));
-                c_city.setText(rs.getString("city"));
-
-                cp_name.setText(rs.getString("person_name"));
-                c_person.setText(rs.getString("contact_person"));
-                cp_tp.setText(rs.getString("person_tp"));
-                cp_email.setText(rs.getString("email"));
-                cp_online.setText(rs.getString("online"));
-
+            Customer customer = customerService.getById(c_search.getText().trim());
+            if (customer != null) {
+                writeForm(customer);
+            } else {
+                JOptionPane.showMessageDialog(this, "Customer not found.");
             }
-
         } catch (SQLException e) {
-            System.out.println(e);
+            JOptionPane.showMessageDialog(this, "Search failed: " + e.getMessage());
         }
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // update btn code
-
-        String id = c_search.getText();
-
-        String name = c_name.getText();
-        String tp = c_tp.getText();
-
-        String bill_add = c_billadd.getText();
-        String shipp_add = c_shipadd.getText();
-        String bank = c_bank.getText();
-        String city = c_city.getText();
-        String person_name = cp_name.getText();
-        String contact_person = c_person.getText();
-        String person_tp = cp_tp.getText();
-        String email = cp_email.getText();
-        String online = cp_online.getText();
-
         try {
-
-            Statement s = ConnectionFactory.getConnection().createStatement();
-            s.executeUpdate(" UPDATE customer SET customer_name ='"+name+"'"
-                + " ,Tp_Number ='"+tp+"'"
-                + ",billing_address ='"+ bill_add +"'"
-                + ",shipping_address ='"+ shipp_add +"' "
-                + ",bank ='"+ bank +"' "
-                + ",city ='"+ city +"' "
-                + ",person_name ='"+ person_name +"' "
-                + ",contact_person ='"+ contact_person +"' "
-                + ",person_tp ='"+ person_tp +"' "
-                + ",email ='"+ email +"' "
-                + ",online ='"+ online +"' "
-                + " WHERE cid = '"+id+"' ");
-            JOptionPane.showMessageDialog(null, "Updated");
-
-        } catch (HeadlessException | SQLException e) {
-            System.out.println(e);
+            customerService.update(readForm());
+            JOptionPane.showMessageDialog(this, "Updated");
+            tb_load();
+            clearText();
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        } catch (SecurityException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Could not update: " + e.getMessage());
         }
-
-        tb_load();
-        clearText();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        //delete btn code
-
-        String id = c_search.getText();
-        try {
-
-            Statement s = ConnectionFactory.getConnection().createStatement();
-            s.executeUpdate("DELETE FROM customer WHERE cid = '"+id+"'");
-            JOptionPane.showMessageDialog(null, "Deleted");
-
-        } catch (SQLException e) {
-            System.out.println(e);
+        int confirm = JOptionPane.showConfirmDialog(this, "Delete this customer?", "Confirm delete",
+                JOptionPane.YES_NO_OPTION);
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
         }
-
-        tb_load();
-        clearText();
+        try {
+            customerService.delete(c_search.getText());
+            JOptionPane.showMessageDialog(this, "Deleted");
+            tb_load();
+            clearText();
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        } catch (SecurityException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Could not delete: " + e.getMessage());
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void c_bankActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_c_bankActionPerformed

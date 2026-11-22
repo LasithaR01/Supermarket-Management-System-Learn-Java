@@ -46,3 +46,13 @@ jdbc.password=YOUR_PASSWORD_HERE
 
 ### 3. Run
 Open the project in NetBeans and run main class **`cmart.App`**.
+
+On first start the app creates `app_user` / `app_setting` tables and seeds demo logins (passwords stored hashed, not plain text):
+
+| Username | Password | Role |
+|----------|----------|------|
+| `admin` | `admin123` | Full access + Settings |
+| `cashier` | `cashier123` | Sales / invoices / customers |
+| `store` | `store123` | Products / suppliers |
+
+Change these after install (Admin → **Users** in the header: create accounts and change passwords).

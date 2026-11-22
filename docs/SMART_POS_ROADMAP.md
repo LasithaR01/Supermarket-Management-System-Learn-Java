@@ -29,13 +29,13 @@ Goal: turn the current desktop POS into a **fast, easy system** a shop owner can
 ## Phase 1 — Make current modules solid (do first)
 
 1. ~~Move DB password out of `db.java` into a local config file (not committed).~~ Done (`config/db.properties`).
-2. Replace string SQL with `PreparedStatement` everywhere (ProductDao started).
-3. Deduct product stock when a sale is paid.
-4. Block sale if qty is 0 or stock is too low.
-5. Clear validation messages (empty name, bad phone, negative price).
-6. Confirm before Delete / Remove All.
-7. Fix invoice number generation (no race / lost numbers).
-8. Add keyboard shortcuts on Sales (Enter add, F2 pay, Esc clear).
+2. ~~Replace string SQL with `PreparedStatement` everywhere.~~ Done for main modules.
+3. ~~Deduct product stock when a sale is paid.~~
+4. ~~Block sale if qty is 0 or stock is too low.~~
+5. Clear validation messages (empty name, bad phone, negative price) — partial.
+6. ~~Confirm before Delete / Remove All.~~
+7. ~~Fix invoice number generation (no race / lost numbers).~~
+8. ~~Add keyboard shortcuts on Sales (Enter add, F2 pay, Esc clear).~~
 9. Speed: load only needed columns; search with indexes.
 10. One shared “people form” pattern for Customer / Supplier / Employee (less copy-paste).
 
@@ -45,16 +45,16 @@ Goal: turn the current desktop POS into a **fast, easy system** a shop owner can
 
 ## Phase 2 — Smart Sales (core POS)
 
-1. Barcode scan box as the main add-to-cart action.
-2. Product quick search by name / barcode while typing.
-3. Discounts: % or fixed amount per bill / line.
-4. Tax / VAT optional per product or bill.
-5. Multiple pay methods: Cash, Card, Mobile money, Mixed.
-6. Hold bill / recall bill (park a cart, serve next customer).
+1. ~~Barcode scan box as the main add-to-cart action.~~
+2. ~~Product quick search by name / barcode while typing.~~
+3. ~~Discounts: % or fixed amount per bill.~~
+4. ~~Tax / VAT optional per bill~~ (settings `tax.enabled` / `tax.rate.percent`).
+5. ~~Multiple pay methods: Cash, Card, Mobile, Mixed.~~
+6. ~~Hold bill / recall bill.~~
 7. Customer credit / due with payment later.
-8. Receipt reprint from Invoices.
-9. Return / refund module linked to original invoice.
-10. Cashier session: open float, close shift, cash difference.
+8. ~~Receipt reprint from Invoices.~~
+9. ~~Return / refund module linked to original invoice.~~
+10. ~~Cashier session: open float, close shift, cash difference.~~
 
 **Outcome:** Counter feels like a real supermarket till.
 
@@ -63,9 +63,9 @@ Goal: turn the current desktop POS into a **fast, easy system** a shop owner can
 ## Phase 3 — Inventory & purchasing
 
 1. Categories / brands for products.
-2. Low-stock alerts on Home and Products.
-3. Purchase orders from Suppliers.
-4. Goods received → stock increase.
+2. ~~Low-stock alerts on Home~~ (Products list badges later).
+3. ~~Purchase orders from Suppliers.~~
+4. ~~Goods received → stock increase.~~
 5. Stock adjustment (damage, expire, recount).
 6. Expiry date for perishable items (optional).
 7. Multi-unit (piece / pack / box) if needed.
@@ -77,8 +77,8 @@ Goal: turn the current desktop POS into a **fast, easy system** a shop owner can
 
 ## Phase 4 — Business management for the owner
 
-1. Login + roles: Admin, Cashier, Store keeper.
-2. Dashboard: today sales, top products, low stock, dues.
+1. ~~Login + roles: Admin, Cashier, Store keeper.~~ Done (`LoginFrame` + `Role`/`Permission`).
+2. ~~Dashboard: today sales, top products, low stock, dues.~~
 3. Daily / weekly / monthly sales reports.
 4. Profit report (sales − cost − discounts).
 5. Expense module (rent, utilities, wages).
@@ -86,7 +86,7 @@ Goal: turn the current desktop POS into a **fast, easy system** a shop owner can
 7. Supplier payable report.
 8. Employee permissions (who can delete / discount / refund).
 9. Audit log (who changed price / deleted record).
-10. Backup / restore MySQL with one click.
+10. ~~Backup MySQL with one click~~ (`mysqldump`; restore later).
 
 **Outcome:** Owner manages the business without opening Workbench.
 

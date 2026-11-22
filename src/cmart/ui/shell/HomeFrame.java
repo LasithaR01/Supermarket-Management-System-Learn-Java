@@ -1,21 +1,45 @@
 package cmart.ui.shell;
 
+import cmart.config.SettingKeys;
+import cmart.model.AppUser;
+import cmart.model.Product;
+import cmart.security.Permission;
+import cmart.security.SessionContext;
+import cmart.service.AuthService;
+import cmart.service.ProductService;
+import cmart.service.SettingService;
+import cmart.ui.auth.LoginFrame;
 import cmart.ui.customer.CustomerPanel;
+import cmart.ui.dashboard.DashboardPanel;
 import cmart.ui.employee.EmployeePanel;
 import cmart.ui.invoice.InvoicePanel;
 import cmart.ui.product.ProductPanel;
+import cmart.ui.purchase.PurchasePanel;
+import cmart.ui.refund.RefundPanel;
 import cmart.ui.report.ReportsPanel;
 import cmart.ui.sale.SalePanel;
+import cmart.ui.admin.UsersPanel;
+import cmart.ui.settings.SettingsPanel;
+import cmart.ui.shift.ShiftPanel;
 import cmart.ui.supplier.SupplierPanel;
 import cmart.ui.theme.UiTheme;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.SQLException;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -27,10 +51,26 @@ import javax.swing.plaf.basic.BasicButtonUI;
 public class HomeFrame extends javax.swing.JFrame {
 
     PanelLoader jpload = new PanelLoader();
+    private final SettingService settingService = new SettingService();
+    private final AuthService authService = new AuthService();
+    private final ProductService productService = new ProductService();
+    private JButton btnSettings;
+    private JButton btnUsers;
+    private JButton btnLogout;
+    private JButton btnRefund;
+    private JButton btnShift;
+    private JButton btnPurchase;
+    private JButton btnDashboard;
+    private JLabel userLabel;
 
     public HomeFrame() {
+        if (!SessionContext.isSignedIn()) {
+            throw new IllegalStateException("HomeFrame requires a signed-in session");
+        }
         initComponents();
         styleShell();
+        applyBranding();
+        applyRoleAccess();
         setExtendedState(HomeFrame.MAXIMIZED_BOTH);
     }
 
@@ -517,12 +557,8 @@ public class HomeFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_cardReportsActionPerformed
 
     public static void main(String args[]) {
-        UiTheme.install();
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new HomeFrame().setVisible(true);
-            }
-        });
+        // Prefer cmart.App — keeps migrate + login path consistent.
+        cmart.App.main(args);
     }
 
     /**
@@ -546,6 +582,8 @@ public class HomeFrame extends javax.swing.JFrame {
         polishCard(cardEmployee);
         polishCard(cardReports);
 
+        installSessionChrome();
+
         brandPanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         brandPanel.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
@@ -566,6 +604,223 @@ public class HomeFrame extends javax.swing.JFrame {
             buttons[i].addItemListener(navListener);
         }
         refreshNavColors();
+    }
+
+    private void installSessionChrome() {
+        AppUser user = SessionContext.currentUser();
+        userLabel = new JLabel();
+        userLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        userLabel.setForeground(new Color(0xB7E4C7));
+        if (user != null) {
+            userLabel.setText(user.getDisplayName() + " · " + user.getRole().name());
+        }
+
+        btnDashboard = headerOpButton("Dashboard", new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                home_bnt_grp.clearSelection();
+                openDashboard();
+            }
+        });
+        btnRefund = headerOpButton("Returns", new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                home_bnt_grp.clearSelection();
+                openRefund();
+            }
+        });
+        btnShift = headerOpButton("Shift", new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                home_bnt_grp.clearSelection();
+                openShift();
+            }
+        });
+        btnPurchase = headerOpButton("Purchase", new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                home_bnt_grp.clearSelection();
+                openPurchase();
+            }
+        });
+
+        btnSettings = headerOpButton("Settings", new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                home_bnt_grp.clearSelection();
+                openSettings();
+            }
+        });
+
+        btnUsers = headerOpButton("Users", new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                home_bnt_grp.clearSelection();
+                openUsers();
+            }
+        });
+
+        btnLogout = headerOpButton("Sign out", new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                signOut();
+            }
+        });
+
+        JPanel sessionBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 18));
+        sessionBar.setOpaque(false);
+        sessionBar.add(userLabel);
+        sessionBar.add(btnDashboard);
+        sessionBar.add(btnRefund);
+        sessionBar.add(btnShift);
+        sessionBar.add(btnPurchase);
+        sessionBar.add(btnUsers);
+        sessionBar.add(btnSettings);
+        sessionBar.add(btnLogout);
+
+        // Move title + session into LINE_END without fighting the form layout
+        headerPanel.remove(screenTitle);
+        JPanel east = new JPanel(new BorderLayout());
+        east.setOpaque(false);
+        screenTitle.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 12));
+        east.add(screenTitle, BorderLayout.CENTER);
+        east.add(sessionBar, BorderLayout.EAST);
+        headerPanel.add(east, BorderLayout.LINE_END);
+    }
+
+    private void applyBranding() {
+        try {
+            brandLabel.setText(settingService.get(SettingKeys.SHOP_NAME));
+            tagLabel.setText(settingService.get(SettingKeys.SHOP_TAGLINE));
+            setTitle(settingService.get(SettingKeys.SHOP_NAME) + " — Supermarket");
+            lblHello.setText("Hello — " + SessionContext.currentUser().getDisplayName());
+            refreshLowStockHint();
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+    }
+
+    private void refreshLowStockHint() {
+        try {
+            double threshold = settingService.getDouble(SettingKeys.STOCK_LOW_THRESHOLD, 5);
+            java.util.List<Product> low = productService.listLowStock(threshold);
+            if (low.isEmpty()) {
+                lblHint.setText("Pick a card below, or use the menu on the left.");
+            } else {
+                StringBuilder names = new StringBuilder();
+                int max = Math.min(3, low.size());
+                for (int i = 0; i < max; i++) {
+                    if (i > 0) {
+                        names.append(", ");
+                    }
+                    names.append(low.get(i).getName()).append(" (").append(low.get(i).getQty()).append(")");
+                }
+                if (low.size() > max) {
+                    names.append(" +").append(low.size() - max).append(" more");
+                }
+                lblHint.setText("Low stock (≤ " + (long) threshold + "): " + names);
+            }
+        } catch (SQLException e) {
+            lblHint.setText("Pick a card below, or use the menu on the left.");
+        }
+    }
+
+    private void applyRoleAccess() {
+        setModuleVisible(Permission.SALE, jToggleButton5, cardSale);
+        setModuleVisible(Permission.INVOICE, jToggleButton6, cardInvoice);
+        setModuleVisible(Permission.PRODUCT, jToggleButton3, cardProduct);
+        setModuleVisible(Permission.CUSTOMER, jToggleButton1, cardCustomer);
+        setModuleVisible(Permission.SUPPLIER, jToggleButton2, cardSupplier);
+        setModuleVisible(Permission.EMPLOYEE, jToggleButton4, cardEmployee);
+        setModuleVisible(Permission.REPORT, jToggleButton7, cardReports);
+        if (btnDashboard != null) {
+            btnDashboard.setVisible(SessionContext.can(Permission.DASHBOARD));
+        }
+        if (btnRefund != null) {
+            btnRefund.setVisible(SessionContext.can(Permission.REFUND));
+        }
+        if (btnShift != null) {
+            btnShift.setVisible(SessionContext.can(Permission.SHIFT));
+        }
+        if (btnPurchase != null) {
+            btnPurchase.setVisible(SessionContext.can(Permission.PURCHASE));
+        }
+        if (btnSettings != null) {
+            btnSettings.setVisible(SessionContext.can(Permission.SETTINGS));
+        }
+        if (btnUsers != null) {
+            btnUsers.setVisible(SessionContext.can(Permission.USER_ADMIN));
+        }
+    }
+
+    private JButton headerOpButton(String text, ActionListener listener) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        polishButton(button, false);
+        button.setBackground(new Color(0x2D6A4F));
+        button.addActionListener(listener);
+        return button;
+    }
+
+    private void setModuleVisible(Permission permission, JToggleButton nav, JButton card) {
+        boolean allowed = SessionContext.can(permission);
+        nav.setVisible(allowed);
+        if (card != null) {
+            card.setVisible(allowed);
+        }
+    }
+
+    private void openSettings() {
+        if (!SessionContext.can(Permission.SETTINGS)) {
+            JOptionPane.showMessageDialog(this, "You do not have permission to open Settings.");
+            return;
+        }
+        setScreenTitle("Settings");
+        jpload.jPanelLoader(panel_load, new SettingsPanel());
+    }
+
+    private void openUsers() {
+        if (!SessionContext.can(Permission.USER_ADMIN)) {
+            JOptionPane.showMessageDialog(this, "You do not have permission to manage users.");
+            return;
+        }
+        setScreenTitle("Users");
+        jpload.jPanelLoader(panel_load, new UsersPanel());
+    }
+
+    private void openDashboard() {
+        if (!SessionContext.can(Permission.DASHBOARD)) {
+            JOptionPane.showMessageDialog(this, "You do not have permission to open Dashboard.");
+            return;
+        }
+        setScreenTitle("Dashboard");
+        jpload.jPanelLoader(panel_load, new DashboardPanel());
+    }
+
+    private void openRefund() {
+        if (!SessionContext.can(Permission.REFUND)) {
+            JOptionPane.showMessageDialog(this, "You do not have permission for returns.");
+            return;
+        }
+        setScreenTitle("Returns");
+        jpload.jPanelLoader(panel_load, new RefundPanel());
+    }
+
+    private void openShift() {
+        if (!SessionContext.can(Permission.SHIFT)) {
+            JOptionPane.showMessageDialog(this, "You do not have permission for shifts.");
+            return;
+        }
+        setScreenTitle("Shift");
+        jpload.jPanelLoader(panel_load, new ShiftPanel());
+    }
+
+    private void openPurchase() {
+        if (!SessionContext.can(Permission.PURCHASE)) {
+            JOptionPane.showMessageDialog(this, "You do not have permission for purchase orders.");
+            return;
+        }
+        setScreenTitle("Purchase");
+        jpload.jPanelLoader(panel_load, new PurchasePanel());
+    }
+
+    private void signOut() {
+        authService.logout();
+        dispose();
+        new LoginFrame().setVisible(true);
     }
 
     private void polishButton(JButton button, boolean home) {
@@ -601,6 +856,9 @@ public class HomeFrame extends javax.swing.JFrame {
             jToggleButton5, jToggleButton6, jToggleButton7
         };
         for (int i = 0; i < buttons.length; i++) {
+            if (!buttons[i].isVisible()) {
+                continue;
+            }
             if (buttons[i].isSelected()) {
                 buttons[i].setBackground(UiTheme.NAV_ACTIVE);
                 buttons[i].setForeground(Color.WHITE);
@@ -620,6 +878,7 @@ public class HomeFrame extends javax.swing.JFrame {
         home_bnt_grp.clearSelection();
         screenTitle.setText("Home");
         refreshNavColors();
+        refreshLowStockHint();
         panel_load.removeAll();
         panel_load.setLayout(new java.awt.BorderLayout());
         panel_load.add(welcomePanel, java.awt.BorderLayout.CENTER);

@@ -10,15 +10,22 @@ Track progress here while you build. Full feature list lives in [SMART_POS_ROADM
 
 | Module | Package / files | Status | Notes |
 |--------|-----------------|--------|-------|
-| Home shell | `ui/shell/HomeFrame`, `PanelLoader`, `ui/theme/*` | Done | Design = Run (green shell + welcome cards) |
-| Customers | `ui/customer/CustomerPanel` | Needs update | CRUD, search, Jasper reports; SQL still string-built |
-| Suppliers | `ui/supplier/SupplierPanel` | Needs update | Same pattern as customers |
-| Employees | `ui/employee/EmployeePanel` | Needs update | Same pattern; no login yet |
-| Products | `ui/product/ProductPanel` + `dao/ProductDao` | Needs update | Dao/service exist; panel still uses older SQL path |
-| Sales | `ui/sale/SalePanel` + `service/SaleService` | Needs update | Cart, pay & print; no stock deduct / barcode-first flow yet |
-| Invoices | `ui/invoice/InvoicePanel` | Needs update | Filter by invoice / customer / status |
-| Reports | `ui/report/*`, `resources/reports/*` | Needs update | Invoice / all-sales Jasper views |
-| Database | `config` + `db/ConnectionFactory`, `pos.sql` | Needs update | Password in `config/db.properties`; more prepared statements next |
+| Home shell | `ui/shell/HomeFrame`, `PanelLoader`, `ui/theme/*` | Done | Role-filtered nav + Settings / Sign out |
+| Login & roles | `ui/auth/LoginFrame`, `security/*`, `AuthService` | Done | PBKDF2 login; ADMIN / CASHIER / STORE_KEEPER |
+| Settings | `ui/settings/SettingsPanel`, `SettingService` | Done | Shop name, tax, currency, stock policy in DB |
+| Customers | `ui/customer/CustomerPanel` + `CustomerDao` / `CustomerService` | Done | Panel uses service only (PreparedStatement in DAO) |
+| Suppliers | `ui/supplier/SupplierPanel` + `SupplierDao` / `SupplierService` | Done | Same layered pattern as customers |
+| Employees | `ui/employee/EmployeePanel` + `EmployeeDao` / `EmployeeService` | Done | People CRUD; login users are separate (`app_user`) |
+| Products | `ui/product/ProductPanel` + `ProductDao` / `ProductService` | Done | Panel uses service; validation on save/update |
+| Users admin | `ui/admin/UsersPanel` + `UserAdminService` | Done | Create users, change passwords, roles (ADMIN only) |
+| Sales | `ui/sale/SalePanel` + `SaleService` / `SaleDao` | Done | Barcode, discount, live tax, typeahead search, pay method, hold/recall, stock |
+| Invoices | `ui/invoice/InvoicePanel` + `InvoiceService` / `SaleDao` | Done | Filter + reprint receipt (double-click / button) |
+| Returns | `ui/refund/RefundPanel` + `ReturnService` | Done | Load invoice lines → refund qty → restock |
+| Cashier shift | `ui/shift/ShiftPanel` + `ShiftService` | Done | Open float / close with expected vs counted cash |
+| Purchase | `ui/purchase/PurchasePanel` + `PurchaseService` | Done | Create PO + receive goods (stock +) |
+| Dashboard | `ui/dashboard/DashboardPanel` + `DashboardService` / `BackupService` | Done | Sales / dues / low stock / top products + mysqldump backup |
+| Reports | `ui/report/*`, `resources/reports/*` | Needs update | Jasper all-sales / by invoice (still works) |
+| Database | `config` + `SchemaMigrator`, `pos.sql` | Done | Auto-migrate users, settings, held_sale, returns, shifts, PO, tax |
 
 ---
 
@@ -26,10 +33,10 @@ Track progress here while you build. Full feature list lives in [SMART_POS_ROADM
 
 | Phase | Focus | Status |
 |-------|--------|--------|
-| Phase 1 | Harden existing modules (SQL, stock, validation, shortcuts) | Planned |
-| Phase 2 | Smart Sales (barcode, discount, pay methods, hold bill, refund) | Planned |
-| Phase 3 | Inventory & purchasing | Planned |
-| Phase 4 | Owner dashboard, login, profit, backup | Planned |
+| Phase 1 | Harden existing modules (SQL, stock, validation, shortcuts) | Done (core) |
+| Phase 2 | Smart Sales (barcode, discount, pay methods, hold bill, refund) | Done (core) |
+| Phase 3 | Inventory & purchasing | In progress (PO/GRN done) |
+| Phase 4 | Owner dashboard, login, profit, backup | In progress (login + dashboard + backup done) |
 | Phase 5 | Speed & UX polish | Planned |
 | Phase 6 | Smart extras (mobile, multi-store, loyalty) | Planned |
 
@@ -39,15 +46,16 @@ Track progress here while you build. Full feature list lives in [SMART_POS_ROADM
 
 | Module | Phase | Status | Short description |
 |--------|-------|--------|-------------------|
-| Login & roles | 4 | Planned | Admin / Cashier / Store keeper |
-| Dashboard | 4 | Planned | Today sales, low stock, dues |
-| Purchase orders | 3 | Planned | Order from suppliers → receive stock |
+| Login & roles | 4 | Done | Admin / Cashier / Store keeper (hashed passwords) |
+| Settings | 4 | Done | DB-backed shop options |
+| Dashboard | 4 | Done | Recent sales, low stock, dues, top products |
+| Purchase orders | 3 | Done | Order from suppliers → receive stock |
 | Stock adjustment | 3 | Planned | Damage, expire, recount |
-| Returns / refunds | 2 | Planned | Linked to original invoice |
-| Cashier shift | 2 | Planned | Open float / close day |
+| Returns / refunds | 2 | Done | Linked to original invoice |
+| Cashier shift | 2 | Done | Open float / close day |
 | Expenses | 4 | Planned | Rent, utilities, wages |
 | Audit log | 4 | Planned | Who changed what |
-| Backup / restore | 4 | Planned | One-click MySQL backup |
+| Backup / restore | 4 | Done | mysqldump to chosen folder (PATH required) |
 
 ---
 
