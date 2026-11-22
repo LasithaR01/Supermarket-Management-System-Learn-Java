@@ -8,6 +8,15 @@ Format: date · short summary · related docs if useful.
 
 ## 2026-11-22
 
+- Rewrote `docs/MODULES.md` into a full module + sub-module build checklist (Done / Partial / Todo) aligned with current code and roadmap.
+- Still-later pack: returns/refunds, cashier shift open/close, purchase orders + goods received, owner dashboard + mysqldump backup, live tax on till, product typeahead search; header ops wired by permission.
+- Phase 2 till upgrades: barcode scan add, bill discount (Rs/%), pay method, hold/recall (F4), Esc clear, invoice reprint, Home low-stock hint.
+- Invoice panel moved off string SQL onto `InvoiceService` + `SaleDao` filter queries.
+- Customer / Supplier / Employee / Product panels moved off string SQL onto DAO + Service (PreparedStatement).
+- Users admin screen: create accounts, change passwords, update roles — no need to keep demo passwords.
+- Schema migrator expands legacy people tables with missing address/contact columns.
+- Professional security + options layer: login (`LoginFrame`), PBKDF2 passwords, role permissions, DB-backed Settings (`app_setting`), schema auto-migrate.
+- Sales checkout moved to `SaleService.completeSale` + `SaleDao` (PreparedStatement; no string SQL in `SalePanel` pay path).
 - Added team **Activity Log** (`docs/ACTIVITY.md`) with seed history of all prior work + GitHub Action that regenerates it on every push to `main`.
 - Added `docs/COMMIT_GUIDE.md` and `scripts/generate_activity.py`.
 - Synced NetBeans Design and Run for all screens (Home + Products, Sales, Invoices, Reports, Customers, Suppliers, Employees) — forms hold the layout; runtime only applies theme.
