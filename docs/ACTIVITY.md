@@ -29,6 +29,9 @@ Full guide: [COMMIT_GUIDE.md](COMMIT_GUIDE.md)
 
 | When | Who | Type | Module | Note | Source |
 |------|-----|------|--------|------|--------|
+| 2026-11-22 23:54 | Lasitha Ransara | `chore` | `repo` | Merge pull request #18 from LasithaR01/addmodule | git `4b07ec2` |
+| 2026-11-22 23:51 | Lasitha Ransara | `chore` | `repo` | Merge main into addmodule; resolve MODULES and CHANGELOG conflicts. | git `b76113d` |
+| 2026-11-22 23:48 | Lasitha Ransara | `docs` | `general` | Revise MODULES.md into a comprehensive build checklist and update CHANGELOG.md with recent enhancements | git `1626b41` |
 | 2026-11-22 16:58 | Lasitha Ransara | `chore` | `repo` | Merge pull request #17 from LasithaR01/feature | git `ff1d012` |
 | 2026-11-22 16:57 | Lasitha Ransara | `feat` | `database` | Add security and settings tables, and implement DAOs for user and settings management | git `07fd1e2` |
 | 2026-11-22 03:06 | Lasitha Ransara | `chore` | `repo` | Merge pull request #16 from LasithaR01/feature | git `fd2193a` |
