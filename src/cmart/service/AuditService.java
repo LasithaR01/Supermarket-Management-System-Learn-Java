@@ -3,13 +3,14 @@ package cmart.service;
 import cmart.dao.AuditDao;
 import cmart.model.AppUser;
 import cmart.security.Permission;
+import cmart.security.Role;
 import cmart.security.SessionContext;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Security audit trail — login, lockout, password, and role changes.
+ * Security audit trail — login, lockout, password, role, and critical actions.
  */
 public class AuditService {
 
@@ -21,7 +22,12 @@ public class AuditService {
     public static final String PASSWORD_RESET = "PASSWORD_RESET";
     public static final String USER_CREATE = "USER_CREATE";
     public static final String USER_UPDATE = "USER_UPDATE";
+    public static final String USER_UNLOCK = "USER_UNLOCK";
     public static final String RECOVERY_PIN_SET = "RECOVERY_PIN_SET";
+    public static final String PRODUCT_DELETE = "PRODUCT_DELETE";
+    public static final String SALE_DISCOUNT = "SALE_DISCOUNT";
+    public static final String REFUND = "REFUND";
+    public static final String BACKUP = "BACKUP";
 
     private final AuditDao auditDao = new AuditDao();
 
@@ -39,16 +45,23 @@ public class AuditService {
     }
 
     public List<String[]> recentEvents(int limit) throws SQLException {
+        requireAuditViewer();
+        return auditDao.findRecent(limit);
+    }
+
+    public List<String[]> search(String eventType, String usernameContains, int limit) throws SQLException {
+        requireAuditViewer();
+        return auditDao.search(eventType, usernameContains, limit);
+    }
+
+    private void requireAuditViewer() {
         SessionContext.require(Permission.DASHBOARD);
         AppUser user = SessionContext.currentUser();
         if (user == null) {
-            return Collections.emptyList();
+            throw new SecurityException("Sign in required.");
         }
-        // Owner and Super Admin can review; others get empty
-        if (user.getRole() != cmart.security.Role.SUPER_ADMIN
-                && user.getRole() != cmart.security.Role.STORE_OWNER) {
-            return Collections.emptyList();
+        if (user.getRole() != Role.SUPER_ADMIN && user.getRole() != Role.STORE_OWNER) {
+            throw new SecurityException("Audit is for Store Owner / Super Admin only.");
         }
-        return auditDao.findRecent(limit);
     }
 }

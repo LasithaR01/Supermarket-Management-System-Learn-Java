@@ -73,7 +73,10 @@ Use this as the master tick list while building. Phase order and outcomes live i
 | Sign out | Done | Clears session → Login |
 | Users admin (create / password / role) | Done | Owner self-service; cannot manage Super Admin |
 | Role dashboards | Done | Super / Owner / Cashier / Store Keeper views |
-| Security audit log | Done | `security_audit` + Owner/Super dashboard recent events |
+| Security audit log | Done | `security_audit` + filterable Super Admin Monitor |
+| Super Admin system monitor | Done | Health / audit / errors / unlock / backup (`SuperAdminMonitorPanel`) |
+| App error / fault log | Done | `app_error_log` |
+| Backup history | Done | `backup_log` + Monitor tab |
 | Fine-grained action ACL (discount / delete / refund beyond role) | Partial | Role-level only today |
 
 ---

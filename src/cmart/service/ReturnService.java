@@ -47,6 +47,8 @@ public class ReturnService {
         String by = SessionContext.currentUser() == null ? "" : SessionContext.currentUser().getUsername();
         returnDao.insert(inid.trim(), barcode, product.getName(), String.valueOf(qty),
                 String.valueOf(refund), reason == null ? "" : reason.trim(), by);
+        new AuditService().record(AuditService.REFUND, by,
+                "Invoice " + inid.trim() + " barcode " + barcode + " qty " + qty + " amount " + refund);
     }
 
     private void restock(String barcode, double qty) throws SQLException {

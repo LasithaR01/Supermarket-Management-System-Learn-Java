@@ -166,6 +166,29 @@ public final class SchemaMigrator {
                             + "`created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
                             + "PRIMARY KEY (`audit_id`)"
                             + ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
+
+            st.execute(
+                    "CREATE TABLE IF NOT EXISTS `app_error_log` ("
+                            + "`error_id` INT NOT NULL AUTO_INCREMENT,"
+                            + "`level` VARCHAR(20) NOT NULL DEFAULT 'ERROR',"
+                            + "`source` VARCHAR(80) NOT NULL DEFAULT '',"
+                            + "`message` VARCHAR(255) NOT NULL,"
+                            + "`detail` VARCHAR(500) NOT NULL DEFAULT '',"
+                            + "`username` VARCHAR(50) NOT NULL DEFAULT '',"
+                            + "`created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                            + "PRIMARY KEY (`error_id`)"
+                            + ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
+
+            st.execute(
+                    "CREATE TABLE IF NOT EXISTS `backup_log` ("
+                            + "`backup_id` INT NOT NULL AUTO_INCREMENT,"
+                            + "`status` VARCHAR(20) NOT NULL,"
+                            + "`file_path` VARCHAR(255) NOT NULL DEFAULT '',"
+                            + "`message` VARCHAR(255) NOT NULL DEFAULT '',"
+                            + "`created_by` VARCHAR(50) NOT NULL DEFAULT '',"
+                            + "`created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                            + "PRIMARY KEY (`backup_id`)"
+                            + ") ENGINE=InnoDB DEFAULT CHARSET=utf8");
         } finally {
             try {
                 if (st != null) {

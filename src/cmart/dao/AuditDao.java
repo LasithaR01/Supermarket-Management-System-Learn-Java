@@ -27,8 +27,20 @@ public class AuditDao {
     }
 
     public List<String[]> findRecent(int limit) throws SQLException {
-        String sql = "SELECT event_type, username, actor_username, detail, created_at "
-                + "FROM security_audit ORDER BY audit_id DESC LIMIT ?";
+        return search(null, null, limit);
+    }
+
+    public List<String[]> search(String eventType, String usernameContains, int limit) throws SQLException {
+        StringBuilder sql = new StringBuilder(
+                "SELECT created_at, event_type, username, actor_username, detail FROM security_audit WHERE 1=1");
+        if (eventType != null && eventType.trim().length() > 0 && !"ALL".equalsIgnoreCase(eventType.trim())) {
+            sql.append(" AND event_type = ?");
+        }
+        if (usernameContains != null && usernameContains.trim().length() > 0) {
+            sql.append(" AND (username LIKE ? OR actor_username LIKE ?)");
+        }
+        sql.append(" ORDER BY audit_id DESC LIMIT ?");
+
         List<String[]> rows = new ArrayList<String[]>();
         Connection con = ConnectionFactory.getConnection();
         if (con == null) {
@@ -37,8 +49,17 @@ public class AuditDao {
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
-            ps = con.prepareStatement(sql);
-            ps.setInt(1, Math.max(1, limit));
+            ps = con.prepareStatement(sql.toString());
+            int idx = 1;
+            if (eventType != null && eventType.trim().length() > 0 && !"ALL".equalsIgnoreCase(eventType.trim())) {
+                ps.setString(idx++, eventType.trim());
+            }
+            if (usernameContains != null && usernameContains.trim().length() > 0) {
+                String like = "%" + usernameContains.trim() + "%";
+                ps.setString(idx++, like);
+                ps.setString(idx++, like);
+            }
+            ps.setInt(idx, Math.max(1, limit));
             rs = ps.executeQuery();
             while (rs.next()) {
                 rows.add(new String[] {

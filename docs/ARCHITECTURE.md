@@ -27,7 +27,7 @@ project/
 │   │   └── reports/         # Jasper templates (single reports home)
 │   └── ui/
 │       ├── auth/            # LoginFrame
-│       ├── admin/           # UsersPanel
+│       ├── admin/           # UsersPanel, SuperAdminMonitorPanel
 │       ├── settings/        # SettingsPanel
 │       ├── theme/
 │       ├── shell/           # HomeFrame, PanelLoader

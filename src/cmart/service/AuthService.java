@@ -116,8 +116,17 @@ public class AuthService {
         user.setFailedLoginCount(0);
         user.setLockedUntil(null);
         SessionContext.signIn(user);
-        auditService.record(AuditService.LOGIN_OK, userKey, "Signed in as " + user.getRole().name());
+        auditService.record(AuditService.LOGIN_OK, userKey,
+                "Signed in as " + user.getRole().name() + " @ " + workstationName());
         return user;
+    }
+
+    private static String workstationName() {
+        try {
+            return java.net.InetAddress.getLocalHost().getHostName();
+        } catch (Exception e) {
+            return "unknown-pc";
+        }
     }
 
     private void registerFailedLogin(AppUser user) throws SQLException {

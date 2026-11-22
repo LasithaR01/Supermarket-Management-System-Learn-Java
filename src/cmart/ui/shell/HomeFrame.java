@@ -19,6 +19,8 @@ import cmart.ui.purchase.PurchasePanel;
 import cmart.ui.refund.RefundPanel;
 import cmart.ui.report.ReportsPanel;
 import cmart.ui.sale.SalePanel;
+import cmart.security.Role;
+import cmart.ui.admin.SuperAdminMonitorPanel;
 import cmart.ui.admin.UsersPanel;
 import cmart.ui.settings.SettingsPanel;
 import cmart.ui.shift.ShiftPanel;
@@ -797,6 +799,10 @@ public class HomeFrame extends javax.swing.JFrame {
         setModuleVisible(Permission.REPORT, jToggleButton7, cardReports);
         if (btnDashboard != null) {
             btnDashboard.setVisible(SessionContext.can(Permission.DASHBOARD));
+            AppUser u = SessionContext.currentUser();
+            if (u != null && u.getRole() == Role.SUPER_ADMIN) {
+                btnDashboard.setText("Monitor");
+            }
         }
         if (btnRefund != null) {
             btnRefund.setVisible(SessionContext.can(Permission.REFUND));
@@ -853,6 +859,12 @@ public class HomeFrame extends javax.swing.JFrame {
     private void openDashboard() {
         if (!SessionContext.can(Permission.DASHBOARD)) {
             JOptionPane.showMessageDialog(this, "You do not have permission to open Dashboard.");
+            return;
+        }
+        AppUser user = SessionContext.currentUser();
+        if (user != null && user.getRole() == Role.SUPER_ADMIN) {
+            setScreenTitle("System Monitor");
+            jpload.jPanelLoader(panel_load, new SuperAdminMonitorPanel());
             return;
         }
         setScreenTitle("Dashboard");

@@ -57,6 +57,7 @@ public class ProductService {
             throw new IllegalArgumentException("Select a product id to delete.");
         }
         dao.delete(id.trim());
+        new AuditService().record(AuditService.PRODUCT_DELETE, "", "Deleted product id " + id.trim());
     }
 
     public boolean deductStockByBarcode(String barcode, double qty) throws SQLException {

@@ -128,6 +128,12 @@ public class SaleService {
         sale.setTaxAmount(String.valueOf(request.getTaxAmount()));
         saleDao.insertSale(sale);
 
+        if (request.getDiscountAmount() > 0) {
+            String by = SessionContext.currentUser() == null ? "" : SessionContext.currentUser().getUsername();
+            new AuditService().record(AuditService.SALE_DISCOUNT, by,
+                    "Invoice " + invoiceId + " discount " + request.getDiscountAmount());
+        }
+
         return invoiceId;
     }
 
