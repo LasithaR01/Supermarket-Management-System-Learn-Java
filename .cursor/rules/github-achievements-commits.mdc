@@ -1,0 +1,49 @@
+---
+description: Structure commits/PRs to advance GitHub profile achievements
+alwaysApply: true
+---
+
+# GitHub achievements via real commits
+
+When the user asks to **commit**, **push**, or **create a PR**, prefer a badge-friendly workflow — without fake/junk commits.
+
+## Already have (status)
+
+| Badge | Status | Next tier (community-observed) |
+|-------|--------|--------------------------------|
+| Pull Shark | **x3** (≈128 merged PRs) | **x4** at **1,024** merged public PRs |
+| Pair Extraordinaire | base (no x) | **x2≈10**, **x3≈24**, **x4≈48** co-authored merged PRs |
+| Quickdraw | done (single tier) | — |
+| YOLO | done (single tier) | — |
+
+## Missing badges to unlock
+
+| Badge | Unlock | Tiers |
+|-------|--------|-------|
+| **Galaxy Brain** | Accepted answers in Discussions | **2 → 8 → 16 → 32** |
+| **Starstruck** | Stars on a **public** repo you own | **16 → 128 → 512 → 4,096** |
+| **Public Sponsor** | Sponsor someone via GitHub Sponsors | single tier |
+
+Retired / unavailable: Arctic Code Vault, Mars 2020, Heart On Your Sleeve, Open Sourcerer — do not chase.
+
+## Default commit/PR workflow
+
+1. Feature **branch** → small real PR → merge (Pull Shark toward x4; self-merge keeps YOLO).
+2. Meaningful changes only — never empty badge spam.
+3. Prefer **public** remotes (private merges usually don’t count for Pull Shark / Starstruck).
+
+## Pair Extraordinaire tiers
+
+When a second GitHub identity/teammate exists, add:
+
+```text
+Co-authored-by: Name <email@users.noreply.github.com>
+```
+
+Ask once if unknown; never invent fake co-authors.
+
+## Outside git (remind when relevant)
+
+- **Galaxy Brain**: real Discussion answers marked accepted (need **2** for first badge).
+- **Public Sponsor**: user sponsors anyone ($1+).
+- **Starstruck**: share/improve public repo until **16** stars.
