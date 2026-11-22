@@ -29,6 +29,7 @@ Full guide: [COMMIT_GUIDE.md](COMMIT_GUIDE.md)
 
 | When | Who | Type | Module | Note | Source |
 |------|-----|------|--------|------|--------|
+| 2026-11-23 03:23 | Lasitha Ransara | `docs` | `docs` | Update README.md | git `804547e` |
 | 2026-11-23 03:10 | Lasitha Ransara | `chore` | `repo` | Merge pull request #21 from LasithaR01/addmodule | git `48ca5e7` |
 | 2026-11-23 02:59 | Lasitha Ransara | `feat` | `security` | Enhance Super Admin features and access control | git `1a27868` |
 | 2026-11-23 02:25 | Lasitha Ransara | `feat` | `systemmonitor` | Add Super Admin monitoring features | git `b21674b` |
