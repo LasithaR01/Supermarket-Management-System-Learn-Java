@@ -6,7 +6,9 @@ import cmart.model.Supplier;
 import cmart.service.ProductService;
 import cmart.service.PurchaseService;
 import cmart.service.SupplierService;
+import cmart.ui.NonNegativeNumberFilter;
 import cmart.ui.theme.UiTheme;
+import cmart.util.Validation;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -97,6 +99,7 @@ public class PurchasePanel extends JPanel {
         center.add(new JScrollPane(ordersTable));
         add(create, BorderLayout.WEST);
         add(center, BorderLayout.CENTER);
+        NonNegativeNumberFilter.install(qtyField);
         loadLookups();
         reloadOrders();
     }
@@ -135,7 +138,13 @@ public class PurchasePanel extends JPanel {
         if (match == null) {
             return;
         }
-        linesModel.addRow(new Object[] { match.getName(), match.getBarcode(), qtyField.getText().trim(), match.getPrice() });
+        String qty = qtyField.getText() == null ? "" : qtyField.getText().trim();
+        if (!Validation.isPositiveNumber(qty)) {
+            JOptionPane.showMessageDialog(this, "Quantity must be greater than zero.");
+            qtyField.requestFocus();
+            return;
+        }
+        linesModel.addRow(new Object[] { match.getName(), match.getBarcode(), qty, match.getPrice() });
     }
 
     private void createPo() {

@@ -6,6 +6,7 @@
 package cmart.ui.product;
 
 
+import cmart.ui.NonNegativeNumberFilter;
 import cmart.ui.theme.UiTheme;
 
 import cmart.model.Product;
@@ -31,6 +32,7 @@ public class ProductPanel extends javax.swing.JPanel {
      */
     public ProductPanel() {
         initComponents();
+        NonNegativeNumberFilter.install(p_qty);
         tb_load();
         stylePanel();
     }
@@ -70,11 +72,19 @@ public class ProductPanel extends javax.swing.JPanel {
       return p;
   }
 
+  private static String nonNegativeQty(String qty) {
+      String value = qty == null ? "" : qty.trim();
+      if (NonNegativeNumberFilter.isNonNegativeNumber(value)) {
+          return value;
+      }
+      return "0";
+  }
+
   private void writeForm(Product p) {
       p_name.setText(p.getName());
       p_bcode.setText(p.getBarcode());
       p_price.setText(p.getPrice());
-      p_qty.setText(p.getQty());
+      p_qty.setText(nonNegativeQty(p.getQty()));
       p_sid.setText(p.getSupplierId());
   }
 
@@ -326,7 +336,7 @@ public class ProductPanel extends javax.swing.JPanel {
         p_name.setText(name);
         p_bcode.setText(bcode);
         p_price.setText(price);
-        p_qty.setText(qty);
+        p_qty.setText(nonNegativeQty(qty));
         p_sid.setText(sid);
         
     }//GEN-LAST:event_jTable1MouseClicked

@@ -1,6 +1,7 @@
 package cmart.ui.refund;
 
 import cmart.service.ReturnService;
+import cmart.ui.NonNegativeNumberFilter;
 import cmart.ui.theme.UiTheme;
 import java.awt.BorderLayout;
 import java.awt.Font;
@@ -70,6 +71,7 @@ public class RefundPanel extends JPanel {
         north.add(title, BorderLayout.NORTH);
         north.add(top, BorderLayout.CENTER);
         add(north, BorderLayout.NORTH);
+        NonNegativeNumberFilter.install(qtyField);
         table.setRowHeight(30);
         add(new JScrollPane(table), BorderLayout.CENTER);
     }

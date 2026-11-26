@@ -5,6 +5,7 @@
  */
 package cmart.ui.sale;
 
+import cmart.ui.NonNegativeNumberFilter;
 import cmart.ui.report.ReportView;
 
 
@@ -74,6 +75,7 @@ public class SalePanel extends javax.swing.JPanel {
     
     public SalePanel() {
         initComponents();
+        NonNegativeNumberFilter.install(p_qty);
        data_load();
        installTillExtras();
        stylePanel();
@@ -107,8 +109,17 @@ public class SalePanel extends javax.swing.JPanel {
  
   // product calculation
         try {
-            Double qt = Double.valueOf(p_qty.getText().trim());
-            Double price = Double.valueOf(u_price.getText().trim());
+            String qtyText = p_qty.getText() == null ? "" : p_qty.getText().trim();
+            if (qtyText.isEmpty() || ".".equals(qtyText)) {
+                tot_price.setText("0.00");
+                return;
+            }
+            double qt = Double.parseDouble(qtyText);
+            if (qt < 0) {
+                tot_price.setText("0.00");
+                return;
+            }
+            double price = Double.parseDouble(u_price.getText().trim());
             tot_price.setText(String.valueOf(qt * price));
         } catch (NumberFormatException e) {
             tot_price.setText("0.00");
@@ -631,7 +642,11 @@ public class SalePanel extends javax.swing.JPanel {
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {},
             new String [] { "Invoice No", "Product", "Barcode", "Qty", "Unit Price", "Total" }
-        ));
+        ) {
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        });
         jTable1.setRowHeight(32);
         jScrollPane1.setViewportView(jTable1);
         cartPanel.add(jScrollPane1, java.awt.BorderLayout.CENTER);
@@ -754,6 +769,18 @@ public class SalePanel extends javax.swing.JPanel {
             qty = Double.parseDouble(qtyText);
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Enter a valid quantity.");
+            p_qty.requestFocus();
+            return;
+        }
+        if (qty < 0) {
+            JOptionPane.showMessageDialog(this, "Quantity can't be negative.");
+            p_qty.setText("1");
+            pro_tot_cal();
+            p_qty.requestFocus();
+            return;
+        }
+        if (qty == 0) {
+            JOptionPane.showMessageDialog(this, "Quantity must be greater than zero.");
             p_qty.requestFocus();
             return;
         }
