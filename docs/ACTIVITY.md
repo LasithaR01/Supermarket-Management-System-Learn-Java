@@ -29,6 +29,8 @@ Full guide: [COMMIT_GUIDE.md](COMMIT_GUIDE.md)
 
 | When | Who | Type | Module | Note | Source |
 |------|-----|------|--------|------|--------|
+| 2026-11-26 23:10 | Lasitha Ransara | `chore` | `repo` | Merge pull request #23 from LasithaR01/bugfix | git `cefc810` |
+| 2026-11-26 23:09 | Lasitha Ransara | `feat` | `ui` | Add NonNegativeNumberFilter to prevent negative input in quantity fields | git `4cae0d9` |
 | 2026-11-23 03:43 | Lasitha Ransara | `chore` | `repo` | Merge pull request #22 from LasithaR01/addmodule | git `79b78ab` |
 | 2026-11-23 03:42 | Lasitha Ransara | `feat` | `github` | Add guidelines for achieving GitHub profile badges through structured commits and PRs | git `94c7241` |
 | 2026-11-23 03:23 | Lasitha Ransara | `docs` | `docs` | Update README.md | git `804547e` |
