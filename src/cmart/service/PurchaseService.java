@@ -23,6 +23,9 @@ public class PurchaseService {
         String by = SessionContext.currentUser() == null ? "" : SessionContext.currentUser().getUsername();
         int poId = purchaseDao.insertOrder(supplierId == null ? "" : supplierId, supplierName.trim(), by);
         for (CartItem line : lines) {
+            if (!Validation.isPositiveNumber(line.getQty())) {
+                throw new IllegalArgumentException("Quantity must be greater than zero.");
+            }
             purchaseDao.insertLine(poId, line.getBarcode(), line.getProductName(), line.getQty(),
                     line.getUnitPrice() == null ? "0" : line.getUnitPrice());
         }
@@ -47,6 +50,9 @@ public class PurchaseService {
         }
         for (Object[] line : lines) {
             double qty = Double.parseDouble(String.valueOf(line[2]));
+            if (qty <= 0) {
+                throw new IllegalArgumentException("Quantity must be greater than zero.");
+            }
             purchaseDao.increaseStockByBarcode(String.valueOf(line[0]), qty);
         }
         purchaseDao.markReceived(poId);

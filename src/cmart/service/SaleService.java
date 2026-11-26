@@ -38,7 +38,10 @@ public class SaleService {
      * @return error message, or null if the line qty is allowed
      */
     public String validateSaleQty(String barcode, double requestQty, double alreadyInCart) throws SQLException {
-        if (requestQty <= 0) {
+        if (requestQty < 0) {
+            return "Quantity can't be negative.";
+        }
+        if (requestQty == 0) {
             return "Quantity must be greater than zero.";
         }
         if (barcode == null || barcode.trim().isEmpty() || "-".equals(barcode.trim())) {
